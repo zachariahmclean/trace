@@ -8,13 +8,11 @@ format: html
 ```{r}
 library(trace)
 
-#TOODO fix this whole thing
-
 ```
 
 # About this file
 
-Welcome to the template file. To use this document, you need to fill out the section in the inputs and step through each code section adjusting function parameters as needed. This pipeline assumes full use of the optional functionality from the metadata of correcting repeat length using size standard samples (separate from internal ladder) and grouping samples for index peak assignment. If not using that functionality, pay attention to `repeat_length_correction` in `call_repeats()` and `grouped` in `assign_index_peaks()`, respectively. Once you're satisfied that pipeline is good to go, you can render to generate a report.
+Welcome to the template file. To use this document, you need to fill out the section in the inputs and step through each code section adjusting function parameters as needed. This pipeline assumes full use of the optional functionality from the metadata of batch correction using common samples across fragment analysis runs and grouping samples for index peak assignment. If not using that functionality, pay attention to `batch_correction` in `call_repeats()` and `grouped` in `assign_index_peaks()`, respectively. Once you're satisfied that pipeline is good to go, you can render to generate a report.
 
 In each code chuck, access the help file for more information on how to use it (eg type ?find_ladders into the console).
 
@@ -31,10 +29,6 @@ This document is a quarto file, which is a mix of written text and code that can
 ## folder where fsa files live. If they are across several folders, point to the upper directory and use option recursive in list.files
 fsa_folder <- ""
 fsa_file_list = list.files(fsa_folder, full.names = TRUE, pattern = ".fsa")
-fsa_raw <- read_fsa(
-  fsa_file_list,
-  ladder_channel = "DATA.105",
-  signal_channel = "DATA.1")
 
 ## import metadata file. You may need to change the function below to read in your type of file. eg readxl::read_excel() for excel file
 metadata <- read.csv("")
@@ -49,13 +43,13 @@ metadata <- read.csv("")
 ## (eg replace metadata$unique_id with the appropriate column in your file giving the unique id (eg "sample_file_name")), see ?add_metadata for all the metadata info
 metadata$unique_id <- metadata$unique_id
 
-# metadata for repeat calling
-metadata$batch_run_id <- metadata$batch_run_id
-
-#metadata for sample grouping
+#metadata for sample grouping during instability calculations
 metadata$metrics_group_id <- metadata$metrics_group_id
 metadata$metrics_baseline_control <- metadata$metrics_baseline_control
 
+# metadata for batch correction
+metadata$batch_run_id <- metadata$batch_run_id
+metadata$batch_sample_id <- metadata$batch_sample_id
 
 
 # for exporting traces we can give the samples a useful identifying name for a subtitle
@@ -71,6 +65,24 @@ metadata$sample_name <- paste(
 
 ```
 
+# read in fsa files
+
+```{r}
+fsa_raw <- read_fsa(
+  fsa_file_list,
+  ladder_channel = "DATA.105",
+  signal_channel = "DATA.1")
+
+```
+
+
+
+```{r}
+plot_data_channels(fsa_raw[1])
+
+```
+
+
 # Assign Ladders
 
 ```{r Assign Ladders}
@@ -80,7 +92,7 @@ ladder_sizes <- c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450,
 
 ladder_list <- find_ladders(
   # main parameters to set, see help documentation for more info
-  fsa_list = fsa_raw,
+  fragments_trace = fsa_raw,
   ladder_sizes = ladder_sizes,
   # advanced parameters for fine tuning
   spike_location = NULL,
@@ -118,11 +130,10 @@ metadata_added_list <- add_metadata(
   fragments_list = peak_list,
   metadata_data.frame = metadata,
   unique_id = "unique_id",
-  batch_run_id = "batch_run_id",
   metrics_group_id = "metrics_group_id",
   metrics_baseline_control = "metrics_baseline_control",
-  size_standard = "size_standard",
-  size_standard_repeat_length = "size_standard_repeat_length"
+  batch_run_id = "batch_run_id",
+  batch_sample_id = "batch_sample_id"
  )
 
 ```
@@ -148,7 +159,7 @@ repeats_list <- call_repeats(
   assay_size_without_repeat = 87,
   repeat_size = 3,
   force_whole_repeat_units = TRUE,
-  repeat_length_correction = "from_metadata",
+  batch_correction = TRUE,
   # advanced parameters for fine tuning
   repeat_calling_algorithm = "simple",
   repeat_calling_algorithm_size_window_around_allele = repeat_size * 5,
