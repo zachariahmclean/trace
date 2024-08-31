@@ -6,6 +6,8 @@
 \usage{
 find_ladders(
   fragments_trace,
+  ladder_channel = "DATA.105",
+  signal_channel = "DATA.1",
   ladder_sizes = c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490,
     500),
   spike_location = NULL,
@@ -20,6 +22,12 @@ find_ladders(
 }
 \arguments{
 \item{fragments_trace}{list from 'read_fsa' function}
+
+\item{ladder_channel}{string: which channel in the fsa file contains the
+ladder signal}
+
+\item{signal_channel}{string: which channel in the fsa file contains the data
+signal}
 
 \item{ladder_sizes}{numeric vector: bp sizes of ladder used in fragment analysis.
 defaults to GeneScan™ 500 LIZ™}

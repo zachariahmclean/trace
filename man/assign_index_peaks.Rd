@@ -33,12 +33,9 @@ A key part of several instability metrics is the index peak. This is the repeat
 length used as the reference peak for relative instability metrics calculations, like expansion index or average repeat gain.
 For example, this is the the inherited repeat length of a mouse, or the modal repeat length for the cell line at a starting time point.
 
-If \code{grouped} is set to \code{TRUE}, this function groups the samples by their metrics_group_id and uses the samples set as
-metrics_baseline_control to set the index peak. Use \code{link{add_metadata()}}
-to set these variables.
+If \code{grouped} is set to \code{TRUE}, this function groups the samples by their metrics_group_id and uses the samples set as metrics_baseline_control to set the index peak. Use \code{link{add_metadata()}} to set these variables. For mice, if just a few samples have the inherited repeat height shorter than the expanded population, you could not worry about this and instead use the \code{index_override_dataframe}. This can be used to manually override these assigned index repeat values (irrespective of whether \code{grouped} is TRUE or FALSE).
 
-\code{index_override_dataframe} can be used to manually override these assigned index
-repeat values (irrespective of whether \code{grouped} is TRUE or FALSE).
+As a final option, the index peak could be manually assigned directly to a \code{link{fragments_repeats}} using the internal setter function \code{link{fragments_repeats$set_index_peak()}}.
 }
 \examples{
 

@@ -48,14 +48,14 @@ print_helper <- function(fragment,
         next
       }
       class_value <- class(value)
-  
+
       cat(sprintf("\033[1m%-30s\033[0m", name))
-  
+
       if (is.null(value)) {
         cat("NULL\n")
       } else if (is.numeric(value)) {
         cat(format(value), "\n")
-      } 
+      }
     }
   }
 
@@ -168,7 +168,7 @@ remove_fragments <- function(
 #' }
 #'
 #'
-generate_instability_template <- function(
+generate_trace_template <- function(
   file_name = NULL,
   batch_correction = TRUE,
   samples_grouped = TRUE) {

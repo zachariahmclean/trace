@@ -35,7 +35,7 @@ fragments <- R6::R6Class("fragments",
     #' A function to print informative information to the console
     print = function() {
       print_helper(self,
-        sample_attrs = c("unique_id", "batch_run_id", "metrics_group_id", "metrics_baseline_control", "size_standard", "batch_sample_id", "size_standard_repeat_length")
+        sample_attrs = c("unique_id",  "metrics_group_id", "metrics_baseline_control","batch_run_id", "batch_sample_id")
       )
     },
     #' @description
@@ -115,21 +115,13 @@ fragments_trace <- R6::R6Class(
     #' Create a new fragments_trace.
     #' @param unique_id usually the file name
     #' @param fsa_file output from seqinr::read.abif()
-    #' @param ladder_channel the name of the channel in the fsa file that contains the ladder data
-    #' @param signal_channel the name of the channel in the fsa file that contains the trace data
     #' @return A new `fragments_trace` object.
     initialize = function(
       unique_id, 
-      fsa_file,
-      ladder_channel,
-      signal_channel) {
+      fsa_file) {
         if (length(unique_id) != 1) stop("Fragments must have a single unique id", call. = FALSE)
         self$unique_id <- unique_id
         self$fsa <- fsa_file
-        self$raw_ladder <- self$fsa$Data[[ladder_channel]]
-        self$raw_data <- self$fsa$Data[[signal_channel]]
-        self$scan <- 0:(length(self$fsa$Data[[signal_channel]]) - 1)
-        self$off_scale_scans <- self$fsa$Data$OfSc.1
     },
     #' @description
     #' plot the ladder data

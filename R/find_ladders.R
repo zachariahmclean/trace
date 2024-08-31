@@ -414,6 +414,10 @@ ladder_self_mod_predict <- function(fragments_trace,
 #' Find the ladder peaks in and use that to call bp size
 #'
 #' @param fragments_trace list from 'read_fsa' function
+#' @param ladder_channel string: which channel in the fsa file contains the
+#'        ladder signal
+#' @param signal_channel string: which channel in the fsa file contains the data
+#'        signal
 #' @param ladder_sizes numeric vector: bp sizes of ladder used in fragment analysis.
 #'        defaults to GeneScan™ 500 LIZ™
 #' @param spike_location numeric: indicate the scan number to start looking for
@@ -468,6 +472,8 @@ ladder_self_mod_predict <- function(fragments_trace,
 #'
 find_ladders <- function(
     fragments_trace,
+    ladder_channel = "DATA.105",
+    signal_channel = "DATA.1",
     ladder_sizes = c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
     spike_location = NULL,
     minimum_peak_signal = NULL,
@@ -530,6 +536,13 @@ find_ladders <- function(
     if (show_progress_bar) {
       pb <- utils::txtProgressBar(min = 0, max = length(fragments_trace), style = 3)
     }
+
+    # populate the ladder and data channels with the supplied channel name
+
+    fragments_trace[[i]]$raw_ladder <- fragments_trace[[i]]$fsa$Data[[ladder_channel]]
+    fragments_trace[[i]]$raw_data <- fragments_trace[[i]]$fsa$Data[[signal_channel]]
+    fragments_trace[[i]]$scan <- 0:(length(fragments_trace[[i]]$fsa$Data[[signal_channel]]) - 1)
+    fragments_trace[[i]]$off_scale_scans <- fragments_trace[[i]]$fsa$Data$OfSc.1
 
     # make sure that the scan window is at least same length as length of size standards
     if (ladder_selection_window > length(ladder_sizes)) {

@@ -279,7 +279,7 @@ size_period_repeat_caller <- function(fragments_repeat,
 # find_size_batch_correction_factor
 
 find_batch_correction_factor <- function(fragments_list, trace_window_size = 50, smoothing_window = 301){
-  # make df for all samples of plate id, size_standard sample id
+  # make df for all samples of plate id, batch sample id
   metadata_list <- lapply(fragments_list, function(x){
     df <- data.frame(
       unique_id = x$unique_id,

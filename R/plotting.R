@@ -497,22 +497,22 @@ plot_fragments <- function(
 #'   repeat_calling_algorithm = "simple",
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3,
-#'   repeat_length_correction = "from_metadata"
+#'   batch_correction = TRUE
 #' )
 #'
 #' # traces of bp size shows traces at different sizes
-#' plot_size_standard_samples(test_repeats_corrected,
+#' plot_batch_correction_samples(test_repeats_corrected,
 #'   x_axis = "size",
 #'   sample_subset = "S-21-212", xlim = c(400, 450)
 #' )
 #'
 #' # overlapping traces when looking at the corrected repeat length
-#' plot_size_standard_samples(test_repeats_corrected,
+#' plot_batch_correction_samples(test_repeats_corrected,
 #'   x_axis = "repeats",
 #'   sample_subset = "S-21-212", xlim = c(100, 130)
 #' )
 #'
-plot_size_standard_samples <- function(
+plot_batch_correction_samples <- function(
   fragments_list,
   sample_subset = NULL,
   x_axis = "size",

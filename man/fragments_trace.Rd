@@ -60,7 +60,7 @@ It also contains methods for plotting the ladder and traces
 \subsection{Method \code{new()}}{
 Create a new fragments_trace.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{fragments_trace$new(unique_id, fsa_file, ladder_channel, signal_channel)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{fragments_trace$new(unique_id, fsa_file)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -69,10 +69,6 @@ Create a new fragments_trace.
 \item{\code{unique_id}}{usually the file name}
 
 \item{\code{fsa_file}}{output from seqinr::read.abif()}
-
-\item{\code{ladder_channel}}{the name of the channel in the fsa file that contains the ladder data}
-
-\item{\code{signal_channel}}{the name of the channel in the fsa file that contains the trace data}
 }
 \if{html}{\out{</div>}}
 }

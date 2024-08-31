@@ -71,7 +71,7 @@ test_that("index assignment", {
 
 
   # plot_fragments(test_repeats[1:4])
-  # plot_size_standard_model(test_repeats)
+
 
   suppressMessages(
     suppressWarnings(

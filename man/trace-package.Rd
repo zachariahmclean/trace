@@ -8,6 +8,13 @@
 \description{
 The goal of package is to provide a pipeline for short tandem repeat instability analysis from fragment analysis data. This package takes inputs of fsa files or peak tables (eg Genemapper5 software output), and a user supplied metadata data-frame. The package identifies ladders, calls peaks, identifies the modal peaks, calls repeats, then calculates repeat instability metrics (ie expansion index or average repeat gain).
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://zachariahmclean.github.io/trace/}
+}
+
+}
 \author{
 \strong{Maintainer}: Zachariah McLean \email{zachariah.louis.mclean@gmail.com} (\href{https://orcid.org/0000-0002-0968-0538}{ORCID})
 

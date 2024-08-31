@@ -68,10 +68,7 @@ metadata$sample_name <- paste(
 # read in fsa files
 
 ```{r}
-fsa_raw <- read_fsa(
-  fsa_file_list,
-  ladder_channel = "DATA.105",
-  signal_channel = "DATA.1")
+fsa_raw <- read_fsa(fsa_file_list)
 
 ```
 
@@ -93,6 +90,8 @@ ladder_sizes <- c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450,
 ladder_list <- find_ladders(
   # main parameters to set, see help documentation for more info
   fragments_trace = fsa_raw,
+  ladder_channel = "DATA.105",
+  signal_channel = "DATA.1",
   ladder_sizes = ladder_sizes,
   # advanced parameters for fine tuning
   spike_location = NULL,

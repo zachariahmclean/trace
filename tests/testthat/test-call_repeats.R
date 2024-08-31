@@ -263,7 +263,7 @@ testthat::test_that("full pipline repeat size algo", {
 
 
   # plot_fragments(test_repeats[1:4])
-  # plot_size_standard_model(test_repeats)
+
 
   suppressMessages(
     suppressWarnings(
@@ -381,9 +381,9 @@ testthat::test_that("size standards with ids", {
 
   testthat::expect_true(all(sapply(allele_list, function(x) x$.__enclos_env__$private$batch_correction_factor) == c(0:9, 0:9)))
   
-  # plot_size_standard_samples(repeats_list, x_axis = "size", xlim = c(400, 470), n_facet_col = 2)
-  # plot_size_standard_samples(repeats_list, x_axis = "repeats", xlim = c(100, 130), n_facet_col = 2)
-  # plot_size_standard_samples(repeats_list, x_axis = "repeats", xlim = c(100, 130), n_facet_col = 1, sample_subset = "S-21-211")
+  # plot_batch_correction_samples(repeats_list, x_axis = "size", xlim = c(400, 470), n_facet_col = 2)
+  # plot_batch_correction_samples(repeats_list, x_axis = "repeats", xlim = c(100, 130), n_facet_col = 2)
+  # plot_batch_correction_samples(repeats_list, x_axis = "repeats", xlim = c(100, 130), n_facet_col = 1, sample_subset = "S-21-211")
 
 
 })
