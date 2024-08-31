@@ -1,0 +1,316 @@
+---
+title: "Instability pipeline"
+format: html
+---
+
+# Setup
+
+```{r}
+library(trace)
+
+```
+
+# About this file
+
+Welcome to the template file. To use this document, you need to fill out the section in the inputs and step through each code section adjusting function parameters as needed. This pipeline assumes full use of the optional functionality from the metadata of batch correction using common samples across fragment analysis runs and grouping samples for index peak assignment. If not using that functionality, pay attention to `batch_correction` in `call_repeats()` and `grouped` in `assign_index_peaks()`, respectively. Once you're satisfied that pipeline is good to go, you can render to generate a report.
+
+In each code chuck, access the help file for more information on how to use it (eg type ?find_ladders into the console).
+
+This document is a quarto file, which is a mix of written text and code that can be rendered to produce a report. See the following links below for more info and how it works.
+
+-   https://quarto.org/
+-   https://r4ds.hadley.nz/quarto
+
+# Inputs
+
+```{r inputs}
+
+#fill out these paths
+## folder where fsa files live. If they are across several folders, point to the upper directory and use option recursive in list.files
+fsa_folder <- ""
+fsa_file_list = list.files(fsa_folder, full.names = TRUE, pattern = ".fsa")
+
+## import metadata file. You may need to change the function below to read in your type of file. eg readxl::read_excel() for excel file
+metadata <- read.csv("")
+
+# or uncomment out the lines below to run an example
+## note: to make this example render without errors, comment out the inputs above in this chunk
+# fsa_raw <- trace::cell_line_fsa_list
+# metadata <- trace::metadata
+
+
+#Provide the appropriate metadata below by replacing the placeholders 
+## (eg replace metadata$unique_id with the appropriate column in your file giving the unique id (eg "sample_file_name")), see ?add_metadata for all the metadata info
+metadata$unique_id <- metadata$unique_id
+
+#metadata for sample grouping during instability calculations
+metadata$metrics_group_id <- metadata$metrics_group_id
+metadata$metrics_baseline_control <- metadata$metrics_baseline_control
+
+# metadata for batch correction
+metadata$batch_run_id <- metadata$batch_run_id
+metadata$batch_sample_id <- metadata$batch_sample_id
+
+
+# for exporting traces we can give the samples a useful identifying name for a subtitle
+#add more lines like the ones commented out to give informative titles from your own metadata
+metadata$sample_name <- paste(
+  metadata$metrics_group_id, 
+  # metadata$day,
+  # metadata$treatment, 
+  # metadata$genotype, 
+  sep = ", ")
+
+
+
+```
+
+# read in fsa files
+
+```{r}
+fsa_raw <- read_fsa(fsa_file_list)
+
+```
+
+
+
+```{r}
+plot_data_channels(fsa_raw[1])
+
+```
+
+
+# Assign Ladders
+
+```{r Assign Ladders}
+
+
+ladder_sizes <- c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500)
+
+ladder_list <- find_ladders(
+  # main parameters to set, see help documentation for more info
+  fragments_trace = fsa_raw,
+  ladder_channel = "DATA.105",
+  signal_channel = "DATA.1",
+  ladder_sizes = ladder_sizes,
+  # advanced parameters for fine tuning
+  spike_location = NULL,
+  minimum_peak_signal = NULL,
+  zero_floor = FALSE,
+  scan_subset = NULL,
+  ladder_selection_window = 5,
+  max_combinations = 2500000,
+  smoothing_window = 21,
+  show_progress_bar = FALSE)
+
+
+```
+
+# Find peaks
+
+```{r Find peaks}
+peak_list <- find_fragments(
+  # main parameters to set, see help documentation for more info
+  fragments_trace_list = ladder_list,
+  min_bp_size = 300,
+  # advanced parameters for fine tuning
+  max_bp_size = 1000,
+  smoothing_window = 21,
+  minimum_peak_signal = 20,
+)
+```
+
+# Add metadata
+
+```{r Add metadata}
+
+metadata_added_list <- add_metadata(
+  # main parameters to set, see help documentation for more info
+  fragments_list = peak_list,
+  metadata_data.frame = metadata,
+  unique_id = "unique_id",
+  metrics_group_id = "metrics_group_id",
+  metrics_baseline_control = "metrics_baseline_control",
+  batch_run_id = "batch_run_id",
+  batch_sample_id = "batch_sample_id"
+ )
+
+```
+
+# Find alleles
+
+```{r Find alleles}
+allele_list <- find_alleles(
+  # main parameters to set, see help documentation for more info
+  fragments_list = metadata_added_list,
+  number_of_peaks_to_return = 1,
+  # advanced parameters for fine tuning
+  peak_region_size_gap_threshold = 6,
+  peak_region_height_threshold_multiplier = 1)
+```
+
+# Call repeats
+
+```{r Find repeats}
+repeats_list <- call_repeats(
+  # main parameters to set, see help documentation for more info
+  fragments_list = allele_list,
+  assay_size_without_repeat = 87,
+  repeat_size = 3,
+  force_whole_repeat_units = TRUE,
+  batch_correction = TRUE,
+  # advanced parameters for fine tuning
+  repeat_calling_algorithm = "simple",
+  repeat_calling_algorithm_size_window_around_allele = repeat_size * 5,
+  repeat_calling_algorithm_peak_assignment_scan_window = 3,
+  repeat_calling_algorithm_size_period = repeat_size * 0.93
+)
+
+```
+
+# Assign index peaks
+
+```{r Assign index peaks}
+index_assigned <- assign_index_peaks(
+  # main parameters to set, see help documentation for more info
+  fragments_list = repeats_list,
+  grouped = TRUE,
+  # advanced parameters for fine tuning
+  index_override_dataframe = NULL
+)
+
+```
+
+
+# Calculate instability metrics
+
+```{r Calculate instability metrics}
+metrics_df <- calculate_instability_metrics(
+  fragments_list = index_assigned,
+  peak_threshold = 0.05,
+  window_around_index_peak = c(-50, 50)
+)
+```
+
+# save outputs
+
+## Create Output Folders
+
+creates separate output folders for the different plate ids
+
+```{r Create Output Folders}
+
+if (!dir.exists("outputs")) {
+  dir.create("outputs")
+}
+
+batch_run_id_names <- unique(metadata$batch_run_id)
+for (i in seq_along(batch_run_id_names)) {
+  output_folder_path <- paste("outputs/",batch_run_id_names[i],"_outputs",sep="")
+  if (!dir.exists(output_folder_path)) dir.create(output_folder_path)
+}
+
+```
+
+## ladders
+This code loops over the different fragment analysis batch_run_ids and generates a file with the ladders
+
+```{r ladders}
+# Split metadata by batch_run_id
+metadata_split <- split(metadata, metadata$batch_run_id)
+
+# Loop through each subset of metadata
+lapply(metadata_split, function(meta) {
+  batch_run_id <- unique(meta$batch_run_id)
+  
+  # Generate the output file path
+  output_name_ladders <- file.path("outputs", paste0(batch_run_id, "_outputs"), paste0(batch_run_id, "_ladders.pdf"))
+  
+  # Subset the ladder list using unique_id from meta
+  ladder_list_subset <- ladder_list[meta$unique_id]
+  
+  # Create a PDF to save plots
+  pdf(output_name_ladders, height = 5, width = 10)
+  
+  # Loop through each ladder in the subset
+  for (ladder in ladder_list_subset) {
+    plot_title <- paste0(
+      ladder$unique_id, "\n",
+      trace:::ladder_rsq_warning_helper(ladder, rsq_threshold = 0.998)
+    )
+    
+    ladder$plot_ladder(plot_title = plot_title)
+  }
+  
+  # Close the PDF device
+  dev.off()
+})
+
+
+
+```
+
+## sample traces
+
+This code loops over the different fragment analysis batch_run_ids and generates a file with the traces
+
+```{r sample traces}
+# Loop through each subset of metadata
+lapply(metadata_split, function(meta) {
+  batch_run_id <- unique(meta$batch_run_id)
+  
+  # Generate the output file path
+  output_name_traces <- file.path("outputs", paste0(batch_run_id, "_outputs"), paste0(batch_run_id, "_traces.pdf"))
+  
+  # Subset the index_assigned list using unique_id from meta
+  fragments_list_subset <- index_assigned[meta$unique_id]
+  
+  # Create a PDF to save plots
+  pdf(output_name_traces, height = 5, width = 10)
+  
+  # Loop through each repeat in the subset
+  for (i in seq_along(fragments_list_subset)) {
+    repeat_data <- fragments_list_subset[[i]]
+    
+    # Get the sample name corresponding to the unique_id for plot title
+    sample_name_i <- metadata[metadata$unique_id == repeat_data$unique_id, "sample_name"]
+    
+    # Plot trace with title and sample name
+    repeat_data$plot_trace(
+      plot_title = paste0(repeat_data$unique_id, "\n", sample_name_i),
+      xlim = c(80, 250)
+    )
+    
+    # Add text annotation for allele_1_repeat
+    text(
+      x = repeat_data$get_alleles()$allele_1_repeat, 
+      y = repeat_data$get_alleles()$allele_1_height * 1.02, 
+      labels = round(repeat_data$get_alleles()$allele_1_repeat)
+    )
+  }
+  
+  # Close the PDF device
+  dev.off()
+})
+
+
+
+```
+
+## processed repeats object as RDS file
+
+This can be useful for downstream aggregation of experiments. For example, we could read in the repeats_list back into R in another script to calculate instability metrics.
+
+```{r saveRDS}
+
+saveRDS(index_assigned,
+        file = "outputs/processed_repeats_fragments_list.rds")
+```
+
+## instability metrics
+
+```{r export instability metrics}
+write.table(metrics_df, "outputs/instability_metrics_df.txt",
+            row.names=FALSE, sep="\t")
+
+```
