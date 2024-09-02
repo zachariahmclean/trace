@@ -461,9 +461,21 @@ call_repeats <- function(
           unique_id = character(),
           size = numeric(),
           height = numeric(),
+          calculated_repeats = numeric(),
           repeats = numeric(),
           off_scale = logical()
         )
+
+        # still calculate repeat length for the trace-level data if it exists
+        ## this is the same code as below, perhaps too duplicative and needs refactoring
+        if (!is.null(fragment$trace_bp_df)) {
+          if (batch_correction) {
+            trace_bp_size <- fragment$trace_bp_df$size - fragment$.__enclos_env__$private$batch_correction_factor
+          } else{
+            trace_bp_size <- fragment$trace_bp_df$size
+          }
+          fragment$trace_bp_df$calculated_repeats <- (trace_bp_size - assay_size_without_repeat) / repeat_size
+        }
         # exit lapply early 
         return(fragment)
       } 
