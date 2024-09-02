@@ -284,67 +284,42 @@ find_batch_correction_factor <- function(fragments_list, trace_window_size = 50,
     df <- data.frame(
       unique_id = x$unique_id,
       batch_run_id = x$batch_run_id,
-      batch_sample_id = x$batch_sample_id
+      batch_sample_id = x$batch_sample_id,
+      allele_1_height = x$get_alleles()$allele_1_height
     )
     return(df)
   })
 
   metadata_df <- do.call(rbind, metadata_list)
 
-  # make sure there is a least one run with common samples to all others
-  size_std_df <- metadata_df[which(!is.na(metadata_df$batch_sample_id)), , drop = FALSE]
-  if(nrow(size_std_df) == 0 ){
-    stop(call. = FALSE, "Size correction requires 'batch_sample_id' samples indicated in the metadata. See ?add_metadata for more info.")
-  }
+  # filter for batch correction samples that have a trace (height > 100). perhaps a little arbitrary
+  correction_sample_df <- metadata_df[which(!is.na(metadata_df$batch_run_id) & !is.na(metadata_df$batch_sample_id)), , drop = FALSE]
+  correction_sample_df <- correction_sample_df[which(!is.na(correction_sample_df$allele_1_height) & correction_sample_df$allele_1_height > 100), ]
 
-
-  sample_run_table <- table(metadata_df$batch_sample_id, metadata_df$batch_run_id)
-  runs_with_all_samples <- colnames(sample_run_table)[colSums(sample_run_table == 1) == length(unique(na.omit(metadata_df$batch_sample_id)))]
-
-  if(length(runs_with_all_samples) == 0){
-    stop(call. = FALSE, "There needs to be at least one batch_run_id with all batch_sample_id for batch correction.")
-  }
-  index_batch_run_id <- runs_with_all_samples[1]
-
-  # first group samples across runs by sample id
-  size_std_fragments <- fragments_list[size_std_df$unique_id]
-  split_by_sample_id <- split(size_std_fragments, sapply(size_std_fragments, function(x) x$batch_sample_id ))
-
-  correction_factor_by_sample_list <- lapply(split_by_sample_id, function(sample_list){
-    sample_modal_size <- sapply(sample_list, function(fragment){
+  # Use match to align the order of correction_sample_fragments with correction_sample_df
+  matched_indices <- match(correction_sample_df$unique_id, names(fragments_list))
+  correction_sample_fragments <- fragments_list[matched_indices]
+  correction_sample_df$smoothed_modal_size <- sapply(correction_sample_fragments, function(fragment){
       df <- fragment$trace_bp_df[which(fragment$trace_bp_df$size < fragment$get_alleles()$allele_1_size + trace_window_size & fragment$trace_bp_df$size > fragment$get_alleles()$allele_1_size - trace_window_size ), ]
       df$smoothed <- pracma::savgol(df$signal, smoothing_window)
       smoothed_modal_size <- df[which.max(df$smoothed), "size"]
       return(smoothed_modal_size)
     })
-
-    df <- data.frame(
-      unique_id = sapply(sample_list, function(x) x$unique_id),
-      batch_run_id = sapply(sample_list, function(x) x$batch_run_id),
-      smoothed_modal_size = sample_modal_size
-    )
-
-    index_plate_smoothed_modal_size <- median(df[which(df$batch_run_id == index_batch_run_id), "smoothed_modal_size"])
-    df$correction_factor <- df$smoothed_modal_size - index_plate_smoothed_modal_size
-
-    return(df)
-
-  })
-  correction_factor_by_sample_df <- do.call(rbind, correction_factor_by_sample_list)
-
-  #now group by plate and find the average correction factor
-  correction_factor_by_plate_df_list <- split(correction_factor_by_sample_df, correction_factor_by_sample_df$batch_run_id)
-  correction_factor_by_plate_list <- lapply(correction_factor_by_plate_df_list, function(x) median(x$correction_factor))
-
+  # scale it for the model
+  correction_sample_df$smoothed_modal_size_scaled <- correction_sample_df$smoothed_modal_size - median(correction_sample_df$smoothed_modal_size)
+  
+  # used mixed model rather than fixed effects model for more flexible in handling unbalanced designs and non-overlapping batches.
+  model <- lme4::lmer(smoothed_modal_size_scaled ~ batch_sample_id + (1|batch_run_id), data = correction_sample_df)
+  batch_effects_df <- data.frame(
+    batch_sample_id = row.names(lme4::ranef(model)$batch_run_id),
+    batch_effect = lme4::ranef(model)$batch_run_id[[1]]
+  )
   # save correction factor for each class object
   for (i in seq_along(fragments_list)) {
     # Made the plate id explicity match the list name for cases when the plate name is a number. It could cause subsetting issues
-    fragments_list[[i]]$.__enclos_env__$private$batch_correction_factor <- correction_factor_by_plate_list[[which(names(correction_factor_by_plate_list) == fragments_list[[i]]$batch_run_id)]]
+    fragments_list[[i]]$.__enclos_env__$private$batch_correction_factor <- batch_effects_df[which(batch_effects_df$batch_sample_id == fragments_list[[i]]$batch_run_id), "batch_effect"]
   }
-  
 }
-
-
 
 
 # call_repeats ------------------------------------------------------------
@@ -354,7 +329,7 @@ find_batch_correction_factor <- function(fragments_list, trace_window_size = 50,
 #' This function calls the repeat lengths for a list of fragments.
 #'
 #' @param fragments_list A list of fragments_repeats objects containing fragment data.
-#' @param assay_size_without_repeat An integer specifying the assay size without repeat for repeat calling. Default is 87.
+#' @param assay_size_without_repeat An integer specifying the assay size without repeat for repeat calling. This is the length of the sequence flanking the repeat in the PCR product.
 #' @param repeat_size An integer specifying the repeat size for repeat calling. Default is 3.
 #' @param force_whole_repeat_units A logical value specifying if the peaks should be forced to be whole repeat units apart. Usually the peaks are slightly under the whole repeat unit if left unchanged.
 #' @param batch_correction A logical specifying if the size should be adjusted across fragment analysis runs. Requires metadata to be added to specify samples (\code{"batch_sample_id"}) common across runs (\code{"batch_run_id"})(see [add_metadata()]).
@@ -366,17 +341,20 @@ find_batch_correction_factor <- function(fragments_list, trace_window_size = 50,
 #' @return A list of \code{"fragments_repeats"} objects with repeat data added.
 #'
 #' @details
-#' The calculated repeat lengths are assigned to the corresponding peaks in the provided `fragments_repeats` object. The repeat lengths can be used for downstream instability analysis.
-#'
-#' The `simple` algorithm is just the repeat size calculated directly from bp: (bp - assay_size_without_repeat) / repeat_size
-#'
-#' The `fft` or `size_period` algorithms both re-call the peaks based on empirically determined (`fft`) or specified (`size_period`) periodicity of the peaks. The main application of these algorithms is to solve the issue of contaminating peaks that are not expected in the expected regular pattern of peaks. The `fft` approach applies a fourier transform to the peak signal to determine the underlying periodicity of the signal. `size_period` is similar and simpler, where instead of automatically figuring out the periodicity we as users usually know the size distance between repeat units. We can use that known peroidicty to jump between peaks.
-#'
-#' The `force_whole_repeat_units` algorithm aims to correct for the systematic drift in fragment sizes that occurs. It calculates repeat lengths in a way that helps align peaks with the underlying repeat pattern, making the estimation of repeat lengths more reliable relative to the main peak. The calculated repeat lengths start from the main peak's repeat length and increases in increments of the specified `repeat_size`.
+#' Repeat legnths are calculated from the bp size with several different alternative algorithm or options. 
+#' 
+#' The `force_whole_repeat_units` option aims to correct for the systematic underestimation in fragment sizes that occurs in capillary electrophoresis. It is independent to the algorithms described below and can be used in conjuction. It modifies repeat lengths in a way that helps align peaks with the underlying repeat pattern, making the repeat lengths whole units (rather than ~0.9 repeats). The calculated repeat lengths start from the main peak's repeat length and increases in increments of the specified `repeat_size` in either direction.
+#' 
+#' `batch_correction` involves using common sample(s) across fragment analysis runs to correct systematic batch effects that occur with repeat-containing amplicons in capillary electrophoresis. There are slight fluctuations of size across runs for amplicons containing repeats that result in systematic differences, so if samples are to be analyzed for different runs, the absolute bp size is not comparable unless this batch effect is corrected. This is only relevant when the absolute size of a amplicons are compared for grouping metrics as described in [assign_index_peaks()] and [add_metadata()] (otherwise instability metrics are all relative and it doesn’t matter that there’s systematic batch effects across runs). This correction can be achieved by running a couple of samples in every fragment analysis run, or having a single run that takes a couple of samples from every run together, thereby linking them. These samples are then indicated in the metadata with `batch_run_id` (to group samples by fragment analysis run) and `batch_sample_id` (to enable linking samples across batches).
+#' 
+#' The `simple` algorithm is just the repeat size calculated directly from bp. The `fft` or `size_period` algorithms both re-call the peaks based on empirically determined (`fft`) or specified (`size_period`) periodicity of the peaks. The main application of these algorithms is to solve the issue of contaminating peaks in the expected regular pattern of peaks. The `fft` approach applies a fourier transform to the peak signal to determine the underlying periodicity of the signal. `size_period` is similar and simpler, where instead of automatically figuring out the periodicity, we as users specify the periodicity (since we usually know the size distance between repeat units). We can use the peroidicty to jump between peaks.
 #'
 #' @seealso [find_alleles()], [add_metadata()]
 #'
 #' @export
+#' 
+#' @importFrom lme4 lmer
+#' @importFrom lme4 ranef
 #'
 #' @examples
 #'
@@ -439,20 +417,6 @@ find_batch_correction_factor <- function(fragments_list, trace_window_size = 50,
 #'
 #' plot_traces(test_repeats_whole_units[1], xlim = c(120, 170))
 #'
-#' # correct repeat length from metadata
-#'
-#' test_alleles_metadata <- add_metadata(
-#'   fragments_list = test_alleles,
-#'   metadata_data.frame = trace::metadata
-#' )
-#'
-#' test_repeats_corrected <- call_repeats(
-#'   fragments_list = test_alleles_metadata,
-#'   batch_correction = TRUE
-#' )
-#'
-#'
-#' plot_traces(test_repeats_corrected[1], xlim = c(120, 170))
 #'
 call_repeats <- function(
     fragments_list,
@@ -514,7 +478,7 @@ call_repeats <- function(
 
         repeat_table_df <- data.frame(
           unique_id = fragment$peak_table_df$unique_id,
-          size = peak_table_size,
+          size = fragment$peak_table_df$size, #use the original size so that the correction in the repeat table is only applied to repeats rather than size
           height = fragment$peak_table_df$height,
           calculated_repeats = (peak_table_size- assay_size_without_repeat) / repeat_size,
           repeats = (peak_table_size - assay_size_without_repeat) / repeat_size,
@@ -544,7 +508,7 @@ call_repeats <- function(
 
         repeat_table_df <- data.frame(
           unique_id = fft_peak_df$unique_id,
-          size = fft_peak_size,
+          size = fft_peak_df$size, #use the original size so that the correction in the repeat table is only applied to repeats rather than size
           height = fft_peak_df$signal,
           calculated_repeats = (fft_peak_size - assay_size_without_repeat) / repeat_size,
           repeats = (fft_peak_size - assay_size_without_repeat) / repeat_size,
@@ -572,7 +536,7 @@ call_repeats <- function(
 
         repeat_table_df <- data.frame(
           unique_id = size_period_df$unique_id,
-          size = size_period_size,
+          size = size_period_df$size, #use the original size so that the correction in the repeat table is only applied to repeats rather than size
           height = size_period_df$signal,
           calculated_repeats = (size_period_size - assay_size_without_repeat) / repeat_size,
           repeats = (size_period_size - assay_size_without_repeat) / repeat_size,

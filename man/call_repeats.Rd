@@ -19,7 +19,7 @@ call_repeats(
 \arguments{
 \item{fragments_list}{A list of fragments_repeats objects containing fragment data.}
 
-\item{assay_size_without_repeat}{An integer specifying the assay size without repeat for repeat calling. Default is 87.}
+\item{assay_size_without_repeat}{An integer specifying the assay size without repeat for repeat calling. This is the length of the sequence flanking the repeat in the PCR product.}
 
 \item{repeat_size}{An integer specifying the repeat size for repeat calling. Default is 3.}
 
@@ -42,13 +42,13 @@ A list of \code{"fragments_repeats"} objects with repeat data added.
 This function calls the repeat lengths for a list of fragments.
 }
 \details{
-The calculated repeat lengths are assigned to the corresponding peaks in the provided \code{fragments_repeats} object. The repeat lengths can be used for downstream instability analysis.
+Repeat legnths are calculated from the bp size with several different alternative algorithm or options.
 
-The \code{simple} algorithm is just the repeat size calculated directly from bp: (bp - assay_size_without_repeat) / repeat_size
+The \code{force_whole_repeat_units} option aims to correct for the systematic underestimation in fragment sizes that occurs in capillary electrophoresis. It is independent to the algorithms described below and can be used in conjuction. It modifies repeat lengths in a way that helps align peaks with the underlying repeat pattern, making the repeat lengths whole units (rather than ~0.9 repeats). The calculated repeat lengths start from the main peak's repeat length and increases in increments of the specified \code{repeat_size} in either direction.
 
-The \code{fft} or \code{size_period} algorithms both re-call the peaks based on empirically determined (\code{fft}) or specified (\code{size_period}) periodicity of the peaks. The main application of these algorithms is to solve the issue of contaminating peaks that are not expected in the expected regular pattern of peaks. The \code{fft} approach applies a fourier transform to the peak signal to determine the underlying periodicity of the signal. \code{size_period} is similar and simpler, where instead of automatically figuring out the periodicity we as users usually know the size distance between repeat units. We can use that known peroidicty to jump between peaks.
+\code{batch_correction} involves using common sample(s) across fragment analysis runs to correct systematic batch effects that occur with repeat-containing amplicons in capillary electrophoresis. There are slight fluctuations of size across runs for amplicons containing repeats that result in systematic differences, so if samples are to be analyzed for different runs, the absolute bp size is not comparable unless this batch effect is corrected. This is only relevant when the absolute size of a amplicons are compared for grouping metrics as described in \code{\link[=assign_index_peaks]{assign_index_peaks()}} and \code{\link[=add_metadata]{add_metadata()}} (otherwise instability metrics are all relative and it doesn’t matter that there’s systematic batch effects across runs). This correction can be achieved by running a couple of samples in every fragment analysis run, or having a single run that takes a couple of samples from every run together, thereby linking them. These samples are then indicated in the metadata with \code{batch_run_id} (to group samples by fragment analysis run) and \code{batch_sample_id} (to enable linking samples across batches).
 
-The \code{force_whole_repeat_units} algorithm aims to correct for the systematic drift in fragment sizes that occurs. It calculates repeat lengths in a way that helps align peaks with the underlying repeat pattern, making the estimation of repeat lengths more reliable relative to the main peak. The calculated repeat lengths start from the main peak's repeat length and increases in increments of the specified \code{repeat_size}.
+The \code{simple} algorithm is just the repeat size calculated directly from bp. The \code{fft} or \code{size_period} algorithms both re-call the peaks based on empirically determined (\code{fft}) or specified (\code{size_period}) periodicity of the peaks. The main application of these algorithms is to solve the issue of contaminating peaks in the expected regular pattern of peaks. The \code{fft} approach applies a fourier transform to the peak signal to determine the underlying periodicity of the signal. \code{size_period} is similar and simpler, where instead of automatically figuring out the periodicity, we as users specify the periodicity (since we usually know the size distance between repeat units). We can use the peroidicty to jump between peaks.
 }
 \examples{
 
@@ -111,20 +111,6 @@ test_repeats_whole_units <- call_repeats(
 
 plot_traces(test_repeats_whole_units[1], xlim = c(120, 170))
 
-# correct repeat length from metadata
-
-test_alleles_metadata <- add_metadata(
-  fragments_list = test_alleles,
-  metadata_data.frame = trace::metadata
-)
-
-test_repeats_corrected <- call_repeats(
-  fragments_list = test_alleles_metadata,
-  batch_correction = TRUE
-)
-
-
-plot_traces(test_repeats_corrected[1], xlim = c(120, 170))
 
 }
 \seealso{

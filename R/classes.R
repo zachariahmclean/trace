@@ -239,13 +239,16 @@ fragments_repeats <- R6::R6Class(
         stop("Index assignment requires repeats to be called", call. = FALSE )
       }
 
-      if(!is.na(value)){
-        size_diff <- self$repeat_table_df$repeats- value
+      if(!is.na(value) && nrow(self$repeat_table_df) > 0){
+        size_diff <- self$repeat_table_df$repeats - value
         index_df <- self$repeat_table_df[which.min(abs(size_diff)), , drop = FALSE]
 
         if(nrow(index_df) > 1){
           stop("More than one peak was selected with the value provided", call. = FALSE)
         }
+      } else{ 
+        # deal with cases where nrow repeat_table_df == 0
+        value <- NA_real_
       }
       private$index_repeat <- ifelse(!is.na(value), index_df$repeats, NA_real_)
       private$index_height <- ifelse(!is.na(value), index_df$height, NA_real_)

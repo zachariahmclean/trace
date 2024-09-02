@@ -449,6 +449,8 @@ ladder_self_mod_predict <- function(fragments_trace,
 #' is a list of fragments_traces. bp sizes are assigned using the local Southern
 #' method. Basically, for each data point, linear models are made for the lower
 #' and upper 3 size standard and the predicted sizes are averaged.
+#' 
+#' Use [plot_data_channels()] to plot the raw data on the fsa file to identify which channel the ladder and data are in.
 #'
 #' The ladder peaks are assigned from largest to smallest. I would recommend excluding
 #' size standard peaks less than 50 bp (eg size standard 35 bp).
@@ -456,9 +458,9 @@ ladder_self_mod_predict <- function(fragments_trace,
 #' Each ladder should be manually inspected to make sure that is has been correctly
 #' assigned.
 #'
-#' @seealso [fix_ladders_auto()] and [fix_ladders_interactive()] to fix ladders with
-#' incorrectly assigned peaks. [plot_ladders()] to plot the assigned ladder
-#' peaks onto the raw ladder signal.
+#' @seealso [plot_data_channels()] to plot the raw data in all channels. [plot_ladders()] to plot the assigned ladder
+#' peaks onto the raw ladder signal. [fix_ladders_interactive()] to fix ladders with
+#' incorrectly assigned peaks. 
 #'
 #'
 #' @examples

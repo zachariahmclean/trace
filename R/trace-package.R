@@ -5,6 +5,7 @@
 #' @importFrom graphics abline
 #' @importFrom graphics par
 #' @importFrom grDevices rainbow
+#' @importFrom lme4 lmer
 #' @importFrom methods is
 #' @importFrom seqinr read.abif
 #' @importFrom stats aggregate

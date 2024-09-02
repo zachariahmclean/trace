@@ -375,11 +375,12 @@ testthat::test_that("size standards with ids", {
   
 
   allele_list <- find_alleles(metadata_list)
+  suppressWarnings(
+    repeats_list <- call_repeats(allele_list,
+      batch_correction = TRUE)
+    )
 
-  repeats_list <- call_repeats(allele_list,
-    batch_correction = TRUE)
-
-  testthat::expect_true(all(sapply(allele_list, function(x) x$.__enclos_env__$private$batch_correction_factor) == c(0:9, 0:9)))
+  testthat::expect_true(all.equal(c(seq(-4.5, 4.5, 1), seq(-4.5, 4.5, 1)), as.numeric(sapply(allele_list, function(x) x$.__enclos_env__$private$batch_correction_factor))))
   
   # plot_batch_correction_samples(repeats_list, x_axis = "size", xlim = c(400, 470), n_facet_col = 2)
   # plot_batch_correction_samples(repeats_list, x_axis = "repeats", xlim = c(100, 130), n_facet_col = 2)

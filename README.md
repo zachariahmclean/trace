@@ -99,12 +99,6 @@ in using `read_fsa()`.
 fsa_raw <- cell_line_fsa_list
 ```
 
-``` r
-plot_data_channels(fsa_raw[1])
-```
-
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
-
 # Find ladders
 
 First we find the ladders and call bp size in the fsa file. The bp is
@@ -254,7 +248,7 @@ length should be in the bimodal distribution.
 plot_traces(index_list[1], xlim = c(110, 150))
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
 # Calculate instability metrics
 

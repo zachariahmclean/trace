@@ -60,11 +60,6 @@ First, we read in the raw data. In this case we will used example data within th
 fsa_raw <- cell_line_fsa_list
 ```
 
-```{r}
-plot_data_channels(fsa_raw[1])
-
-```
-
 # Find ladders
 
 First we find the ladders and call bp size in the fsa file. The bp is assigned using the local Southern method. Basically, for each data point, linear models are made for the lower and upper 3 size standard and the predicted sizes are averaged.
