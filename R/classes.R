@@ -9,19 +9,19 @@
 #' 
 fragments <- R6::R6Class("fragments",
   public = list(
-    #' @field unique_id unique id of the sanmple usually the file name
+    #' @field unique_id unique id of the sample usually the file name
     unique_id = NA_character_,
 
-    #' @field metrics_group_id sample grouping for metrics calculations. Associated with `add_metdata()`.
+    #' @field metrics_group_id sample grouping for metrics calculations. Associated with `add_metadata()`.
     metrics_group_id = NA_character_,
 
-    #' @field metrics_baseline_control logical to indicate if sample is the baseline control. Associated with `add_metdata()`.
+    #' @field metrics_baseline_control logical to indicate if sample is the baseline control. Associated with `add_metadata()`.
     metrics_baseline_control = FALSE,
 
-    #' @field batch_run_id fragment analsyis run. Associated with `add_metdata()`.
+    #' @field batch_run_id fragment analysis run. Associated with `add_metadata()`.
     batch_run_id = NA_character_,
 
-    #' @field batch_sample_id An id for the sample used as size standard for repeat calculation. Associated with `add_metdata()`.
+    #' @field batch_sample_id An id for the sample used as size standard for repeat calculation. Associated with `add_metadata()`.
     batch_sample_id = NA_character_,
 
     #' @description
@@ -40,11 +40,11 @@ fragments <- R6::R6Class("fragments",
     },
     #' @description
     #' plot the trace data
-    #' @param show_peaks A logical to say if the called peaks should be overlayed on top of the trace. Only valid for fragments_repeats objects.
+    #' @param show_peaks A logical to say if the called peaks should be plotted on top of the trace. Only valid for fragments_repeats objects.
     #' @param x_axis Either "size" or "repeats" to indicate what should be plotted on the x-axis.
     #' @param xlim numeric vector length two specifying the x axis limits
     #' @param ylim numeric vector length two specifying the y axis limits
-    #' @param height_color_threshold A thershold value to colour the peaks relative to the tallest peak. 
+    #' @param height_color_threshold A threshold value to colour the peaks relative to the tallest peak. 
     #' @param plot_title A character string for setting the plot title. Defaults to the unique id of the object
     #' @return A base R plot
     plot_trace = function(show_peaks = TRUE,
@@ -84,7 +84,7 @@ fragments_trace <- R6::R6Class(
   "fragments_trace",
   inherit = fragments,
   public = list(
-    #' @field unique_id unique id of the sanmple usually the file name
+    #' @field unique_id unique id of the sample usually the file name
     unique_id = NULL,
 
     #' @field fsa The whole fsa file, output from seqinr::read.abif()
@@ -108,7 +108,7 @@ fragments_trace <- R6::R6Class(
     #' @field trace_bp_df A dataframe of bp size for every scan from `find_ladders()`.
     trace_bp_df = NULL,
 
-    #' @field local_southern_mod Output from `local_southern()` function (not exported). It is bascially just a list of lm() after breaking up the ladder into chunks of three.
+    #' @field local_southern_mod Output from `local_southern()` function (not exported). It is basically just a list of lm() after breaking up the ladder into chunks of three.
     local_southern_mod = NULL,
 
     #' @description
@@ -165,10 +165,10 @@ fragments_repeats <- R6::R6Class(
     #' @field trace_bp_df A dataframe of bp size for every scan from `find_ladders()`.
     trace_bp_df = NULL,
 
-    #' @field peak_table_df A dataframe containing the fragment peak level informtation.
+    #' @field peak_table_df A dataframe containing the fragment peak level information.
     peak_table_df = NULL,
 
-    #' @field repeat_table_df A dataframe containing the fragment peak level informtation with the repeat size added. May or may not be the same as peak_table_df depending on what options are chosen in `call_repeats`.
+    #' @field repeat_table_df A dataframe containing the fragment peak level information with the repeat size added. May or may not be the same as peak_table_df depending on what options are chosen in `call_repeats`.
     repeat_table_df = NULL,
 
     #' @description

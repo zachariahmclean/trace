@@ -10,15 +10,15 @@ instability_index <- function(repeats,
   repeats <- repeats[peak_over_threshold]
   heights <- heights[peak_over_threshold]
 
-  # normalised peak height
-  heights_normalised <- heights / sum(heights)
+  # normalized peak height
+  heights_normalized <- heights / sum(heights)
 
   # distance to index peak
   repeat_delta <- repeats - index_peak_repeat
   if (abs_sum == FALSE) {
-    sum(heights_normalised * repeat_delta)
+    sum(heights_normalized * repeat_delta)
   } else if (abs_sum == TRUE) {
-    sum(abs(heights_normalised * repeat_delta))
+    sum(abs(heights_normalized * repeat_delta))
   }
 }
 
@@ -29,10 +29,10 @@ find_percentiles <- function(repeats,
                              index_peak_repeat,
                              type, # "percentile" or "repeat"
                              range,
-                             col_preffix) {
+                             col_prefix) {
   # if there are double peaks select the tallest of the peaks, otherwise approx interpolation doesn't work
-  # also if there are no main peak caled filter out (for example samples used to call repeats but irrelevat for metrics)
-  df_names <- paste(col_preffix, range, sep = "_")
+  # also if there are no main peak called, filter out (for example samples used to call repeats but irrelevant for metrics)
+  df_names <- paste(col_prefix, range, sep = "_")
 
   # Deal with case when there are no expansion peaks by returning 0s
   if (sum(repeats > index_peak_repeat) <= 1) {
@@ -240,7 +240,7 @@ calculate_instability_metrics <- function(
   # this section is in here for backwards compatibility since the functionality of assign_index_peaks() used to happen in here but was later separated
   if (!is.na(grouped) || is.data.frame(index_override_dataframe)) {
     # give the user a message to tell them to use the other function
-    message("The functionalty of assigning index peaks was separated into the assign_index_peaks() function, with the parameters 'grouped' and 'index_override_dataframe' kept here for backwards compatibility. We recomend using the assign_index_peaks() function seperatly instead of whitin this function. This allows you to validate that the correct index peak was assigned before moving forward with calculation of instability metrics.")
+    message("The functionality of assigning index peaks was separated into the assign_index_peaks() function, with the parameters 'grouped' and 'index_override_dataframe' kept here for backwards compatibility. We recommend using the assign_index_peaks() function separately instead of within this function. This allows you to validate that the correct index peak was assigned before moving forward with calculation of instability metrics.")
 
     fragments_list <- assign_index_peaks(
       fragments_list = fragments_list,
@@ -305,7 +305,7 @@ calculate_instability_metrics <- function(
     } else if (fragments_repeats$get_alleles()$allele_1_height > 100) {
       "Low"
     } else {
-      "Extremly low"
+      "Extremely low"
     }
 
     QC_peak_number <- if (nrow(fragments_repeats$repeat_table_df) > 20) {
@@ -313,7 +313,7 @@ calculate_instability_metrics <- function(
     } else if (nrow(fragments_repeats$repeat_table_df) > 10) {
       "Low"
     } else {
-      "Extremly low"
+      "Extremely low"
     }
 
     QC_off_scale <- if (any(fragments_repeats$repeat_table_df$off_scale)) {
@@ -394,7 +394,7 @@ calculate_instability_metrics <- function(
       fragments_repeats$get_index_peak()$index_repeat,
       type = "percentile",
       range = percentile_range,
-      col_preffix = "expansion_percentile"
+      col_prefix = "expansion_percentile"
     )
 
     expansion_repeat <- find_percentiles(
@@ -403,7 +403,7 @@ calculate_instability_metrics <- function(
       fragments_repeats$get_index_peak()$index_repeat,
       type = "repeat",
       range = repeat_range,
-      col_preffix = "expansion_percentile_for_repeat"
+      col_prefix = "expansion_percentile_for_repeat"
     )
 
     metrics <- cbind(metrics, expansion_percentile)

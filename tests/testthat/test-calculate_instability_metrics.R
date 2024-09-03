@@ -39,7 +39,7 @@ testthat::test_that("percentiles", {
     index_peak_repeat = test_fragments_repeats_simple[[1]]$get_alleles()$allele_1_repeat,
     type = "percentile", # "percentile" or "repeat"
     range = seq(0.1, 0.99, .10),
-    col_preffix = "percentile"
+    col_prefix = "percentile"
   )
 
   repeat_test <- find_percentiles(
@@ -48,7 +48,7 @@ testthat::test_that("percentiles", {
     index_peak_repeat = test_fragments_repeats_simple[[1]]$get_alleles()$allele_1_repeat,
     type = "repeat", # "percentile" or "repeat"
     range = percentiles$percentile_0.2,
-    col_preffix = "repeat"
+    col_prefix = "repeat"
   )
 
   # the values go full cirle

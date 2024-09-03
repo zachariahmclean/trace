@@ -68,7 +68,7 @@ find_ladder_peaks <- function(ladder_df,
 
   if(length(ladder_peaks) < n_reference_sizes){
     stop(call. = FALSE,
-         paste0("Fewer ladder peaks than refernce ladder sizes were identified for ",
+         paste0("Fewer ladder peaks than reference ladder sizes were identified for ",
                 sample_id,
                 ". Adjust settings/ladder sizes to ensure the expected number of peaks are found."))
   }
@@ -118,12 +118,12 @@ ladder_iteration <- function(reference_sizes,
 
     # calculate the window to look at for this loop
     n_observed <- length(observed_sizes)
-    n_refernce <- length(reference_sizes)
-    remainder <- n_refernce - choose # how many peaks will be left to be assigned after this selection
+    n_reference <- length(reference_sizes)
+    remainder <- n_reference - choose # how many peaks will be left to be assigned after this selection
     start_window <- n_observed - remainder
 
 
-    if (n_observed == n_refernce) {
+    if (n_observed == n_reference) {
       assigned_observed <- append(assigned_observed, observed_sizes)
       assigned_reference <- append(assigned_reference, reference_sizes)
       break
@@ -189,11 +189,11 @@ ladder_iteration <- function(reference_sizes,
 
 
 ladder_rsq_warning_helper <- function(
-    framents_trace,
+    fragments_trace,
     rsq_threshold) {
-  rsq <- sapply(framents_trace$local_southern_mod, function(x) suppressWarnings(summary(x$mod)$r.squared))
+  rsq <- sapply(fragments_trace$local_southern_mod, function(x) suppressWarnings(summary(x$mod)$r.squared))
   if (any(rsq < rsq_threshold)) {
-    size_ranges <- sapply(framents_trace$local_southern_mod, function(x) x$mod$model$yi)
+    size_ranges <- sapply(fragments_trace$local_southern_mod, function(x) x$mod$model$yi)
     size_ranges <- size_ranges[, which(rsq < rsq_threshold), drop = FALSE]
     size_ranges_vector <- vector("numeric", ncol(size_ranges))
     for (j in seq_along(size_ranges_vector)) {
@@ -202,7 +202,7 @@ ladder_rsq_warning_helper <- function(
     warning(
       call. = FALSE,
       paste(
-        "sample", framents_trace$unique_id, "has badly fitting ladder for bp sizes:",
+        "sample", fragments_trace$unique_id, "has badly fitting ladder for bp sizes:",
         paste0(size_ranges_vector, collapse = ", ")
       )
     )
@@ -388,7 +388,7 @@ ladder_self_mod_predict <- function(fragments_trace,
     size = assigned_size[which(assigned_size %in% unconfirmed_sizes)]
   )
 
-  # bind rows back with the sizes that were infered to be correct
+  # bind rows back with the sizes that were inferred to be correct
 
   ladder_df <- rbind(
     assigned_df,

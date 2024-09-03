@@ -11,7 +11,7 @@
 #' @return A list of fragments with identified main alleles.
 #'
 #' @details This function finds the main alleles for each fragment in the list by identifying clusters of peaks ("peak regions")
-#' with the highest signal intensities. This is based on the idea that PCR amplicons of repeats have broad peaks and PCR artififacts that help identifying the alleles.
+#' with the highest signal intensities. This is based on the idea that PCR amplicons of repeats have broad peaks and PCR artifacts that help identifying the alleles.
 #'  The number of peaks to be returned, and the parameters for identifying peak regions can be customized.
 #'  It's important to note that both peak_region_height_threshold_multiplier and peak_region_size_gap_threshold influence the criteria for identifying peak regions, and finding the right balance between them is crucial.
 #' @export

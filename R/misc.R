@@ -153,7 +153,7 @@ remove_fragments <- function(
 #' Generate a Quarto file that has the instability pipeline preset
 #'
 #' @param file_name Name of file to create
-#' @param size_standards Indicates if the functionality for correcting repeat size using size standards be included in the pipeline. See \code{\link{add_metadata}} & \code{\link{call_repeats}} for more info.
+#' @param batch_correction Indicates if the functionality for correcting repeat size using size standards across batches be included in the pipeline. See \code{\link{add_metadata}} & \code{\link{call_repeats}} for more info.
 #' @param samples_grouped Indicates if the functionality for grouping samples for metrics calculations should be included in the pipeline. See \code{\link{add_metadata}} & \code{\link{assign_index_peaks}} for more info.
 #'
 #' @return A Quarto template file
@@ -191,7 +191,7 @@ if (is.null(file_name)) {
   stop("You must provide a valid file_name")
 }
 
-source_file <- system.file("extdata/_extensions/template.qmd", package = "instability")
+source_file <- system.file("extdata/_extensions/template.qmd", package = "trace")
 
 if (!file.exists(source_file)) {
   stop(paste("Source file does not exist:", source_file))
@@ -201,9 +201,10 @@ template_content <- readLines(source_file)
 
 if (!batch_correction) {
   template_content <- gsub('metadata\\$batch_run_id <- metadata\\$batch_run_id', '# metadata$batch_run_id <- metadata$batch_run_id', template_content)
+  template_content <- gsub('metadata\\$batch_sample_id <- metadata\\$batch_sample_id', '# metadata$batch_sample_id <- metadata$batch_sample_id', template_content)
   template_content <- gsub('batch_correction = TRUE', 'batch_correction = FALSE', template_content)
   template_content <- gsub('batch_run_id = "batch_run_id"', 'batch_run_id = NA', template_content)
-  ## TOODO fix this for new names
+  template_content <- gsub('batch_sample_id = "batch_sample_id"', 'batch_sample_id = NA', template_content)
 }
 
 if (!samples_grouped) {

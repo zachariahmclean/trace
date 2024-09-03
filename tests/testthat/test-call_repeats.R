@@ -206,7 +206,7 @@ testthat::test_that("repeat period", {
 
 
 
-testthat::test_that("full pipline repeat size algo", {
+testthat::test_that("full pipeline repeat size algo", {
   suppressWarnings(
     test_ladders <- find_ladders(cell_line_fsa_list,
                                  ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),

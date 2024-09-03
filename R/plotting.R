@@ -440,7 +440,7 @@ plot_fragments <- function(
 #' Plot the overlapping traces of the size standards by their size standard ids
 #'
 #' @param fragments_list A list of fragments_repeats objects containing fragment data.
-#' @param sample_subset A character vector of batch_sample_id for a subset of samples to plot. Or alternativly supply a numeric vector.
+#' @param sample_subset A character vector of batch_sample_id for a subset of samples to plot. Or alternatively supply a numeric vector.
 #' @param xlim the x limits of the plot. A numeric vector of length two.
 #' @param x_axis A character indicating what should be plotted on the x-axis, chose between `size` or `repeats`. Only use repeats if plotting after the repeat correction.
 #' @param n_facet_col A numeric value indicating the number of columns for faceting in the plot.
@@ -450,11 +450,11 @@ plot_fragments <- function(
 #' @importFrom grDevices recordPlot replayPlot
 #' 
 #' @details
-#' A plot of the raw signal by bp size or repeats for the size standard samples. The cicle at the top of the plot is for the called allele for that sample.
+#' A plot of the raw signal by bp size or repeats for the size standard samples. The circle at the top of the plot is for the called allele for that sample.
 #'
-#' When plotting the traces before repeat correction, we do not expect the samples to be closely overallping due to run-to-run variation. After repeat correction and plotting "repeats" on the x-axis, the traces should be bascially overlapping. It can be difficult from the "repeats" x-axis to figure out which sample is wrong because if one is wrong it will mess up the repeat size for all other samples in that same batch_run_id. Use the "size" x-axis to make sure all of the traces have the same distribution and modal peak."
+#' When plotting the traces before repeat correction, we do not expect the samples to be closely overlapping due to run-to-run variation. After repeat correction and plotting "repeats" on the x-axis, the traces should be basically overlapping. It can be difficult from the "repeats" x-axis to figure out which sample is wrong because if one is wrong it will mess up the repeat size for all other samples in that same batch_run_id. Use the "size" x-axis to make sure all of the traces have the same distribution and modal peak."
 #' 
-#' These plots are made using base R plotting. Sometimes these fail to render in the viewing panes of IDEs (eg you get the error 'Error in `plot.new()`: figure margins too large)'. If this happens, try saving the plot as a pdf using traditional approaches (see grDevices::pdf). To get it to render in the IDE pane, trying matching `n_facet_col` to the number of samples you're attmpting to plot, or using `sample_subset` to limit it to a single sample.
+#' These plots are made using base R plotting. Sometimes these fail to render in the viewing panes of IDEs (eg you get the error 'Error in `plot.new()`: figure margins too large)'. If this happens, try saving the plot as a pdf using traditional approaches (see grDevices::pdf). To get it to render in the IDE pane, trying matching `n_facet_col` to the number of samples you're attempting to plot, or using `sample_subset` to limit it to a single sample.
 #'
 #' @examples
 #'
@@ -572,7 +572,7 @@ overlapping_plot <- function(sample_fragments) {
     })
   }
 
-  # normalize signal to samples have the same maxium
+  # normalize signal to samples have the same maximum
   sample_traces <- lapply(sample_traces, function(x){
     x$signal <- x$signal - min(x$signal)
     x$rel_signal <- x$signal / max(x$signal)
@@ -652,7 +652,7 @@ graphics::par(mfrow = c(1, 1)) # Reset the layout
 #' @details
 #' A plot of the raw data channels in the fsa file.
 #' 
-#' These plots are made using base R plotting. Sometimes these fail to render in the viewing panes of IDEs (eg you get the error 'Error in `plot.new()`: figure margins too large)'. If this happens, try saving the plot as a pdf using traditional approaches (see grDevices::pdf). To get it to render in the IDE pane, trying matching `n_facet_col` to the number of samples you're attmpting to plot, or using `sample_subset` to limit it to a single sample.
+#' These plots are made using base R plotting. Sometimes these fail to render in the viewing panes of IDEs (eg you get the error 'Error in `plot.new()`: figure margins too large)'. If this happens, try saving the plot as a pdf using traditional approaches (see grDevices::pdf). To get it to render in the IDE pane, trying matching `n_facet_col` to the number of samples you're attempting to plot, or using `sample_subset` to limit it to a single sample.
 #'
 #' @examples
 #' 

@@ -131,7 +131,7 @@ peak_table_to_fragments <- function(
       unique_id = unique_id
     )
   } else {
-    stop("Data format not recognised. Choose between: genemapper5, generic",
+    stop("Data format not recognized. Choose between: genemapper5, generic",
       call. = FALSE
     )
   }
