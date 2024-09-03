@@ -234,26 +234,7 @@ calculate_instability_metrics <- function(
     peak_threshold = 0.05,
     window_around_index_peak = c(NA, NA),
     percentile_range = c(0.5, 0.75, 0.9, 0.95),
-    repeat_range = c(2, 5, 10, 20),
-    grouped = NA,
-    index_override_dataframe = NA) {
-  # this section is in here for backwards compatibility since the functionality of assign_index_peaks() used to happen in here but was later separated
-  if (!is.na(grouped) || is.data.frame(index_override_dataframe)) {
-    # give the user a message to tell them to use the other function
-    message("The functionality of assigning index peaks was separated into the assign_index_peaks() function, with the parameters 'grouped' and 'index_override_dataframe' kept here for backwards compatibility. We recommend using the assign_index_peaks() function separately instead of within this function. This allows you to validate that the correct index peak was assigned before moving forward with calculation of instability metrics.")
-
-    fragments_list <- assign_index_peaks(
-      fragments_list = fragments_list,
-      grouped = ifelse(!is.na(grouped), grouped, FALSE),
-      index_override_dataframe = if (is.data.frame(index_override_dataframe)) {
-        index_override_dataframe
-      } else {
-        NULL
-      }
-    )
-  }
-
-
+    repeat_range = c(2, 5, 10, 20)) {
   # calculate metrics
   metrics_list <- lapply(fragments_list, function(fragments_repeats) {
     # check to make sure all the required inputs for the function have been given

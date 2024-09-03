@@ -263,13 +263,20 @@ testthat::test_that("full pipeline repeat size algo", {
 
 
   # plot_fragments(test_repeats[1:4])
+suppressMessages(
+  suppressWarnings(
+    index_list <- assign_index_peaks(
+      test_repeats,
+      grouped = TRUE
+    )
+  )
+)
 
 
   suppressMessages(
     suppressWarnings(
       test_metrics_grouped <- calculate_instability_metrics(
         fragments_list = test_repeats,
-        grouped = TRUE,
         peak_threshold = 0.05,
         window_around_index_peak = c(-40, 40)
       )
