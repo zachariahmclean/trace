@@ -92,7 +92,7 @@ assign_index_peaks <- function(
           baseline_control_list[[fragments_list[[i]]$metrics_group_id]],
           list(
             list(
-              fragments_list[[i]]$get_alleles()$allele_1_repeat,
+              fragments_list[[i]]$get_allele_peak()$allele_repeat,
               fragments_list[[i]]$repeat_table_df,
               fragments_list[[i]]$batch_run_id
             )
@@ -143,7 +143,7 @@ assign_index_peaks <- function(
   } else {
     # otherwise just use the modal peak as the index peak
     fragments_list <- lapply(fragments_list, function(x) {
-      x$set_index_peak(x$get_alleles()$allele_1_repeat)
+      x$set_index_peak(x$get_allele_peak()$allele_repeat)
       return(x)
     })
   }

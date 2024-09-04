@@ -173,24 +173,21 @@ fragments_repeats <- R6::R6Class(
 
     #' @description
     #' This returns a list with the allele information for this object.
-    get_alleles = function(){
+    get_allele_peak = function(){
       alleles <- list(
-        allele_1_size = private$allele_1_size,
-        allele_1_height = private$allele_1_height,
-        allele_1_repeat = private$allele_1_repeat,
-        allele_2_size = private$allele_2_size,
-        allele_2_height = private$allele_2_height,
-        allele_2_repeat = private$allele_2_repeat
+        #these have allele_ prefix, because in R if you just call something repeat, it causes many issues
+        allele_size = private$allele_size,
+        allele_height = private$allele_height,
+        allele_repeat = private$allele_repeat
       )
       return(alleles)
     },
 
     #' @description
     #' This sets a single allele size/repeat. It searches through the appropriate peak table and finds the closest peak to the value that's provided.
-    #' @param allele Either `1` or `2`, indicating which allele information should be set. Allele 1 is the only one used for repeat instability metrics calculations. 
     #' @param unit Either "size" or "repeats" to indicate if the value you're providing is bp size or repeat length.
     #' @param value Numeric vector (length one) of the size/repeat length to set.
-    set_allele = function(allele, unit, value){
+    set_allele_peak = function(unit, value){
 
       if(!is.na(value)){
         if(is.null(self$repeat_table_df)){
@@ -206,16 +203,11 @@ fragments_repeats <- R6::R6Class(
         if(nrow(allele_df) > 1){
           stop("More than one peak was selected with the value provided", call. = FALSE)
         }
-
-        # Ensure the allele is either 1 or 2
-        if (!(allele %in% c(1, 2))) {
-          stop("Invalid 'allele' input. Please select between 1 or 2", call. = FALSE)
-        }
       }
       # Dynamically construct the variable names and assign values
-      private[[paste0("allele_", allele, "_size")]] <- ifelse(!is.na(value), allele_df$size, NA_real_)
-      private[[paste0("allele_", allele, "_height")]] <- ifelse(!is.na(value), allele_df$height, NA_real_)
-      private[[paste0("allele_", allele, "_repeat")]] <- ifelse(!is.null(self$repeat_table_df) && !is.na(value), allele_df$repeats, NA_real_)      
+      private$allele_size <- ifelse(!is.na(value), allele_df$size, NA_real_)
+      private$allele_height <- ifelse(!is.na(value), allele_df$height, NA_real_)
+      private$allele_repeat <- ifelse(!is.null(self$repeat_table_df) && !is.na(value), allele_df$repeats, NA_real_)      
       private$find_main_peaks_used <- TRUE
 
       invisible(self)
@@ -275,12 +267,9 @@ fragments_repeats <- R6::R6Class(
   private = list(
     find_main_peaks_used = FALSE,
     peak_regions = NA_real_,
-    allele_1_size = NA_real_,
-    allele_1_repeat = NA_real_,
-    allele_1_height = NA_real_,
-    allele_2_size = NA_real_,
-    allele_2_repeat = NA_real_,
-    allele_2_height = NA_real_,
+    allele_size = NA_real_,
+    allele_repeat = NA_real_,
+    allele_height = NA_real_,
     index_repeat = NA_real_,
     index_height = NA_real_,
     batch_correction_factor = NA_real_,

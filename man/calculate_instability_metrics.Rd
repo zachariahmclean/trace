@@ -105,7 +105,6 @@ test_metadata <- add_metadata(
 
 test_alleles <- find_alleles(
   fragments_list = test_metadata,
-  number_of_peaks_to_return = 1,
   peak_region_size_gap_threshold = 6,
   peak_region_height_threshold_multiplier = 1
 )

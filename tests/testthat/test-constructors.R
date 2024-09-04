@@ -3,18 +3,21 @@
 testthat::test_that("peak_table_to_fragments", {
   gm_raw <- trace::example_data
 
-  test_fragments <- peak_table_to_fragments(
-    gm_raw,
-    data_format = "genemapper5",
-    peak_size_col = "Size",
-    peak_height_col = "Height",
-    unique_id = "Sample.File.Name",
-    dye_col = "Dye.Sample.Peak",
-    dye_channel = "B",
-    allele_col = "Allele",
-    min_size_bp = 100,
-    max_size_bp = 1000
+  suppressWarnings(
+    test_fragments <- peak_table_to_fragments(
+      gm_raw,
+      data_format = "genemapper5",
+      peak_size_col = "Size",
+      peak_height_col = "Height",
+      unique_id = "Sample.File.Name",
+      dye_col = "Dye.Sample.Peak",
+      dye_channel = "B",
+      allele_col = "Allele",
+      min_size_bp = 300,
+      max_size_bp = 1000
+    )
   )
+  
 
   test_sample <- test_fragments[[1]]
 

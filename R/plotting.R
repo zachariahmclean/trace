@@ -58,8 +58,7 @@ plot_fragments_helper <- function(fragment_repeats,
   }
 
 
-  allele_1_mode <- ifelse(is.null(fragment_repeats$repeat_table_df), round(fragment_repeats$get_alleles()$allele_1_size), round(fragment_repeats$get_alleles()$allele_1_repeat))
-  allele_2_mode <- ifelse(is.null(fragment_repeats$repeat_table_df), round(fragment_repeats$get_alleles()$allele_2_size), round(fragment_repeats$get_alleles()$allele_2_repeat))
+  allele_mode <- ifelse(is.null(fragment_repeats$repeat_table_df), round(fragment_repeats$get_allele_peak()$allele_size), round(fragment_repeats$get_allele_peak()$allele_repeat))
 
   # Fill missing y values with zeros
   rounded_x <- round(data$x)
@@ -79,7 +78,7 @@ plot_fragments_helper <- function(fragment_repeats,
     ylab = "Signal",
     ylim = ylim,
     beside = TRUE,
-    col = sapply(all_x_values, function(x) if (!is.na(allele_1_mode) && x == allele_1_mode) "red" else if (!is.na(allele_2_mode) && x == allele_2_mode) "blue" else "gray")
+    col = sapply(all_x_values, function(x) if (!is.na(allele_mode) && x == allele_mode) "red" else "gray")
   )
 }
 
@@ -162,17 +161,17 @@ plot_trace_helper <- function(fragments,
 
     tallest_peak_height <- peak_table[which(peak_table$height == max(peak_table$height)), "height"]
     tallest_peak_x <- peak_table[which(peak_table$height == tallest_peak_height), "x"]
-    if (!is.null(fragments$get_alleles()$allele_1_height) && !is.na(fragments$get_alleles()$allele_1_height)) {
-      tallest_peak_height <- fragments$get_alleles()$allele_1_height
+    if (!is.null(fragments$get_allele_peak()$allele_height) && !is.na(fragments$get_allele_peak()$allele_height)) {
+      tallest_peak_height <- fragments$get_allele_peak()$allele_height
       # find the tallest peak x axis position
-      if (is.null(x_axis) && is.na(fragments$get_alleles()$allele_1_repeat)) {
-        tallest_peak_x <- fragments$get_alleles()$allele_1_size
-      } else if (is.null(x_axis) && !is.na(fragments$get_alleles()$allele_1_repeat)) {
-        tallest_peak_x <- fragments$get_alleles()$allele_1_repeat
+      if (is.null(x_axis) && is.na(fragments$get_allele_peak()$allele_repeat)) {
+        tallest_peak_x <- fragments$get_allele_peak()$allele_size
+      } else if (is.null(x_axis) && !is.na(fragments$get_allele_peak()$allele_repeat)) {
+        tallest_peak_x <- fragments$get_allele_peak()$allele_repeat
       } else if (x_axis == "size") {
-        tallest_peak_x <- fragments$get_alleles()$allele_1_size
+        tallest_peak_x <- fragments$get_allele_peak()$allele_size
       } else {
-        tallest_peak_x <- fragments$get_alleles()$allele_1_repeat
+        tallest_peak_x <- fragments$get_allele_peak()$allele_repeat
       }
     }
 
@@ -401,14 +400,12 @@ plot_traces <- function(
 #'
 #' test_fragments <- peak_table_to_fragments(gm_raw,
 #'   data_format = "genemapper5",
-#'   dye_channel = "B"
+#'   dye_channel = "B",
+#'   min_size_bp = 300
 #' )
 #'
 #' test_alleles <- find_alleles(
-#'   fragments_list = test_fragments,
-#'   number_of_peaks_to_return = 2,
-#'   peak_region_size_gap_threshold = 6,
-#'   peak_region_height_threshold_multiplier = 1
+#'   fragments_list = test_fragments
 #' )
 #'
 #' plot_fragments(test_alleles[1:2])
@@ -485,10 +482,7 @@ plot_fragments <- function(
 #' test_fragments <- find_fragments(metadata_added_combined, min_bp_size = 300)
 #'
 #' test_alleles <- find_alleles(
-#'   fragments_list = test_fragments,
-#'   number_of_peaks_to_return = 1,
-#'   peak_region_size_gap_threshold = 6,
-#'   peak_region_height_threshold_multiplier = 1
+#'   fragments_list = test_fragments
 #' )
 #'
 #'
@@ -591,7 +585,7 @@ overlapping_plot <- function(sample_fragments) {
   )
   # also add point for tallest peak. sample_traces and sample_fragments are in the same order
   points(
-    ifelse(x_axis == "size", sample_fragments[[1]]$get_alleles()$allele_1_size, sample_fragments[[1]]$get_alleles()$allele_1_repeat),
+    ifelse(x_axis == "size", sample_fragments[[1]]$get_allele_peak()$allele_size, sample_fragments[[1]]$get_allele_peak()$allele_repeat),
     1,
     col = colors[1]
   )
@@ -600,7 +594,7 @@ overlapping_plot <- function(sample_fragments) {
   for (i in 2:n_dfs) {
     graphics::lines(sample_traces[[i]]$x, sample_traces[[i]]$rel_signal, col = colors[i])
     points(
-      ifelse(x_axis == "size", sample_fragments[[i]]$get_alleles()$allele_1_size, sample_fragments[[i]]$get_alleles()$allele_1_repeat),
+      ifelse(x_axis == "size", sample_fragments[[i]]$get_allele_peak()$allele_size, sample_fragments[[i]]$get_allele_peak()$allele_repeat),
       1,
       col = colors[i]
     )

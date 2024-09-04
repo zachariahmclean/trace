@@ -1,26 +1,33 @@
 
 
 testthat::test_that("call_repeats", {
+
+suppressWarnings(
   test_fragments <- peak_table_to_fragments(example_data,
-                                            data_format = "genemapper5",
-                                            dye_channel = "B"
-  )
+    data_format = "genemapper5",
+    dye_channel = "B",
+    min_size_bp = 300
+)
+)
+
+  
 
   test_alleles <- find_alleles(
-    fragments_list = test_fragments,
-    number_of_peaks_to_return = 2,
-    peak_region_size_gap_threshold = 6,
-    peak_region_height_threshold_multiplier = 1
+    fragments_list = test_fragments
   )
 
-  suppressMessages(
-    test_repeats <- call_repeats(
-      fragments_list = test_alleles,
-      repeat_calling_algorithm = "simple",
-      assay_size_without_repeat = 87,
-      repeat_size = 3
+  suppressWarnings(
+    suppressMessages(
+      test_repeats <- call_repeats(
+        fragments_list = test_alleles,
+        repeat_calling_algorithm = "simple",
+        assay_size_without_repeat = 87,
+        repeat_size = 3
+      )
     )
   )
+
+  
 
 
   test_repeats_class <- vector("numeric", length(test_repeats))
@@ -33,15 +40,17 @@ testthat::test_that("call_repeats", {
 
 
   # force_whole_repeat_units
-
-  suppressMessages(
-    test_repeats_np <- call_repeats(
-      fragments_list = test_alleles,
-      force_whole_repeat_units = TRUE,
-      assay_size_without_repeat = 87,
-      repeat_size = 3
+  suppressWarnings(
+    suppressMessages(
+      test_repeats_np <- call_repeats(
+        fragments_list = test_alleles,
+        force_whole_repeat_units = TRUE,
+        assay_size_without_repeat = 87,
+        repeat_size = 3
+      )
     )
   )
+
 
   #TOODO come up with test for whole repeat units here
   
@@ -83,8 +92,7 @@ testthat::test_that("fft", {
 
 
   fragment_alleles <- find_alleles(
-    fragments_list = peak_list,
-    number_of_peaks_to_return = 1
+    fragments_list = peak_list
   )
 
 
@@ -152,8 +160,7 @@ testthat::test_that("repeat period", {
 
 
   fragment_alleles <- find_alleles(
-    fragments_list = peak_list,
-    number_of_peaks_to_return = 1
+    fragments_list = peak_list
   )
 
   suppressMessages(
@@ -223,10 +230,7 @@ testthat::test_that("full pipeline repeat size algo", {
     metadata_data.frame = metadata
   )
 
-  fragment_alleles <- find_alleles(
-    fragments_list = fragment_metadata,
-    number_of_peaks_to_return = 1
-  )
+  fragment_alleles <- find_alleles(fragments_list = fragment_metadata)
 
   suppressMessages(
     suppressWarnings(

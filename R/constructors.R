@@ -98,7 +98,7 @@ peak_table_to_fragments <- function(
     dye_col = NULL,
     dye_channel = NULL,
     allele_col = NULL,
-    min_size_bp = 100,
+    min_size_bp = 200,
     max_size_bp = 1000) {
   # check to make sure that if the user supplies a column name, that it's actually in the dataframe
   if (any(!is.null(peak_size_col), !is.null(peak_height_col), !is.null(unique_id))) {

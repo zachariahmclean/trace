@@ -7,10 +7,15 @@ testthat::test_that("remove fragments", {
   metadata <- trace::metadata
   # Save raw data as a fragment class
 
-  test_fragments <- peak_table_to_fragments(
-    gm_raw,
-    data_format = "genemapper5",
-    dye_channel = "B"
+
+  suppressWarnings(
+    test_fragments <- peak_table_to_fragments(
+      gm_raw,
+      data_format = "genemapper5",
+      dye_channel = "B",
+      min_size_bp = 300
+    )
+  
   )
 
   all_fragment_names <- names(test_fragments)
