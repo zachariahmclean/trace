@@ -65,10 +65,7 @@ metadata_added_combined <- c(test_metadata, test_metadata2)
 test_fragments <- find_fragments(metadata_added_combined, min_bp_size = 300)
 
 test_alleles <- find_alleles(
-  fragments_list = test_fragments,
-  number_of_peaks_to_return = 1,
-  peak_region_size_gap_threshold = 6,
-  peak_region_height_threshold_multiplier = 1
+  fragments_list = test_fragments
 )
 
 

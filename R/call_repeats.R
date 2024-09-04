@@ -184,7 +184,7 @@ find_peaks_by_scan_period <- function(df,
 fft_repeat_caller <- function(fragments_repeat,
                               scan_peak_window = 3,
                               fragment_window = 3 * 5) {
-  if (is.na(fragments_repeat$get_alleles()$allele_1_size)) {
+  if (is.na(fragments_repeat$get_allele_peak()$allele_size)) {
     df <- data.frame(
       "unique_id" = character(),
       "scan" = numeric(),
@@ -195,9 +195,9 @@ fft_repeat_caller <- function(fragments_repeat,
     return(df)
   }
 
-  fragment_window_positions <- which(fragments_repeat$trace_bp_df$size > fragments_repeat$get_alleles()$allele_1_size - fragment_window & fragments_repeat$trace_bp_df$size < fragments_repeat$get_alleles()$allele_1_size + fragment_window)
+  fragment_window_positions <- which(fragments_repeat$trace_bp_df$size > fragments_repeat$get_allele_peak()$allele_size - fragment_window & fragments_repeat$trace_bp_df$size < fragments_repeat$get_allele_peak()$allele_size + fragment_window)
   window_df <- fragments_repeat$trace_bp_df[fragment_window_positions, ]
-  main_peak_scan <- window_df[which(window_df$size == fragments_repeat$get_alleles()$allele_1_size), "scan"]
+  main_peak_scan <- window_df[which(window_df$size == fragments_repeat$get_allele_peak()$allele_size), "scan"]
 
   peak_scan_period <- find_scan_period(window_df, main_peak_scan)
 
@@ -232,7 +232,7 @@ size_period_repeat_caller <- function(fragments_repeat,
                                       size_period,
                                       scan_peak_window = 3,
                                       fragment_window = 3 * 5) {
-  if (is.na(fragments_repeat$get_alleles()$allele_1_size)) {
+  if (is.na(fragments_repeat$get_allele_peak()$allele_size)) {
     df <- data.frame(
       "unique_id" = character(),
       "scan" = numeric(),
@@ -243,9 +243,9 @@ size_period_repeat_caller <- function(fragments_repeat,
     return(df)
   }
 
-  fragment_window_positions <- which(fragments_repeat$trace_bp_df$size > fragments_repeat$get_alleles()$allele_1_size - fragment_window & fragments_repeat$trace_bp_df$size < fragments_repeat$get_alleles()$allele_1_size + fragment_window)
+  fragment_window_positions <- which(fragments_repeat$trace_bp_df$size > fragments_repeat$get_allele_peak()$allele_size - fragment_window & fragments_repeat$trace_bp_df$size < fragments_repeat$get_allele_peak()$allele_size + fragment_window)
   window_df <- fragments_repeat$trace_bp_df[fragment_window_positions, ]
-  main_peak_scan <- window_df[which(window_df$size == fragments_repeat$get_alleles()$allele_1_size), "scan"]
+  main_peak_scan <- window_df[which(window_df$size == fragments_repeat$get_allele_peak()$allele_size), "scan"]
 
 
   # determine period
@@ -285,7 +285,7 @@ find_batch_correction_factor <- function(fragments_list, trace_window_size = 50,
       unique_id = x$unique_id,
       batch_run_id = x$batch_run_id,
       batch_sample_id = x$batch_sample_id,
-      allele_1_height = x$get_alleles()$allele_1_height
+      allele_height = x$get_allele_peak()$allele_height
     )
     return(df)
   })
@@ -294,10 +294,10 @@ find_batch_correction_factor <- function(fragments_list, trace_window_size = 50,
 
   # filter for batch correction samples that have a trace (height > 100). perhaps a little arbitrary
   correction_sample_df <- metadata_df[which(!is.na(metadata_df$batch_run_id) & !is.na(metadata_df$batch_sample_id)), , drop = FALSE]
-  correction_sample_df <- correction_sample_df[which(!is.na(correction_sample_df$allele_1_height) & correction_sample_df$allele_1_height > 100), ]
+  correction_sample_df <- correction_sample_df[which(!is.na(correction_sample_df$allele_height) & correction_sample_df$allele_height > 100), ]
 
   if(length(unique(na.omit(correction_sample_df$batch_run_id))) <= 1){
-    message("Batch correction was not carried out. There needs to be more than one 'batch_run_id' that have samples of adequate quality (allele_1_height > 100)")
+    message("Batch correction was not carried out. There needs to be more than one 'batch_run_id' that have samples of adequate quality (allele_height > 100)")
     # need to now exit out of this function early and make sure batch correction is FALSE in the outer environment of the other function
     assign("batch_correction", FALSE, envir = parent.frame())
     return(NULL)
@@ -307,7 +307,7 @@ find_batch_correction_factor <- function(fragments_list, trace_window_size = 50,
   matched_indices <- match(correction_sample_df$unique_id, names(fragments_list))
   correction_sample_fragments <- fragments_list[matched_indices]
   correction_sample_df$smoothed_modal_size <- sapply(correction_sample_fragments, function(fragment){
-      df <- fragment$trace_bp_df[which(fragment$trace_bp_df$size < fragment$get_alleles()$allele_1_size + trace_window_size & fragment$trace_bp_df$size > fragment$get_alleles()$allele_1_size - trace_window_size ), ]
+      df <- fragment$trace_bp_df[which(fragment$trace_bp_df$size < fragment$get_allele_peak()$allele_size + trace_window_size & fragment$trace_bp_df$size > fragment$get_allele_peak()$allele_size - trace_window_size ), ]
       df$smoothed <- pracma::savgol(df$signal, smoothing_window)
       smoothed_modal_size <- df[which.max(df$smoothed), "size"]
       return(smoothed_modal_size)
@@ -479,7 +479,7 @@ call_repeats <- function(
       }
 
       # only continue from here if main peaks were successfully found, otherwise, don't return repeat data (ie it can be an empty df)
-      if (is.na(fragment$get_alleles()$allele_1_size) | is.na(fragment$get_alleles()$allele_1_height)) {
+      if (is.na(fragment$get_allele_peak()$allele_size) | is.na(fragment$get_allele_peak()$allele_height)) {
         fragment$.__enclos_env__$private$repeats_not_called_reason <- "No main peaks"
         warning(paste0(fragment$unique_id, ": repeats were not called (no main peaks in sample)"),
           call. = FALSE
@@ -593,18 +593,16 @@ call_repeats <- function(
       if (force_whole_repeat_units == TRUE) {
         repeat_table_df$repeats <- np_repeat(
           size = repeat_table_df$size,
-          main_peak_size = fragment$get_alleles()$allele_1_size,
-          main_peak_repeat = repeat_table_df$calculated_repeats[which(repeat_table_df$size == fragment$get_alleles()$allele_1_size)],
+          main_peak_size = fragment$get_allele_peak()$allele_size,
+          main_peak_repeat = repeat_table_df$calculated_repeats[which(repeat_table_df$size == fragment$get_allele_peak()$allele_size)],
           repeat_size = repeat_size
         )
       }
 
       # Finally save main peak repeat length and repeats data
       fragment$repeat_table_df <- repeat_table_df
-      allele_1_subset <- repeat_table_df$repeats[which(repeat_table_df$size == fragment$get_alleles()$allele_1_size)]
-      fragment$set_allele(allele = 1, unit = "repeats", value = ifelse(length(allele_1_subset) == 1, allele_1_subset, NA_real_))
-      allele_2_subset <- repeat_table_df$repeats[which(repeat_table_df$size == fragment$get_alleles()$allele_2_size)]
-      fragment$set_allele(allele = 2, unit = "repeats", value = ifelse(length(allele_2_subset) == 1, allele_2_subset, NA_real_))
+      allele_subset <- repeat_table_df$repeats[which(repeat_table_df$size == fragment$get_allele_peak()$allele_size)]
+      fragment$set_allele_peak(unit = "repeats", value = ifelse(length(allele_subset) == 1, allele_subset, NA_real_))
 
       # also calculate repeat length for the trace-level data if it exists
       if (!is.null(fragment$trace_bp_df)) {

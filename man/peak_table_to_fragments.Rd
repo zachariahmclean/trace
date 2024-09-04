@@ -13,7 +13,7 @@ peak_table_to_fragments(
   dye_col = NULL,
   dye_channel = NULL,
   allele_col = NULL,
-  min_size_bp = 100,
+  min_size_bp = 200,
   max_size_bp = 1000
 )
 }

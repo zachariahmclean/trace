@@ -155,8 +155,7 @@ One issue is that the height of the signal for each sample varies. We can solve 
 
 ```{r}
 
-alleles_df <- extract_alleles(repeats_list[samples_for_plotting]) |>
-  filter(peak_allele == 1) # filter for the allele of interest
+alleles_df <- extract_alleles(repeats_list[samples_for_plotting])
 
 sample_to_exclude <- alleles_df[which(is.na(alleles_df$repeats)), "unique_id"]
 

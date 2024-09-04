@@ -10,16 +10,11 @@ testthat::test_that("percentiles", {
 
   test_fragments <- peak_table_to_fragments(test_df,
     data_format = "genemapper5",
-    # peak_size_col = "size",
-    # peak_height_col = "signal",
     dye_channel = "B",
     min_size_bp = 350
   )
 
-  test_main_peaks <- find_alleles(test_fragments[1],
-                                  number_of_peaks_to_return = 1,
-                                  peak_region_size_gap_threshold = 6,
-                                  peak_region_height_threshold_multiplier = 1)
+  test_main_peaks <- find_alleles(test_fragments[1])
 
   test_fragments_repeats_simple <- call_repeats(
     test_main_peaks,
@@ -36,7 +31,7 @@ testthat::test_that("percentiles", {
   percentiles <- find_percentiles(
     repeats = test_distribution_df$repeats,
     heights = test_distribution_df$height,
-    index_peak_repeat = test_fragments_repeats_simple[[1]]$get_alleles()$allele_1_repeat,
+    index_peak_repeat = test_fragments_repeats_simple[[1]]$get_allele_peak()$allele_repeat,
     type = "percentile", # "percentile" or "repeat"
     range = seq(0.1, 0.99, .10),
     col_prefix = "percentile"
@@ -45,7 +40,7 @@ testthat::test_that("percentiles", {
   repeat_test <- find_percentiles(
     repeats = test_distribution_df$repeats,
     heights = test_distribution_df$height,
-    index_peak_repeat = test_fragments_repeats_simple[[1]]$get_alleles()$allele_1_repeat,
+    index_peak_repeat = test_fragments_repeats_simple[[1]]$get_allele_peak()$allele_repeat,
     type = "repeat", # "percentile" or "repeat"
     range = percentiles$percentile_0.2,
     col_prefix = "repeat"
@@ -76,10 +71,7 @@ testthat::test_that("calculate metrics", {
   )
 
   test_alleles <- find_alleles(
-    fragments_list = test_metadata,
-    number_of_peaks_to_return = 1,
-    peak_region_size_gap_threshold = 6,
-    peak_region_height_threshold_multiplier = 1
+    fragments_list = test_metadata
   )
 
 
@@ -119,7 +111,7 @@ testthat::test_that("calculate metrics", {
   testthat::expect_true(round(mean(test_metrics_ungrouped$expansion_index, na.rm = TRUE), 3) == 4.867)
   testthat::expect_true(all(is.na(test_metrics_ungrouped$average_repeat_gain)))
   testthat::expect_true(round(mean(test_metrics_ungrouped$skewness, na.rm = TRUE), 5) == -0.009)
-  testthat::expect_true(test_assignment_ungrouped[[1]]$get_alleles()$allele_1_repeat == test_assignment_ungrouped[[1]]$get_index_peak()$index_repeat)
+  testthat::expect_true(test_assignment_ungrouped[[1]]$get_allele_peak()$allele_repeat == test_assignment_ungrouped[[1]]$get_index_peak()$index_repeat)
   testthat::expect_true(all(sapply(test_assignment_ungrouped, function(x) x$.__enclos_env__$private$assigned_index_peak_used)))
   #test override
 
@@ -182,7 +174,7 @@ testthat::test_that("calculate metrics", {
   testthat::expect_true(round(mean(test_metrics_grouped$expansion_index, na.rm = TRUE), 3) == 6.599)
   testthat::expect_true(round(mean(test_metrics_grouped$average_repeat_gain, na.rm = TRUE), 3) == 4.05)
   testthat::expect_true(round(mean(test_metrics_grouped$skewness, na.rm = TRUE), 5) == -0.009)
-  testthat::expect_true(test_assignment_grouped[[1]]$get_alleles()$allele_1_repeat != test_assignment_grouped[[1]]$get_index_peak()$index_repeat)
+  testthat::expect_true(test_assignment_grouped[[1]]$get_allele_peak()$allele_repeat != test_assignment_grouped[[1]]$get_index_peak()$index_repeat)
   testthat::expect_true(all(sapply(test_assignment_grouped, function(x) x$.__enclos_env__$private$assigned_index_peak_used)))
 
 

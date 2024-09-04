@@ -43,8 +43,7 @@ testthat::test_that("full pipeline", {
   )
 
   fragment_alleles <- find_alleles(
-    fragments_list = fragment_metadata,
-    number_of_peaks_to_return = 1
+    fragments_list = fragment_metadata
   )
 
   suppressMessages(

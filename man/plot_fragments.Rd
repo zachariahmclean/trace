@@ -34,14 +34,12 @@ gm_raw <- trace::example_data
 
 test_fragments <- peak_table_to_fragments(gm_raw,
   data_format = "genemapper5",
-  dye_channel = "B"
+  dye_channel = "B",
+  min_size_bp = 300
 )
 
 test_alleles <- find_alleles(
-  fragments_list = test_fragments,
-  number_of_peaks_to_return = 2,
-  peak_region_size_gap_threshold = 6,
-  peak_region_height_threshold_multiplier = 1
+  fragments_list = test_fragments
 )
 
 plot_fragments(test_alleles[1:2])
