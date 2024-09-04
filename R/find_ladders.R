@@ -15,11 +15,11 @@ detrend_signal <- function(x, bins = 50) {
 
 process_ladder_signal <- function(ladder,
                                   scans,
-                                  spike_location,
+                                  ladder_start_scan,
                                   smoothing_window) {
   
   ladder_df <- data.frame(signal = ladder, scan = scans)
-  ladder_df <- ladder_df[which(ladder_df$scan >= spike_location), ]
+  ladder_df <- ladder_df[which(ladder_df$scan >= ladder_start_scan), ]
   ladder_df$detrended_signal <- detrend_signal(ladder_df$signal)
   ladder_df$smoothed_signal <- pracma::savgol(
     ladder_df$detrended_signal,
@@ -420,7 +420,7 @@ ladder_self_mod_predict <- function(fragments_trace,
 #'        signal
 #' @param ladder_sizes numeric vector: bp sizes of ladder used in fragment analysis.
 #'        defaults to GeneScan™ 500 LIZ™
-#' @param spike_location numeric: indicate the scan number to start looking for
+#' @param ladder_start_scan numeric: indicate the scan number to start looking for
 #'        ladder peaks. Usually this can be automatically found (when set to NULL) since
 #'        there's a big spike right at the start. However, if your ladder peaks
 #'        are taller than the big spike, you will need to set this starting scan
@@ -477,7 +477,7 @@ find_ladders <- function(
     ladder_channel = "DATA.105",
     signal_channel = "DATA.1",
     ladder_sizes = c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
-    spike_location = NULL,
+    ladder_start_scan = NULL,
     minimum_peak_signal = NULL,
     zero_floor = FALSE,
     scan_subset = NULL,
@@ -490,8 +490,8 @@ find_ladders <- function(
       ladder,
       scans,
       sample_id) {
-    if (is.null(spike_location)) {
-      spike_location <- which.max(ladder) + 50
+    if (is.null(ladder_start_scan)) {
+      ladder_start_scan <- which.max(ladder) + 50
     }
 
     if (zero_floor) {
@@ -499,7 +499,7 @@ find_ladders <- function(
     }
 
     ladder_df <- data.frame(signal = ladder, scan = scans)
-    ladder_df <- ladder_df[which(ladder_df$scan >= spike_location), ]
+    ladder_df <- ladder_df[which(ladder_df$scan >= ladder_start_scan), ]
     ladder_df$detrended_signal <- detrend_signal(ladder_df$signal)
     ladder_df$smoothed_signal <- pracma::savgol(
       ladder_df$detrended_signal,
@@ -558,7 +558,7 @@ find_ladders <- function(
       fragments_trace[[i]]$scan <- fragments_trace[[i]]$scan[scan_subset[1]:scan_subset[2]]
 
       # set spike location since it's automatically set usually, and user may select scans to start after
-      spike_location <- scan_subset[1]
+      ladder_start_scan <- scan_subset[1]
     }
 
     # ladder

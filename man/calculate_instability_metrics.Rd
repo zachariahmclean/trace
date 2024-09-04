@@ -9,9 +9,7 @@ calculate_instability_metrics(
   peak_threshold = 0.05,
   window_around_index_peak = c(NA, NA),
   percentile_range = c(0.5, 0.75, 0.9, 0.95),
-  repeat_range = c(2, 5, 10, 20),
-  grouped = NA,
-  index_override_dataframe = NA
+  repeat_range = c(2, 5, 10, 20)
 )
 }
 \arguments{

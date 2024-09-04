@@ -15,7 +15,7 @@ plot_batch_correction_samples(
 \arguments{
 \item{fragments_list}{A list of fragments_repeats objects containing fragment data.}
 
-\item{sample_subset}{A character vector of batch_sample_id for a subset of samples to plot. Or alternativly supply a numeric vector.}
+\item{sample_subset}{A character vector of batch_sample_id for a subset of samples to plot. Or alternatively supply a numeric vector.}
 
 \item{x_axis}{A character indicating what should be plotted on the x-axis, chose between \code{size} or \code{repeats}. Only use repeats if plotting after the repeat correction.}
 
@@ -30,11 +30,11 @@ plot traces from fragments object
 Plot the overlapping traces of the size standards by their size standard ids
 }
 \details{
-A plot of the raw signal by bp size or repeats for the size standard samples. The cicle at the top of the plot is for the called allele for that sample.
+A plot of the raw signal by bp size or repeats for the size standard samples. The circle at the top of the plot is for the called allele for that sample.
 
-When plotting the traces before repeat correction, we do not expect the samples to be closely overallping due to run-to-run variation. After repeat correction and plotting "repeats" on the x-axis, the traces should be bascially overlapping. It can be difficult from the "repeats" x-axis to figure out which sample is wrong because if one is wrong it will mess up the repeat size for all other samples in that same batch_run_id. Use the "size" x-axis to make sure all of the traces have the same distribution and modal peak."
+When plotting the traces before repeat correction, we do not expect the samples to be closely overlapping due to run-to-run variation. After repeat correction and plotting "repeats" on the x-axis, the traces should be basically overlapping. It can be difficult from the "repeats" x-axis to figure out which sample is wrong because if one is wrong it will mess up the repeat size for all other samples in that same batch_run_id. Use the "size" x-axis to make sure all of the traces have the same distribution and modal peak."
 
-These plots are made using base R plotting. Sometimes these fail to render in the viewing panes of IDEs (eg you get the error 'Error in \code{plot.new()}: figure margins too large)'. If this happens, try saving the plot as a pdf using traditional approaches (see grDevices::pdf). To get it to render in the IDE pane, trying matching \code{n_facet_col} to the number of samples you're attmpting to plot, or using \code{sample_subset} to limit it to a single sample.
+These plots are made using base R plotting. Sometimes these fail to render in the viewing panes of IDEs (eg you get the error 'Error in \code{plot.new()}: figure margins too large)'. If this happens, try saving the plot as a pdf using traditional approaches (see grDevices::pdf). To get it to render in the IDE pane, trying matching \code{n_facet_col} to the number of samples you're attempting to plot, or using \code{sample_subset} to limit it to a single sample.
 }
 \examples{
 

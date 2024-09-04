@@ -21,9 +21,9 @@ It also contains methods for plotting the ladder and traces (if available).
 \describe{
 \item{\code{trace_bp_df}}{A dataframe of bp size for every scan from \code{find_ladders()}.}
 
-\item{\code{peak_table_df}}{A dataframe containing the fragment peak level informtation.}
+\item{\code{peak_table_df}}{A dataframe containing the fragment peak level information.}
 
-\item{\code{repeat_table_df}}{A dataframe containing the fragment peak level informtation with the repeat size added. May or may not be the same as peak_table_df depending on what options are chosen in \code{call_repeats}.}
+\item{\code{repeat_table_df}}{A dataframe containing the fragment peak level information with the repeat size added. May or may not be the same as peak_table_df depending on what options are chosen in \code{call_repeats}.}
 }
 \if{html}{\out{</div>}}
 }

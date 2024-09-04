@@ -396,9 +396,8 @@ testthat::test_that("batch correction", {
 
   testthat::expect_true(all.equal(c(rep(0.78526, 92), rep(-0.78526, 2)), round(as.numeric(sapply(allele_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)))
   
-  # plot_batch_correction_samples(repeats_list, x_axis = "size", xlim = c(400, 470), n_facet_col = 2)
-  # plot_batch_correction_samples(repeats_list, x_axis = "repeats", xlim = c(100, 130), n_facet_col = 2)
-  # plot_batch_correction_samples(repeats_list, x_axis = "repeats", xlim = c(100, 130), n_facet_col = 1, sample_subset = "S-21-211")
+  # plot_batch_correction_samples(repeats_list, x_axis = "size", xlim = c(400, 430), n_facet_col = 2)
+  # plot_batch_correction_samples(repeats_list, x_axis = "repeats", xlim = c(100, 115), n_facet_col = 2)
 
 
 })

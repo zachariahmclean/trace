@@ -2,7 +2,7 @@ testthat::test_that("find ladder peaks", {
 
   test_processed <- process_ladder_signal(cell_line_fsa_list[[1]]$fsa$Data$DATA.105,
     scans = 0:(length(cell_line_fsa_list[[1]]$fsa$Data$DATA.105) - 1),
-    spike_location = 1000,
+    ladder_start_scan = 1000,
     smoothing_window = 21
   )
 
@@ -78,7 +78,7 @@ test_that("iterative ladder", {
 #   test_fit <- fit_ladder(
 #     ladder = test_ladder_signal,
 #     scans = test_scans,
-#     spike_location = NULL,
+#     ladder_start_scan = NULL,
 #     ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
 #     smoothing_window = 21,
 #     minimum_peak_signal = NULL,
@@ -107,7 +107,7 @@ test_that("iterative ladder", {
 #     ladder = test_ladder_signal,
 #     scans = test_scans,
 #     ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
-#     spike_location = NULL,
+#     ladder_start_scan = NULL,
 #     smoothing_window = 21,
 #     minimum_peak_signal = NULL,
 #     zero_floor = FALSE,

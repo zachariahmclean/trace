@@ -17,6 +17,6 @@ A genemapper output dataframe
 metadata
 }
 \description{
-This is a dataframe containing the metadata information for the exmaple data
+This is a dataframe containing the metadata information for the example data
 }
 \keyword{datasets}

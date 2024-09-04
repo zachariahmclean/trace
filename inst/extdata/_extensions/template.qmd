@@ -94,7 +94,7 @@ ladder_list <- find_ladders(
   signal_channel = "DATA.1",
   ladder_sizes = ladder_sizes,
   # advanced parameters for fine tuning
-  spike_location = NULL,
+  ladder_start_scan = NULL,
   minimum_peak_signal = NULL,
   zero_floor = FALSE,
   scan_subset = NULL,

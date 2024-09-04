@@ -12,15 +12,15 @@ This is the parent class of both fragments_trace and fragments_repeats object. T
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{unique_id}}{unique id of the sanmple usually the file name}
+\item{\code{unique_id}}{unique id of the sample usually the file name}
 
-\item{\code{metrics_group_id}}{sample grouping for metrics calculations. Associated with \code{add_metdata()}.}
+\item{\code{metrics_group_id}}{sample grouping for metrics calculations. Associated with \code{add_metadata()}.}
 
-\item{\code{metrics_baseline_control}}{logical to indicate if sample is the baseline control. Associated with \code{add_metdata()}.}
+\item{\code{metrics_baseline_control}}{logical to indicate if sample is the baseline control. Associated with \code{add_metadata()}.}
 
-\item{\code{batch_run_id}}{fragment analsyis run. Associated with \code{add_metdata()}.}
+\item{\code{batch_run_id}}{fragment analysis run. Associated with \code{add_metadata()}.}
 
-\item{\code{batch_sample_id}}{An id for the sample used as size standard for repeat calculation. Associated with \code{add_metdata()}.}
+\item{\code{batch_sample_id}}{An id for the sample used as size standard for repeat calculation. Associated with \code{add_metadata()}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -79,7 +79,7 @@ plot the trace data
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{show_peaks}}{A logical to say if the called peaks should be overlayed on top of the trace. Only valid for fragments_repeats objects.}
+\item{\code{show_peaks}}{A logical to say if the called peaks should be plotted on top of the trace. Only valid for fragments_repeats objects.}
 
 \item{\code{x_axis}}{Either "size" or "repeats" to indicate what should be plotted on the x-axis.}
 
@@ -87,7 +87,7 @@ plot the trace data
 
 \item{\code{xlim}}{numeric vector length two specifying the x axis limits}
 
-\item{\code{height_color_threshold}}{A thershold value to colour the peaks relative to the tallest peak.}
+\item{\code{height_color_threshold}}{A threshold value to colour the peaks relative to the tallest peak.}
 
 \item{\code{plot_title}}{A character string for setting the plot title. Defaults to the unique id of the object}
 }

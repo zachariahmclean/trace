@@ -10,7 +10,7 @@ find_ladders(
   signal_channel = "DATA.1",
   ladder_sizes = c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490,
     500),
-  spike_location = NULL,
+  ladder_start_scan = NULL,
   minimum_peak_signal = NULL,
   zero_floor = FALSE,
   scan_subset = NULL,
@@ -32,7 +32,7 @@ signal}
 \item{ladder_sizes}{numeric vector: bp sizes of ladder used in fragment analysis.
 defaults to GeneScan™ 500 LIZ™}
 
-\item{spike_location}{numeric: indicate the scan number to start looking for
+\item{ladder_start_scan}{numeric: indicate the scan number to start looking for
 ladder peaks. Usually this can be automatically found (when set to NULL) since
 there's a big spike right at the start. However, if your ladder peaks
 are taller than the big spike, you will need to set this starting scan
@@ -72,6 +72,8 @@ is a list of fragments_traces. bp sizes are assigned using the local Southern
 method. Basically, for each data point, linear models are made for the lower
 and upper 3 size standard and the predicted sizes are averaged.
 
+Use \code{\link[=plot_data_channels]{plot_data_channels()}} to plot the raw data on the fsa file to identify which channel the ladder and data are in.
+
 The ladder peaks are assigned from largest to smallest. I would recommend excluding
 size standard peaks less than 50 bp (eg size standard 35 bp).
 
@@ -89,7 +91,7 @@ plot_ladders(test_ladders[1])
 
 }
 \seealso{
-\code{\link[=fix_ladders_auto]{fix_ladders_auto()}} and \code{\link[=fix_ladders_interactive]{fix_ladders_interactive()}} to fix ladders with
-incorrectly assigned peaks. \code{\link[=plot_ladders]{plot_ladders()}} to plot the assigned ladder
-peaks onto the raw ladder signal.
+\code{\link[=plot_data_channels]{plot_data_channels()}} to plot the raw data in all channels. \code{\link[=plot_ladders]{plot_ladders()}} to plot the assigned ladder
+peaks onto the raw ladder signal. \code{\link[=fix_ladders_interactive]{fix_ladders_interactive()}} to fix ladders with
+incorrectly assigned peaks.
 }
