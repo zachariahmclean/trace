@@ -1,11 +1,7 @@
 # add metadata -------------------------------------------------
 
 testthat::test_that("add_metadata", {
-  gm_raw <- trace::example_data
-  metadata <- trace::metadata
-  # Save raw data as a fragment class
-
-  test_fragments <- peak_table_to_fragments(gm_raw,
+  test_fragments <- peak_table_to_fragments(example_data,
     data_format = "genemapper5",
     # peak_size_col = "size",
     # peak_height_col = "signal",
@@ -24,7 +20,7 @@ testthat::test_that("add_metadata", {
     test_fragments_batch_run_id[i] <- test_metadata[[i]]$batch_run_id
   }
 
-  testthat::expect_true(all(test_fragments_batch_run_id == 20230414))
+  testthat::expect_true(all(test_fragments_batch_run_id %in% c(20230414, 20220630)))
 
   # metrics_group_id assigned
   test_fragments_metrics_group_id <- vector("character", length(test_metadata))
@@ -62,11 +58,7 @@ testthat::test_that("add_metadata", {
 
 
 testthat::test_that("add_metadata missing", {
-  gm_raw <- trace::example_data
-  metadata <- trace::metadata
-  # Save raw data as a fragment class
-
-  test_fragments <- peak_table_to_fragments(gm_raw,
+  test_fragments <- peak_table_to_fragments(example_data,
     data_format = "genemapper5",
     # peak_size_col = "size",
     # peak_height_col = "signal",

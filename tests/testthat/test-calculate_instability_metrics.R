@@ -60,12 +60,8 @@ testthat::test_that("percentiles", {
 # metrics ---------------------------------------
 
 testthat::test_that("calculate metrics", {
-  gm_raw <- trace::example_data
-  metadata <- trace::metadata
-  # Save raw data as a fragment class
-
   suppressWarnings(
-    test_fragments <- peak_table_to_fragments(gm_raw,
+    test_fragments <- peak_table_to_fragments(example_data,
       data_format = "genemapper5",
       dye_channel = "B",
       min_size_bp = 400
@@ -120,9 +116,9 @@ testthat::test_that("calculate metrics", {
     )
   )
 
-  testthat::expect_true(round(mean(test_metrics_ungrouped$expansion_index, na.rm = TRUE), 3) == 4.956)
+  testthat::expect_true(round(mean(test_metrics_ungrouped$expansion_index, na.rm = TRUE), 3) == 4.867)
   testthat::expect_true(all(is.na(test_metrics_ungrouped$average_repeat_gain)))
-  testthat::expect_true(round(mean(test_metrics_ungrouped$skewness, na.rm = TRUE), 5) == -0.00905)
+  testthat::expect_true(round(mean(test_metrics_ungrouped$skewness, na.rm = TRUE), 5) == -0.009)
   testthat::expect_true(test_assignment_ungrouped[[1]]$get_alleles()$allele_1_repeat == test_assignment_ungrouped[[1]]$get_index_peak()$index_repeat)
   testthat::expect_true(all(sapply(test_assignment_ungrouped, function(x) x$.__enclos_env__$private$assigned_index_peak_used)))
   #test override
@@ -183,9 +179,9 @@ testthat::test_that("calculate metrics", {
   )
 
 
-  testthat::expect_true(round(mean(test_metrics_grouped$expansion_index, na.rm = TRUE), 3) == 6.727)
-  testthat::expect_true(round(mean(test_metrics_grouped$average_repeat_gain, na.rm = TRUE), 3) == 4.14)
-  testthat::expect_true(round(mean(test_metrics_grouped$skewness, na.rm = TRUE), 5) == -0.00905)
+  testthat::expect_true(round(mean(test_metrics_grouped$expansion_index, na.rm = TRUE), 3) == 6.599)
+  testthat::expect_true(round(mean(test_metrics_grouped$average_repeat_gain, na.rm = TRUE), 3) == 4.05)
+  testthat::expect_true(round(mean(test_metrics_grouped$skewness, na.rm = TRUE), 5) == -0.009)
   testthat::expect_true(test_assignment_grouped[[1]]$get_alleles()$allele_1_repeat != test_assignment_grouped[[1]]$get_index_peak()$index_repeat)
   testthat::expect_true(all(sapply(test_assignment_grouped, function(x) x$.__enclos_env__$private$assigned_index_peak_used)))
 

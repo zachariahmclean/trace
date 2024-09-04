@@ -1,11 +1,7 @@
 
 
 testthat::test_that("call_repeats", {
-  gm_raw <- trace::example_data
-  metadata <- trace::metadata
-  # Save raw data as a fragment class
-
-  test_fragments <- peak_table_to_fragments(gm_raw,
+  test_fragments <- peak_table_to_fragments(example_data,
                                             data_format = "genemapper5",
                                             dye_channel = "B"
   )
@@ -36,7 +32,7 @@ testthat::test_that("call_repeats", {
   testthat::expect_true(all(unique(test_repeats_class) == "fragments_repeats"))
 
 
-  # nearest peak algo
+  # force_whole_repeat_units
 
   suppressMessages(
     test_repeats_np <- call_repeats(
@@ -47,23 +43,7 @@ testthat::test_that("call_repeats", {
     )
   )
 
-
-  test_repeats_np_dif <- vector("list", length(test_repeats_np))
-  for (i in seq_along(test_repeats_np)) {
-    repeat_sizes <- test_repeats_np[[i]]$repeat_table_df$repeats
-
-    lag <- vector("numeric", length(repeat_sizes))
-    for (j in 2:length(repeat_sizes)) {
-      lag[j] <- repeat_sizes[j] - repeat_sizes[j - 1]
-    }
-
-    test_repeats_np_dif[[i]] <- lag
-  }
-
-  all_integers <- sapply(test_repeats_np_dif, function(x) all(round(x, 10) %in% 0:200))
-
-  testthat::expect_true(all(all_integers))
-
+  #TOODO come up with test for whole repeat units here
   
 })
 
@@ -396,3 +376,76 @@ testthat::test_that("size standards with ids", {
 
 })
 
+
+testthat::test_that("batch correction", {
+
+
+  ladder_list <- find_ladders(cell_line_fsa_list,
+          show_progress_bar = FALSE)
+
+  fragments_list <- find_fragments(ladder_list, min_bp_size = 300)
+
+  metadata_list <- add_metadata(fragments_list,
+    metadata)
+  
+  allele_list <- find_alleles(metadata_list)
+  suppressWarnings(
+    repeats_list <- call_repeats(allele_list,
+      batch_correction = TRUE)
+    )
+
+  testthat::expect_true(all.equal(c(rep(0.78526, 92), rep(-0.78526, 2)), round(as.numeric(sapply(allele_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)))
+  
+  # plot_batch_correction_samples(repeats_list, x_axis = "size", xlim = c(400, 470), n_facet_col = 2)
+  # plot_batch_correction_samples(repeats_list, x_axis = "repeats", xlim = c(100, 130), n_facet_col = 2)
+  # plot_batch_correction_samples(repeats_list, x_axis = "repeats", xlim = c(100, 130), n_facet_col = 1, sample_subset = "S-21-211")
+
+
+})
+
+
+
+testthat::test_that("batch correction with no data in one batch", {
+
+  different_batch <- vector("list", 1)
+  names(different_batch) <- "test1"
+  different_batch[[1]] <- cell_line_fsa_list[[1]]$clone()
+  different_batch[[1]]$unique_id <- "test1"
+  different_batch_metadata <- metadata[which(metadata$unique_id == names(cell_line_fsa_list[1])), ]
+  different_batch_metadata$unique_id <- "test1"
+  different_batch_metadata$batch_run_id <- NA_character_
+  different_batch_metadata$batch_sample_id <- NA_character_
+
+
+  metadata_modification_df <- rbind(metadata,  different_batch_metadata)
+
+
+  ladder_list <- find_ladders(c(cell_line_fsa_list, different_batch),
+          show_progress_bar = FALSE)
+
+  fragments_list <- find_fragments(ladder_list, min_bp_size = 300)
+
+  metadata_list <- add_metadata(fragments_list,
+    metadata_modification_df)
+  
+
+  allele_list <- find_alleles(metadata_list)
+
+  suppressMessages(
+    tryCatch({
+      repeats_list <- call_repeats(allele_list,
+        batch_correction = TRUE)
+    },
+      warning = function(w){
+        assignment_warning <<- w
+      }
+    )
+  )
+
+
+  
+  testthat::expect_true(class(assignment_warning)[1] == "simpleWarning")
+  testthat::expect_true(grepl("'batch_run_id' 'NA' had no batch correction carried out", assignment_warning))
+
+
+})

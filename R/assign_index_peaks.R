@@ -129,7 +129,7 @@ assign_index_peaks <- function(
 
       # check if the index samples are from a different batch and the samples were not batch corrected
       index_sample_batch_ids <- unique(sapply(baseline_control_list[[fragments_list[[i]]$metrics_group_id]], function(x) x[[3]]))
-      if(!is.na(fragments_list[[i]]$batch_run_id) && any(!is.na(index_sample_batch_ids)) && !fragments_list[[i]]$batch_run_id %in% index_sample_batch_ids){
+      if(!fragments_list[[i]]$batch_run_id %in% index_sample_batch_ids){
         #so we've established that the index samples are from different run batch. now check if they were batch corrected
         if(is.na(fragments_list[[i]]$.__enclos_env__$private$batch_correction_factor)){
           warning(

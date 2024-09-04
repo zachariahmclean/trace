@@ -321,10 +321,31 @@ find_batch_correction_factor <- function(fragments_list, trace_window_size = 50,
     batch_sample_id = row.names(lme4::ranef(model)$batch_run_id),
     batch_effect = lme4::ranef(model)$batch_run_id[[1]]
   )
-  # save correction factor for each class object
+
+  # do some checks to see if any batches have not been corrected
+  fragments_batch_runs <- sapply(fragments_list, function(x) x$batch_run_id)
+  unique_fragments_batch_runs <- unique(fragments_batch_runs)
+  if(any(!unique_fragments_batch_runs %in% batch_effects_df$batch_sample_id)){
+    non_corrected_batches <- unique_fragments_batch_runs[which(!unique_fragments_batch_runs %in% batch_effects_df$batch_sample_id)]
+    if(length(non_corrected_batches) == 1 && is.na(non_corrected_batches)){
+      warning(
+        call. = FALSE,
+        "Samples with 'batch_run_id' 'NA' had no batch correction carried out. If not intended, check metadata and quality of the 'batch_sample_id' samples."
+      )
+    } else{
+      warning(
+        call. = FALSE,
+        paste0("The following 'batch_run_id' were not corrected: ", non_corrected_batches,
+        ". If not intended, check metadata and quality of the 'batch_sample_id' samples.")
+      )
+    }
+  }
+  # save correction factor for each class object but only if it was actually in the mod
   for (i in seq_along(fragments_list)) {
-    # Made the plate id explicitly match the list name for cases when the plate name is a number. It could cause subsetting issues
-    fragments_list[[i]]$.__enclos_env__$private$batch_correction_factor <- batch_effects_df[which(batch_effects_df$batch_sample_id == fragments_list[[i]]$batch_run_id), "batch_effect"]
+    if(fragments_list[[i]]$batch_run_id %in% batch_effects_df$batch_sample_id){
+      # Made the plate id explicitly match the list name for cases when the plate name is a number. It could cause subsetting issues
+      fragments_list[[i]]$.__enclos_env__$private$batch_correction_factor <- batch_effects_df[which(batch_effects_df$batch_sample_id == fragments_list[[i]]$batch_run_id), "batch_effect"]
+    } 
   }
 }
 
@@ -476,7 +497,7 @@ call_repeats <- function(
         # still calculate repeat length for the trace-level data if it exists
         ## this is the same code as below, perhaps too duplicative and needs refactoring
         if (!is.null(fragment$trace_bp_df)) {
-          if (batch_correction) {
+          if (batch_correction && !is.na(fragment$.__enclos_env__$private$batch_correction_factor)) {
             trace_bp_size <- fragment$trace_bp_df$size - fragment$.__enclos_env__$private$batch_correction_factor
           } else{
             trace_bp_size <- fragment$trace_bp_df$size
@@ -489,7 +510,7 @@ call_repeats <- function(
       # repeat calling algorithm
       if (repeat_calling_algorithm == "simple") {
 
-        if (batch_correction) {
+        if (batch_correction && !is.na(fragment$.__enclos_env__$private$batch_correction_factor)) {
           peak_table_size <- fragment$peak_table_df$size - fragment$.__enclos_env__$private$batch_correction_factor
         } else{
           peak_table_size <- fragment$peak_table_df$size
@@ -519,7 +540,7 @@ call_repeats <- function(
           scan_peak_window = repeat_calling_algorithm_peak_assignment_scan_window
         )
 
-        if (batch_correction) {
+        if (batch_correction && !is.na(fragment$.__enclos_env__$private$batch_correction_factor)) {
           fft_peak_size <- fft_peak_df$size - fragment$.__enclos_env__$private$batch_correction_factor
         } else{
           fft_peak_size <- fft_peak_df$size
@@ -547,7 +568,7 @@ call_repeats <- function(
           scan_peak_window = repeat_calling_algorithm_peak_assignment_scan_window
         )
 
-        if (batch_correction) {
+        if (batch_correction && !is.na(fragment$.__enclos_env__$private$batch_correction_factor)) {
           size_period_size <- size_period_df$size - fragment$.__enclos_env__$private$batch_correction_factor
         } else{
           size_period_size <- size_period_df$size
@@ -587,7 +608,7 @@ call_repeats <- function(
 
       # also calculate repeat length for the trace-level data if it exists
       if (!is.null(fragment$trace_bp_df)) {
-        if (batch_correction) {
+        if (batch_correction && !is.na(fragment$.__enclos_env__$private$batch_correction_factor)) {
           trace_bp_size <- fragment$trace_bp_df$size - fragment$.__enclos_env__$private$batch_correction_factor
         } else{
           trace_bp_size <- fragment$trace_bp_df$size
