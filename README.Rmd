@@ -13,6 +13,10 @@ knitr::opts_chunk$set(
 
 # Tandem Repeat Analysis from Capillary Electrophoresis (trace)
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/zachariahmclean/trace/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/zachariahmclean/trace/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
 This package provides a pipeline for short tandem repeat instability analysis from fragment analysis data. The inputs are fsa files or peak tables (eg Genemapper 5 software output), and a user supplied metadata data-frame. The functions identify ladders, calls peaks, and calculate repeat instability metrics (ie expansion index or average repeat gain).
 
 This code is not intended to function as a genotyping tool in its current form. While the repeat lengths generated are precise, they are not accurate. The conversion from bp size to repeat length underestimates the actual repeat length because amplicons containing repeats do not run linearly with the internal size standard ladder. However, for calculating instability metrics, this inaccuracy is inconsequential since these metrics are relative measures.
@@ -42,8 +46,8 @@ There are several important factors to a successful repeat instability experimen
 You can install from [GitHub](https://github.com/zachariahmclean/trace) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("zachariahmclean/trace")
+# install.packages("pak")
+pak::pak("zachariahmclean/trace")
 ```
 
 Then load the package:

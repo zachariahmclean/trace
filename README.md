@@ -1,6 +1,11 @@
 
 # Tandem Repeat Analysis from Capillary Electrophoresis (trace)
 
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/zachariahmclean/trace/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/zachariahmclean/trace/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
 This package provides a pipeline for short tandem repeat instability
 analysis from fragment analysis data. The inputs are fsa files or peak
 tables (eg Genemapper 5 software output), and a user supplied metadata
@@ -86,8 +91,8 @@ You can install from [GitHub](https://github.com/zachariahmclean/trace)
 with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("zachariahmclean/trace")
+# install.packages("pak")
+pak::pak("zachariahmclean/trace")
 ```
 
 Then load the package:
