@@ -265,17 +265,25 @@ fragments_repeats <- R6::R6Class(
     }
   ),
   private = list(
-    find_main_peaks_used = FALSE,
-    peak_regions = NA_real_,
+    # allele data
     allele_size = NA_real_,
     allele_repeat = NA_real_,
     allele_height = NA_real_,
-    index_repeat = NA_real_,
-    index_height = NA_real_,
+    find_main_peaks_used = FALSE,
+    peak_regions = NA_real_,
+
+    # call_repeats data
     batch_correction_factor = NA_real_,
     repeats_not_called_reason = NA_character_,
-    controls_repeats_df = NULL,
+
+    #assign_index_peak data
+    index_repeat = NA_real_,
+    index_height = NA_real_,
+    index_samples = NULL,
     assigned_index_peak_used = FALSE,
-    index_samples = NULL
+    assigned_index_peak_grouped = NULL,
+
+    # metrics calculation data
+    metrics_qc_message = NA_character_
   )
 )

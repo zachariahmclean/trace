@@ -29,15 +29,15 @@ A list of \code{"fragments_repeats"} objects with index_repeat and index_height 
 Assign index peaks in preparation for calculation of instability metrics
 }
 \details{
-A key part of several instability metrics is the index peak. This is the repeat
-length used as the reference peak for relative instability metrics calculations, like expansion index or average repeat gain.
+A key part of instability metrics is the index peak. This is the repeat
+length used as the reference peak for relative instability metrics calculations, like expansion index.
 This is usually the the inherited repeat length of a mouse, or the modal repeat length for the cell line at a starting time point.
 
-If \code{grouped} is set to \code{TRUE}, this function groups the samples by their \code{metrics_group_id} and uses the samples set as \code{metrics_baseline_control} to set the index peak. Use \code{\link[=add_metadata]{add_metadata()}} to set these variables. This is useful for cases like inferring repeat size of inherited alleles from mouse tail data. If the samples that are going to be used to assign index peak are from different fragment analysis runs, use \code{batch_correction} in \code{\link[=call_repeats]{call_repeats()}} to make sure the systematic differences between runs are corrected and the correct index peak is assigned.
+If \code{grouped} is set to \code{TRUE}, this function groups the samples by their \code{metrics_group_id} and uses the samples set as \code{metrics_baseline_control} to set the index peak. Use \code{\link[=add_metadata]{add_metadata()}} to set these variables. This is useful for cases like inferring repeat size of inherited alleles from mouse tail data. If the samples that are going to be used to assign index peak are from different fragment analysis runs, use \code{batch_correction} in \code{\link[=call_repeats]{call_repeats()}} to make sure the systematic differences between runs are corrected and the correct index peak is assigned. If there are multiple samples used as baseline control, the median value will be used to assign index peak to corresponding samples.
 
 For mice, if just a few samples have the inherited repeat height shorter than the expanded population, you could not worry about this and instead use the \code{index_override_dataframe}. This can be used to manually override these assigned index repeat values (irrespective of whether \code{grouped} is TRUE or FALSE).
 
-As a final option, the index peak could be manually assigned directly to a \link{fragments_repeats} class using the internal setter function \code{\link[=fragments_repeats$set_index_peak]{fragments_repeats$set_index_peak()}}.
+As a final option, the index peak could be manually assigned directly to a \link{fragments_repeats} class using the internal setter function fragments_repeats$set_index_peak().
 }
 \examples{
 

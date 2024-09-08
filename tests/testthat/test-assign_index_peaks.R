@@ -135,3 +135,65 @@ testthat::expect_true(grepl("batch_run_id", assignment_warning))
 
 })
 
+
+
+testthat::test_that("test situation where some samples have NA in grouped", {
+  gm_raw <- trace::example_data
+  metadata <- trace::metadata
+  # Save raw data as a fragment class
+
+  suppressWarnings(
+    test_fragments <- peak_table_to_fragments(gm_raw,
+      data_format = "genemapper5",
+      dye_channel = "B",
+      min_size_bp = 400
+    )
+  )
+
+
+
+  test_metadata <- add_metadata(
+    fragments_list = test_fragments,
+    metadata_data.frame = metadata
+  )
+
+  test_alleles <- find_alleles(
+    fragments_list = test_metadata
+  )
+
+
+  suppressWarnings(
+    test_repeats <- call_repeats(
+      fragments_list = test_alleles,
+      repeat_calling_algorithm = "simple",
+      assay_size_without_repeat = 87,
+      repeat_size = 3
+    )
+  )
+
+
+  #purposely messs up one batch run id to generate warning
+
+  test_repeats[[1]]$metrics_group_id <- NA_character_
+
+suppressMessages(
+  tryCatch({
+    test_assignment_grouped <- assign_index_peaks(
+      test_repeats,
+      grouped = TRUE
+    )
+  },
+    warning = function(w){
+      assignment_warning <<- w
+    }
+  )
+)
+
+testthat::expect_true(class(assignment_warning)[1] == "simpleWarning")
+testthat::expect_true(grepl("Group 'NA' has no 'metrics_baseline_control'", assignment_warning))
+
+})
+
+
+
+

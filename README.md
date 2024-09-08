@@ -1,5 +1,5 @@
 
-# trace package
+# Tandem Repeat Analysis from Capillary Electrophoresis (trace)
 
 This package provides a pipeline for short tandem repeat instability
 analysis from fragment analysis data. The inputs are fsa files or peak
@@ -173,11 +173,11 @@ below in `add_metadata()`):
 
 | Metadata table column | Functionality metadata is associated with | Description |
 |----|----|----|
-| unique_id | Required for adding metadata using `add_metdata()` | The unique identifier for the fsa file. Usually the sample file name. This must be unique, including across runs. |
+| unique_id | Required for adding metadata using `add_metadata()` | The unique identifier for the fsa file. Usually the sample file name. This must be unique, including across runs. |
 | metrics_group_id | `assign_index_peaks()`, allows setting `grouped` | This groups the samples for instability metric calculations. Provide a group id value for each sample. For example, in a mouse experiment and using the expansion index, you need to group the samples since they have the same metrics baseline control (eg inherited repeat length), so provide the mouse id. |
 | metrics_baseline_control | `assign_index_peaks()`, allows setting `grouped` | This is related to metrics_group_id. Indicate with ‘TRUE’ to specify which sample is the baseline control (eg mouse tail for inherited repeat length, or day-zero sample in cell line experiments) |
-| batch_run_id | `call_repeats()`, allows setting `repeat_length_correction` | This groups the samples by batch. Provide a value for each fragment analysis run (eg date). |
-| batch_sample_id | `call_repeats()`, allows setting `repeat_length_correction` | This groups the samples across batches. Give a unique sample id to each different sample. |
+| batch_run_id | `call_repeats()`, allows setting `batch_correction` | This groups the samples by batch. Provide a value for each fragment analysis run (eg date). |
+| batch_sample_id | `call_repeats()`, allows setting `batch_correction` | This groups the samples across batches. Give a unique sample id to each different sample. |
 
 ``` r
 
@@ -229,7 +229,7 @@ samples taken at day 0 in this experiment. This allows us to set
 other metrics. For mice, if just a few samples have the inherited repeat
 height shorter than the expanded population, you could not worry about
 this and instead use the `index_override_dataframe` in
-`calculate_instability_metrics()`.
+`assign_index_peaks()`.
 
 ``` r
 

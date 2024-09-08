@@ -133,8 +133,6 @@ repeat_table_subset <- function(repeat_table_df,
 #' @param window_around_index_peak A numeric vector (length = 2) defining the range around the index peak. First number specifies repeats before the index peak, second after. For example, \code{c(-5, 40)} around an index peak of 100 would analyze repeats 95 to 140. The sign of the numbers does not matter (The absolute value is found).
 #' @param percentile_range A numeric vector of percentiles to compute (e.g., c(0.5, 0.75, 0.9, 0.95)).
 #' @param repeat_range A numeric vector specifying ranges of repeats for the inverse quantile computation.
-#' @param grouped This parameter is here for backwards compatibility and is not intended to be used within this function. It's passed to the \code{\link{assign_index_peaks}} function, see that function for documentation.
-#' @param index_override_dataframe This parameter is here for backwards compatibility and is not intended to be used within this function. It's passed to the \code{\link{assign_index_peaks}} function, see that function for documentation.
 #'
 #' @return A data.frame with calculated instability metrics for each sample.
 #' @details
@@ -236,15 +234,35 @@ calculate_instability_metrics <- function(
     repeat_range = c(2, 5, 10, 20)) {
   # calculate metrics
   metrics_list <- lapply(fragments_list, function(fragments_repeats) {
-    # check to make sure all the required inputs for the function have been given
+    # check to make sure all the required steps for the function have been done
+    if(fragments_repeats$.__enclos_env__$private$find_main_peaks_used == FALSE){
+      stop(paste0(fragments_repeats$unique_id, " requires called alleles to calculate repeat instability metrics. Use 'find_alleles()'."),
+          call. = FALSE
+      )
+    } 
     if(fragments_repeats$.__enclos_env__$private$assigned_index_peak_used == FALSE){
       stop(paste0(fragments_repeats$unique_id, " requires an index peak to calculate repeat instability metrics. Use 'assign_index_peaks' to set the index peaks."),
           call. = FALSE
       )
+    } 
+
+    # return early under different situations and record a reason why
+    if (nrow(fragments_repeats$repeat_table_df) == 0) {
+      fragments_repeats$.__enclos_env__$private$metrics_qc_message <- "Skip reason: sample has no data"
+      return(NULL)
     } else if (is.na(fragments_repeats$get_allele_peak()$allele_repeat)) {
-      message(paste0(fragments_repeats$unique_id, ": metrics not calculated (no main peaks in sample)"))
+      fragments_repeats$.__enclos_env__$private$metrics_qc_message <- "Skip reason: no allele found in sample"
+      return(NULL)
+    } else if (fragments_repeats$.__enclos_env__$private$assigned_index_peak_grouped == TRUE &&  is.na(fragments_repeats$get_index_peak()$index_repeat)){
+      # because of the warning above we know that there is data in this sample, but the issue came from the index grouping
+      fragments_repeats$.__enclos_env__$private$metrics_qc_message <- "Skip reason: Invalid index peak in sample grouping. Issue likely with `metrics_baseline_control` sample(s) that pairs with this sample."
       return(NULL)
     }
+
+    # no issues so set this as blank in case calculate_instability_metrics was run with an issue previously
+    fragments_repeats$.__enclos_env__$private$metrics_qc_message <- NA_character_
+
+
 
     # filter dataset to user supplied thresholds
     size_filtered_df <- repeat_table_subset(
@@ -255,8 +273,7 @@ calculate_instability_metrics <- function(
       window_around_index_peak = window_around_index_peak
     )
 
-    if(!is.null(fragments_repeats$.__enclos_env__$private$index_samples)){
-
+    if(!is.null(fragments_repeats$.__enclos_env__$private$index_samples) && length(fragments_repeats$.__enclos_env__$private$index_samples) > 0){
       control_weighted_mean_repeat <- sapply(fragments_repeats$.__enclos_env__$private$index_samples, function(x){
         control_filtered_df <- repeat_table_subset(
           repeat_table_df = x[[2]],
@@ -399,7 +416,10 @@ calculate_instability_metrics <- function(
   if (length(missing_samples) > 0) {
     metrics[nrow(metrics) + seq_along(missing_samples), "unique_id"] <- missing_samples
     rownames(metrics) <- metrics$unique_id
-    metrics$QC_comments <- ifelse(metrics$unique_id %in% missing_samples, "metrics could not be calculated", NA_character_)
+
+    # add in the reason for skip
+    metrics$QC_comments <- sapply(fragments_list, function(x) x$.__enclos_env__$private$metrics_qc_message)[metrics$unique_id]
+
   }
 
   return(metrics)

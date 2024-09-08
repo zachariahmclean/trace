@@ -22,10 +22,6 @@ calculate_instability_metrics(
 \item{percentile_range}{A numeric vector of percentiles to compute (e.g., c(0.5, 0.75, 0.9, 0.95)).}
 
 \item{repeat_range}{A numeric vector specifying ranges of repeats for the inverse quantile computation.}
-
-\item{grouped}{This parameter is here for backwards compatibility and is not intended to be used within this function. It's passed to the \code{\link{assign_index_peaks}} function, see that function for documentation.}
-
-\item{index_override_dataframe}{This parameter is here for backwards compatibility and is not intended to be used within this function. It's passed to the \code{\link{assign_index_peaks}} function, see that function for documentation.}
 }
 \value{
 A data.frame with calculated instability metrics for each sample.
