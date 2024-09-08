@@ -126,6 +126,6 @@ find_alleles <- function(
     return(fragment)
   })
 
-  return(main_peaks)
+  invisible()
 }
 

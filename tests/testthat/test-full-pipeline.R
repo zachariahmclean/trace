@@ -32,24 +32,24 @@ testthat::test_that("full pipeline", {
   # dev.off()
 
 
-  peak_list <- find_fragments(test_ladders,
+  fragments_list <- find_fragments(test_ladders,
     minimum_peak_signal = 20,
     min_bp_size = 300
   )
 
-  fragment_metadata <- add_metadata(
-    fragments_list = peak_list,
+add_metadata(
+    fragments_list = fragments_list,
     metadata_data.frame = metadata
   )
 
-  fragment_alleles <- find_alleles(
-    fragments_list = fragment_metadata
+find_alleles(
+    fragments_list = fragments_list
   )
 
   suppressMessages(
     suppressWarnings(
-      test_repeats <- call_repeats(
-        fragments_list = fragment_alleles,
+      call_repeats(
+        fragments_list = fragments_list,
       )
     )
   )
@@ -64,8 +64,8 @@ testthat::test_that("full pipeline", {
 
   suppressMessages(
     suppressWarnings(
-      test_assignment <- assign_index_peaks(
-        test_repeats,
+      assign_index_peaks(
+        fragments_list,
         grouped = TRUE
       )
     )

@@ -618,5 +618,5 @@ call_repeats <- function(
     }
   )
 
-  return(added_repeats)
+  invisible()
 }

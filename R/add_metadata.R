@@ -157,6 +157,6 @@ add_metadata <- function(
     }
   )
 
-  return(metadata_added)
+  invisible()
 }
 

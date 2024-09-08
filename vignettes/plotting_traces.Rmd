@@ -23,28 +23,31 @@ library(ggplot2)
 
 # Example data
 
-lets first generate some example data
+lets first generate some example data by cloning the example data that comes with the package.
 
 ```{r fsa_import}
-fsa_raw <- cell_line_fsa_list
+fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+
 ```
 
 ```{r ladders,warning=FALSE, message=FALSE}
-ladder_list <- find_ladders(cell_line_fsa_list,
+find_ladders(
+  fsa_list,
   show_progress_bar = FALSE
 )
 ```
 
 ```{r find_fragments, warning=FALSE}
-peak_list <- find_fragments(ladder_list,
+fragments_list <- find_fragments(
+  fsa_list,
   min_bp_size = 300
 )
 ```
 
 ```{r add_metadata}
 
-metadata_added_list <- add_metadata(
-  fragments_list = peak_list,
+add_metadata(
+  fragments_list = fragments_list,
   metadata_data.frame = metadata,
   unique_id = "unique_id",
   metrics_group_id = "metrics_group_id",
@@ -55,13 +58,13 @@ metadata_added_list <- add_metadata(
 ```
 
 ```{r find_alleles_and_repeats, warning=FALSE, message=FALSE}
-alleles_list <- find_alleles(
-  fragments_list = metadata_added_list
+find_alleles(
+  fragments_list = fragments_list
 )
 
 
-repeats_list <- call_repeats(
-  fragments_list = alleles_list
+call_repeats(
+  fragments_list = fragments_list
 )
 ```
 
@@ -71,13 +74,13 @@ repeats_list <- call_repeats(
 There are functions built into this package for plotting traces
 
 ```{r}
-plot_traces(repeats_list[1], xlim = c(100, 150), show_peaks = FALSE)
+plot_traces(fragments_list[1], xlim = c(100, 150), show_peaks = FALSE)
 ```
 
 This is convenient for quickly visualizing traces, but since it's built using base r plotting, it's not very user friendly and difficult to customize. We can be easily replicate this in ggplot2 for more flexibility and customization.
 
 ```{r}
-extract_trace_table(repeats_list[1]) |>
+extract_trace_table(fragments_list[1]) |>
   filter(between(calculated_repeats, 100, 150)) |>
   ggplot(aes(calculated_repeats, signal)) +
   geom_line() 
@@ -89,7 +92,7 @@ The raw traces can be extracted from the objects at any point after a call to `f
 
 ```{r}
 
-traces_df <- extract_trace_table(repeats_list)
+traces_df <- extract_trace_table(fragments_list)
 
 ```
 
@@ -99,7 +102,7 @@ This is quite a large dataframe (550k rows) since it contains each scan (5961 pe
 
 samples_for_plotting <- metadata[which(metadata$metrics_group_id == "CC6"), "unique_id"]
 
-traces_for_plotting_df <- extract_trace_table(repeats_list[samples_for_plotting])
+traces_for_plotting_df <- extract_trace_table(fragments_list[samples_for_plotting])
 
 ```
 
@@ -155,7 +158,7 @@ One issue is that the height of the signal for each sample varies. We can solve 
 
 ```{r}
 
-alleles_df <- extract_alleles(repeats_list[samples_for_plotting])
+alleles_df <- extract_alleles(fragments_list[samples_for_plotting])
 
 sample_to_exclude <- alleles_df[which(is.na(alleles_df$repeats)), "unique_id"]
 

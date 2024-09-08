@@ -122,5 +122,7 @@ find_fragments <- function(
 
     return(new_fragments_repeats)
   })
+
+  return(fragments_list)
 }
 

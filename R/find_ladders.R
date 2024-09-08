@@ -17,7 +17,7 @@ process_ladder_signal <- function(ladder,
                                   scans,
                                   ladder_start_scan,
                                   smoothing_window) {
-  
+
   ladder_df <- data.frame(signal = ladder, scan = scans)
   ladder_df <- ladder_df[which(ladder_df$scan >= ladder_start_scan), ]
   ladder_df$detrended_signal <- detrend_signal(ladder_df$signal)
@@ -449,7 +449,7 @@ ladder_self_mod_predict <- function(fragments_trace,
 #' is a list of fragments_traces. bp sizes are assigned using the local Southern
 #' method. Basically, for each data point, linear models are made for the lower
 #' and upper 3 size standard and the predicted sizes are averaged.
-#' 
+#'
 #' Use [plot_data_channels()] to plot the raw data on the fsa file to identify which channel the ladder and data are in.
 #'
 #' The ladder peaks are assigned from largest to smallest. I would recommend excluding
@@ -460,7 +460,7 @@ ladder_self_mod_predict <- function(fragments_trace,
 #'
 #' @seealso [plot_data_channels()] to plot the raw data in all channels. [plot_ladders()] to plot the assigned ladder
 #' peaks onto the raw ladder signal. [fix_ladders_interactive()] to fix ladders with
-#' incorrectly assigned peaks. 
+#' incorrectly assigned peaks.
 #'
 #'
 #' @examples
@@ -596,7 +596,7 @@ find_ladders <- function(
     }
   }
 
-  return(fragments_trace)
+  invisible()
 }
 
 
@@ -678,7 +678,7 @@ fix_ladders_manual <- function(fragments_trace_list,
     }
   }
 
-  return(fragments_trace_list)
+  invisible()
 }
 
 

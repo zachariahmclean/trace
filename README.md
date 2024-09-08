@@ -31,10 +31,13 @@ use `trace::generate_trace_template()` to generate a document with the
 pipeline pre-populated.
 
 In this package, each sample is represented by an R6 ‘fragments’ object,
-which are organised in lists. As a user, there are functions that
-iterate over these lists, so you shouldn’t need to interact with the
-objects. However, if you do, the attributes of the objects can be
-accessed with “\$”.
+which are organized in lists. Functions in the package iterate over
+these lists, so you usually don’t need to interact with the objects
+directly. If you do, the attributes of the objects can be accessed with
+\$, and note that most functions modify the objects in place, so
+re-assignment isn’t necessary. The only exception to that
+`find_fragments`, which transitions to a new object since the class
+structure changes.
 
 There are several important factors to a successful repeat instability
 experiment and things to consider when using this package:
@@ -47,23 +50,27 @@ experiment and things to consider when using this package:
   time-course experiment. This is indicated with a `TRUE` in the
   `metrics_baseline_control` column of the metadata. Samples are then
   grouped together with the `metrics_group_id` column of the metadata.
+  Multiple samples can be `metrics_baseline_control`, which can be
+  helpful for the average repeat gain metric to have a more accurate
+  representation of the average repeat at the start of the experiment.
 
 - (optional) Using common sample(s) across fragment analysis runs to
   correct systematic batch effects that occur with repeat-containing
   amplicons in capillary electrophoresis. There are slight fluctuations
   of size across runs for amplicons containing repeats that result in
-  systematic differences, so if samples are to be analyzed for different
-  runs, the absolute bp size is not comparable unless this batch effect
-  is corrected. This is only relevant when the absolute size of a
-  amplicons are compared for grouping metrics as described above
-  (otherwise instability metrics are all relative and it doesn’t matter
-  that there’s systematic batch effects across runs). This correction
-  can be achieved by running a couple of samples in every fragment
-  analysis run, or having a single run that takes a couple of samples
-  from every run together, thereby linking them. These samples are then
-  indicated in the metadata with `batch_run_id` (to group samples by
-  fragment analysis run) and `batch_sample_id` (to enable linking
-  samples across batches).
+  systematic differences around 1-3 base pairs. So, if samples are to be
+  analyzed for different runs, the absolute bp size is not comparable
+  unless this batch effect is corrected. This is only relevant when the
+  absolute size of a amplicons are compared for grouping metrics as
+  described above (otherwise instability metrics are all relative and it
+  doesn’t matter that there’s systematic batch effects across runs) or
+  when plotting traces from different runs. This correction can be
+  achieved by running a couple of samples in every fragment analysis
+  run, or having a single run that takes a couple of samples from every
+  run together, thereby linking them. These samples are then indicated
+  in the metadata with `batch_run_id` (to group samples by fragment
+  analysis run) and `batch_sample_id` (to enable linking samples across
+  batches).
 
 - If starting from fsa files, the GeneScan™ 1200 LIZ™ dye Size Standard
   ladder assignment may not work very well. The ladder identification
@@ -93,10 +100,11 @@ library(trace)
 
 First, we read in the raw data. In this case we will used example data
 within this package, but usually this would be fsa files that are read
-in using `read_fsa()`.
+in using `read_fsa()`. The example data is also cloned since the next
+step modifies the object in place.
 
 ``` r
-fsa_raw <- cell_line_fsa_list
+fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 ```
 
 # Find ladders
@@ -107,7 +115,8 @@ point, linear models are made for the lower and upper 3 size standard
 and the predicted sizes are averaged.
 
 ``` r
-ladder_list <- find_ladders(cell_line_fsa_list,
+find_ladders(
+  fsa_list,
   show_progress_bar = FALSE
 )
 ```
@@ -116,7 +125,7 @@ visually inspect each ladder to make sure that the ladders were
 correctly assigned
 
 ``` r
-plot_ladders(ladder_list[1])
+plot_ladders(fsa_list[1])
 ```
 
 <img src="man/figures/README-plot_ladders-1.png" width="100%" />
@@ -129,9 +138,13 @@ or manually using the built-in fix_ladders_interactive() app.
 # Find fragments
 
 The fragment peaks are identified in the raw continuous trace data.
+These objects are assigned because find_fragments transitions to a new
+object since the class structure changes. This reflects the data moving
+from a continuous trace to a peak table.
 
 ``` r
-peak_list <- find_fragments(ladder_list,
+fragments_list <- find_fragments(
+  fsa_list,
   min_bp_size = 300
 )
 ```
@@ -140,7 +153,7 @@ Visually inspect the traces and called peaks to make sure they were
 correctly assigned.
 
 ``` r
-plot_traces(peak_list[1],
+plot_traces(fragments_list[1],
   xlim = c(400, 550),
   ylim = c(0, 1200)
 )
@@ -148,12 +161,14 @@ plot_traces(peak_list[1],
 
 <img src="man/figures/README-plot_traces-1.png" width="100%" />
 
-Alternatively, if not starting from fsa files, this is where you would
-use exported data from Genemapper if you would rather use the Genemapper
-bp sizing and peak identification algorithms.
+Alternatively, this is where you would use data exported from Genemapper
+if you would rather use the Genemapper bp sizing and peak identification
+algorithms. However, this is not recommended as some of the
+functionality of this package would not be accessible (mainly in
+`call_repeats()`, with `batch_correction` and repeat calling algorithms)
 
 ``` r
-peak_list_genemapper <- peak_table_to_fragments(example_data,
+fragments_list_genemapper <- peak_table_to_fragments(example_data,
   data_format = "genemapper5",
   dye_channel = "B",
   min_size_bp = 300
@@ -171,18 +186,18 @@ automatically parsed by `add_metadata()`, otherwise you will need to
 match up which column name belongs to which metadata category (as done
 below in `add_metadata()`):
 
-| Metadata table column | Functionality metadata is associated with | Description |
-|----|----|----|
-| unique_id | Required for adding metadata using `add_metadata()` | The unique identifier for the fsa file. Usually the sample file name. This must be unique, including across runs. |
-| metrics_group_id | `assign_index_peaks()`, allows setting `grouped` | This groups the samples for instability metric calculations. Provide a group id value for each sample. For example, in a mouse experiment and using the expansion index, you need to group the samples since they have the same metrics baseline control (eg inherited repeat length), so provide the mouse id. |
-| metrics_baseline_control | `assign_index_peaks()`, allows setting `grouped` | This is related to metrics_group_id. Indicate with ‘TRUE’ to specify which sample is the baseline control (eg mouse tail for inherited repeat length, or day-zero sample in cell line experiments) |
-| batch_run_id | `call_repeats()`, allows setting `batch_correction` | This groups the samples by batch. Provide a value for each fragment analysis run (eg date). |
-| batch_sample_id | `call_repeats()`, allows setting `batch_correction` | This groups the samples across batches. Give a unique sample id to each different sample. |
+| Metadata table column    | Functionality metadata is associated with           | Description                                                                                                                                                                                                                                                                                                     |
+|--------------------------|-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| unique_id                | Required for adding metadata using `add_metadata()` | The unique identifier for the fsa file. Usually the sample file name. This must be unique, including across runs.                                                                                                                                                                                               |
+| metrics_group_id         | `assign_index_peaks()`, allows setting `grouped`    | This groups the samples for instability metric calculations. Provide a group id value for each sample. For example, in a mouse experiment and using the expansion index, you need to group the samples since they have the same metrics baseline control (eg inherited repeat length), so provide the mouse id. |
+| metrics_baseline_control | `assign_index_peaks()`, allows setting `grouped`    | This is related to metrics_group_id. Indicate with ‘TRUE’ to specify which sample is the baseline control (eg mouse tail for inherited repeat length, or day-zero sample in cell line experiments)                                                                                                              |
+| batch_run_id             | `call_repeats()`, allows setting `batch_correction` | This groups the samples by batch. Provide a value for each fragment analysis run (eg date).                                                                                                                                                                                                                     |
+| batch_sample_id          | `call_repeats()`, allows setting `batch_correction` | This groups the samples across batches. Give a unique sample id to each different sample.                                                                                                                                                                                                                       |
 
 ``` r
 
-metadata_added_list <- add_metadata(
-  fragments_list = peak_list,
+add_metadata(
+  fragments_list = fragments_list,
   metadata_data.frame = metadata,
   unique_id = "unique_id",
   metrics_group_id = "metrics_group_id",
@@ -198,21 +213,16 @@ Next we identify the modal peaks with `find_alleles()` and convert the
 base pair fragments to repeats with `call_repeats(`).
 
 ``` r
-alleles_list <- find_alleles(
-  fragments_list = metadata_added_list
-)
+find_alleles(fragments_list)
 
-
-repeats_list <- call_repeats(
-  fragments_list = alleles_list
-)
+call_repeats(fragments_list)
 ```
 
 We can view the distribution of repeat sizes and the identified modal
 peak with a plotting function.
 
 ``` r
-plot_traces(repeats_list[1], xlim = c(110, 150))
+plot_traces(fragments_list[1], xlim = c(110, 150))
 ```
 
 <img src="man/figures/README-plot_fragments-1.png" width="100%" />
@@ -233,8 +243,8 @@ this and instead use the `index_override_dataframe` in
 
 ``` r
 
-index_list <- assign_index_peaks(
-  repeats_list,
+assign_index_peaks(
+  fragments_list,
   grouped = TRUE
 )
 ```
@@ -245,7 +255,7 @@ the context of mice where you can visually see when the inherited repeat
 length should be in the bimodal distribution.
 
 ``` r
-plot_traces(index_list[1], xlim = c(110, 150))
+plot_traces(fragments_list[1], xlim = c(110, 150))
 ```
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
@@ -259,7 +269,7 @@ metrics.
 
 ``` r
 metrics_grouped_df <- calculate_instability_metrics(
-  fragments_list = index_list,
+  fragments_list = fragments_list,
   peak_threshold = 0.05
 )
 ```

@@ -178,6 +178,6 @@ assign_index_peaks <- function(
     })
   }
 
-  return(fragments_list)
+  invisible()
 }
 
