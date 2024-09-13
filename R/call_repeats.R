@@ -386,64 +386,65 @@ find_batch_correction_factor <- function(fragments_list, trace_window_size = 50,
 #'
 #' @examples
 #'
-#' file_list <- trace::cell_line_fsa_list[c(90:92)]
+#' fsa_list <- lapply(cell_line_fsa_list[c(90:94)], function(x) x$clone())
 #'
-#' test_ladders <- find_ladders(file_list)
+#' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
-#' fragments_list <- find_fragments(test_ladders,
+#' fragments_list <- find_fragments(
+#'   fsa_list,
 #'   min_bp_size = 300
 #' )
 #'
-#' test_alleles <- find_alleles(
-#'   fragments_list = fragments_list
+#' find_alleles(
+#'   fragments_list
 #' )
 #'
 #' # Simple conversion from bp size to repeat size
-#' test_repeats <- call_repeats(
-#'   fragments_list = test_alleles,
+#' call_repeats(
+#'   fragments_list,
 #'   repeat_calling_algorithm = "simple",
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
 #'
-#' plot_traces(test_repeats[1], xlim = c(120, 170))
+#' plot_traces(fragments_list[1], xlim = c(120, 170))
 #'
 #'
 #' # use different algorithms to call the repeats to ensure only periodic peaks are called
 #'
 #' # fft to automatically find peak period
-#' test_repeats_fft <- call_repeats(
-#'   fragments_list = test_alleles,
+#' call_repeats(
+#'   fragments_list,
 #'   repeat_calling_algorithm = "fft",
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
 #'
-#' plot_traces(test_repeats_fft[1], xlim = c(120, 170))
+#' plot_traces(fragments_list[1], xlim = c(120, 170))
 #'
 #' # size_period to manually supply the peak period
-#' test_repeats_size_period <- call_repeats(
-#'   fragments_list = test_alleles,
+#' call_repeats(
+#'   fragments_list,
 #'   repeat_calling_algorithm = "size_period",
 #'   repeat_calling_algorithm_size_period = 2.75,
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
 #'
-#' plot_traces(test_repeats_size_period[1], xlim = c(120, 170))
+#' plot_traces(fragments_list[1], xlim = c(120, 170))
 #'
 #'
 #' # Use force_whole_repeat_units algorithm to make sure called
 #' # repeats are the exact number of bp apart
 #'
-#' test_repeats_whole_units <- call_repeats(
-#'   fragments_list = test_alleles,
+#' call_repeats(
+#'   fragments_list,
 #'   force_whole_repeat_units = TRUE,
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
 #'
-#' plot_traces(test_repeats_whole_units[1], xlim = c(120, 170))
+#' plot_traces(fragments_list[1], xlim = c(120, 170))
 #'
 #'
 call_repeats <- function(
@@ -478,12 +479,13 @@ call_repeats <- function(
         )
       }
 
+      # save useful info that is used elsewhere
+      fragment$.__enclos_env__$private$repeat_size <- repeat_size
+      fragment$.__enclos_env__$private$assay_size_without_repeat <- assay_size_without_repeat
+
       # only continue from here if main peaks were successfully found, otherwise, don't return repeat data (ie it can be an empty df)
       if (is.na(fragment$get_allele_peak()$allele_size) | is.na(fragment$get_allele_peak()$allele_height)) {
         fragment$.__enclos_env__$private$repeats_not_called_reason <- "No main peaks"
-        warning(paste0(fragment$unique_id, ": repeats were not called (no main peaks in sample)"),
-          call. = FALSE
-        )
         # populate with empty dataframe to help the rest of the pipeline
         fragment$repeat_table_df <- data.frame(
           unique_id = character(),
@@ -617,6 +619,18 @@ call_repeats <- function(
       return(fragment)
     }
   )
+
+  # loop over samples to give appropriate warnings about certain events
+  repeats_not_called_reason <- sapply(fragments_list, function(x) x$.__enclos_env__$private$repeats_not_called_reason)
+  if(any(repeats_not_called_reason %in% "No main peaks")){
+    warning(
+      paste0(
+        "Repeats were not called in the following samples (no allele in sample): ", 
+        paste0(names(repeats_not_called_reason)[which(repeats_not_called_reason == "No main peaks")], collapse = ", ")
+    ),
+      call. = FALSE
+    )
+  }    
 
   invisible()
 }

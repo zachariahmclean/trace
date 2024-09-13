@@ -51,7 +51,7 @@ test_fragments <- peak_table_to_fragments(gm_raw,
   min_size_bp = 300
 )
 
-test_metadata <- add_metadata(
+add_metadata(
   fragments_list = test_fragments,
   metadata_data.frame = metadata,
   unique_id = "unique_id",
@@ -63,7 +63,7 @@ test_metadata <- add_metadata(
 
 # skip unwanted metadata by using NA
 
-test_metadata_skipped <- add_metadata(
+add_metadata(
   fragments_list = test_fragments,
   metadata_data.frame = metadata,
   unique_id = "unique_id",

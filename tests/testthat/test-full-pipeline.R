@@ -6,8 +6,10 @@
 
 
 testthat::test_that("full pipeline", {
+
+  fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
   suppressWarnings(
-    test_ladders <- find_ladders(cell_line_fsa_list,
+    find_ladders(fsa_list,
       ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
       max_combinations = 2500000,
       ladder_selection_window = 5,
@@ -32,7 +34,7 @@ testthat::test_that("full pipeline", {
   # dev.off()
 
 
-  fragments_list <- find_fragments(test_ladders,
+  fragments_list <- find_fragments(fsa_list,
     minimum_peak_signal = 20,
     min_bp_size = 300
   )
@@ -74,7 +76,7 @@ find_alleles(
   suppressMessages(
     suppressWarnings(
       test_metrics_grouped <- calculate_instability_metrics(
-        fragments_list = test_assignment,
+        fragments_list = fragments_list,
         peak_threshold = 0.05,
         window_around_index_peak = c(-40, 40)
       )

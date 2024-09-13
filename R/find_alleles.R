@@ -17,17 +17,17 @@
 #' @export
 #'
 #' @examples
-#' file_list <- trace::cell_line_fsa_list
+#' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 #'
-#' test_ladders <- find_ladders(file_list[1])
+#' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
-#' fragments_list <- find_fragments(test_ladders,
+#' fragments_list <- find_fragments(fsa_list,
 #'   min_bp_size = 300
 #' )
 #'
 #'
-#' test_alleles <- find_alleles(
-#'   fragments_list = fragments_list,
+#' find_alleles(
+#'   fragments_list,
 #'   peak_region_size_gap_threshold = 6,
 #'   peak_region_height_threshold_multiplier = 1
 #' )

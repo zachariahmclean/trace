@@ -267,12 +267,12 @@ plot_data_channels_helper <- function(fragment){
 #'
 #' @examples
 #'
-#' file_list <- trace::cell_line_fsa_list
+#' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 #'
-#' test_ladders <- find_ladders(file_list)
+#' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
 #' # Manually inspect the ladders
-#' plot_ladders(test_ladders[1], n_facet_col = 1)
+#' plot_ladders(fsa_list[1])
 #'
 plot_ladders <- function(
     fragments_trace_list,
@@ -335,24 +335,24 @@ plot_ladders <- function(
 #'
 #' @examples
 #'
-#' file_list <- trace::cell_line_fsa_list[1]
+#' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 #'
-#' test_ladders <- find_ladders(file_list)
+#' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
-#' fragments_list <- find_fragments(test_ladders,
+#' fragments_list <- find_fragments(fsa_list,
 #'   min_bp_size = 300
 #' )
 #'
-#' test_alleles <- find_alleles(
-#'   fragments_list = fragments_list
+#' find_alleles(
+#'   fragments_list
 #' )
 #'
 #' # Simple conversion from bp size to repeat size
-#' test_repeats <- call_repeats(
-#'   fragments_list = test_alleles
+#' call_repeats(
+#'   fragments_list
 #' )
 #'
-#' plot_traces(test_repeats[1], xlim = c(105, 150))
+#' plot_traces(fragments_list, xlim = c(105, 150))
 #'
 plot_traces <- function(
     fragments_list,
@@ -398,17 +398,17 @@ plot_traces <- function(
 #' @examples
 #' gm_raw <- trace::example_data
 #'
-#' test_fragments <- peak_table_to_fragments(gm_raw,
+#' fragments_list <- peak_table_to_fragments(gm_raw,
 #'   data_format = "genemapper5",
 #'   dye_channel = "B",
 #'   min_size_bp = 300
 #' )
 #'
-#' test_alleles <- find_alleles(
-#'   fragments_list = test_fragments
+#' find_alleles(
+#'   fragments_list
 #' )
 #'
-#' plot_fragments(test_alleles[1:2])
+#' plot_fragments(fragments_list[1])
 plot_fragments <- function(
     fragments_list,
     n_facet_col = 1,
@@ -430,64 +430,48 @@ plot_fragments <- function(
 }
 
 
-# plot size standard sample groups ----------------------------------------
+# plot batch correction sample groups ----------------------------------------
 
-#' plot size standard samples
+#' Plot correction samples
 #'
-#' Plot the overlapping traces of the size standards by their size standard ids
+#' Plot the overlapping traces of the batch control samples
 #'
-#' @param fragments_list A list of fragments_repeats objects containing fragment data.
-#' @param sample_subset A character vector of batch_sample_id for a subset of samples to plot. Or alternatively supply a numeric vector.
+#' @param fragments_list A list of fragments_repeats objects containing fragment data. must have trace information.
+#' @param selected_sample A character vector of batch_sample_id for a subset of samples to plot. Or alternatively supply a number to select batch sample by position in alphabetical order.
 #' @param xlim the x limits of the plot. A numeric vector of length two.
-#' @param x_axis A character indicating what should be plotted on the x-axis, chose between `size` or `repeats`. Only use repeats if plotting after the repeat correction.
-#' @param n_facet_col A numeric value indicating the number of columns for faceting in the plot.
 #'
 #' @return plot traces from fragments object
 #' @export
 #' @importFrom grDevices recordPlot replayPlot
 #' 
 #' @details
-#' A plot of the raw signal by bp size or repeats for the size standard samples. The circle at the top of the plot is for the called allele for that sample.
+#' A plot of the raw signal by bp size or repeats for the batch correction samples. 
 #'
-#' When plotting the traces before repeat correction, we do not expect the samples to be closely overlapping due to run-to-run variation. After repeat correction and plotting "repeats" on the x-axis, the traces should be basically overlapping. It can be difficult from the "repeats" x-axis to figure out which sample is wrong because if one is wrong it will mess up the repeat size for all other samples in that same batch_run_id. Use the "size" x-axis to make sure all of the traces have the same distribution and modal peak."
+#' When plotting the traces before repeat correction, we do not expect the samples to be closely overlapping due to run-to-run variation. After repeat correction, the traces should be basically overlapping. 
 #' 
-#' These plots are made using base R plotting. Sometimes these fail to render in the viewing panes of IDEs (eg you get the error 'Error in `plot.new()`: figure margins too large)'. If this happens, try saving the plot as a pdf using traditional approaches (see grDevices::pdf). To get it to render in the IDE pane, trying matching `n_facet_col` to the number of samples you're attempting to plot, or using `sample_subset` to limit it to a single sample.
+#' These plots are made using base R plotting. Sometimes these fail to render in the viewing panes of IDEs (eg you get the error 'Error in `plot.new()`: figure margins too large)'. If this happens, try saving the plot as a pdf using traditional approaches (see grDevices::pdf). 
 #'
+#' @seealso [call_repeats()] for more info on batch correction.
 #' @examples
 #'
+#' fsa_list <- lapply(cell_line_fsa_list[91:94], function(x) x$clone())
 #'
-#' test_ladders <- find_ladders(cell_line_fsa_list, show_progress_bar = FALSE)
+#' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
-#'
-#'
-#' # duplicate data to generate an example
-#'
-#' test_metadata <- add_metadata(
-#'   fragments_list = test_ladders,
-#'   metadata_data.frame = metadata
-#' )
-#'
-#' test_metadata2 <- lapply(test_metadata, function(sample) {
-#'   sample2 <- sample$clone()
-#'   sample2$trace_bp_df$size <- sample2$trace_bp_df$size + 2
-#'   sample2$unique_id <- paste0(sample$unique_id, "_2")
-#'   sample2$batch_run_id <- paste0(sample2$batch_run_id, "_2")
-#'   return(sample2)
-#' })
-#'
-#' names(test_metadata2) <- sapply(test_metadata2, function(x) x$unique_id)
-#'
-#' metadata_added_combined <- c(test_metadata, test_metadata2)
-#'
-#' test_fragments <- find_fragments(metadata_added_combined, min_bp_size = 300)
+#' fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
 #'
 #' test_alleles <- find_alleles(
-#'   fragments_list = test_fragments
+#'   fragments_list 
+#' )
+#' 
+#' add_metadata(
+#'   fragments_list,
+#'   metadata
 #' )
 #'
 #'
-#' test_repeats_corrected <- call_repeats(
-#'   fragments_list = test_alleles,
+#' call_repeats(
+#'   fragments_list = fragments_list,
 #'   repeat_calling_algorithm = "simple",
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3,
@@ -495,23 +479,28 @@ plot_fragments <- function(
 #' )
 #'
 #' # traces of bp size shows traces at different sizes
-#' plot_batch_correction_samples(test_repeats_corrected,
-#'   x_axis = "size",
-#'   sample_subset = "S-21-212", xlim = c(400, 450)
+#' plot_batch_correction_samples(
+#'   fragments_list,
+#'   selected_sample = "S-21-212", xlim = c(100, 120)
 #' )
 #'
-#' # overlapping traces when looking at the corrected repeat length
-#' plot_batch_correction_samples(test_repeats_corrected,
-#'   x_axis = "repeats",
-#'   sample_subset = "S-21-212", xlim = c(100, 130)
-#' )
 #'
 plot_batch_correction_samples <- function(
   fragments_list,
-  sample_subset = NULL,
-  x_axis = "size",
-  n_facet_col  = 1, 
+  selected_sample,
   xlim = NULL) {
+# first check to see if repeats have been called or batches corrected and give some warnings
+  
+if(all(sapply(fragments_list, function(x) is.null(x$repeat_table_df)))){
+  warning(call. = FALSE,
+    "Repeats not detected. Only samples before correction values will be plotted. Use call_repeats(batch_correction = TRUE) to see the effect of batch correction on selected sample."
+  )
+} else if(!any(sapply(fragments_list, function(x) !is.na(x$.__enclos_env__$private$batch_correction_factor)))){
+  warning(call. = FALSE,
+    "Batch correction not detected. Only samples before correction values will be plotted. Use call_repeats(batch_correction = TRUE) to see the effect of batch correction on selected sample."
+  )
+}
+  
 size_standard_fragments <- sapply(fragments_list, function(x) x$batch_sample_id)
 controls_fragments_list <- fragments_list[which(!is.na(size_standard_fragments))]
 
@@ -522,9 +511,9 @@ if (length(unique(na.omit(size_standard_fragments))) == 0) {
   )
 }
 
-if (!is.null(sample_subset)) {
-  sample_subset <- sapply(controls_fragments_list, function(x) x$batch_sample_id %in% sample_subset)
-  controls_fragments_list <- controls_fragments_list[which(sample_subset)]
+if (!is.null(selected_sample) & is.character(selected_sample)) {
+  selected_sample_list <- sapply(controls_fragments_list, function(x) x$batch_sample_id %in% selected_sample)
+  controls_fragments_list <- controls_fragments_list[which(selected_sample_list)]
 
   if (length(controls_fragments_list) == 0) {
     stop(
@@ -532,28 +521,39 @@ if (!is.null(sample_subset)) {
       "After subsetting the samples with the provided id, no samples were left. Check that you provided the correct id or that the batch_sample_id has been added to the samples."
     )
   }
-}
+} else if(is.numeric(selected_sample)){
+  batch_sample_ids <- sapply(controls_fragments_list, function(x) x$batch_sample_id)
+  unique_batch_sample_ids <- unique(na.omit(batch_sample_ids))
+  if(selected_sample > length(unique_batch_sample_ids)){
+    stop(
+      call. = FALSE,
+      paste0("Invalid selected_sample number, there are only ", length(unique_batch_sample_ids), "unique batch_sample_ids")
+    )
+  }
+  controls_fragments_list <- controls_fragments_list[which(batch_sample_ids == unique_batch_sample_ids[selected_sample])]
+} 
 
-size_standard_fragments_sample_groups <- sapply(controls_fragments_list, function(x) x$batch_sample_id)
+overlapping_plot <- function(sample_fragments, before_or_after_correction) {
 
-split_by_sample <- split(controls_fragments_list, size_standard_fragments_sample_groups)
 
-overlapping_plot <- function(sample_fragments) {
-  sample_traces <- lapply(sample_fragments, function(y) {
-    df <- y$trace_bp_df
-    if (x_axis == "size") {
-      df$x <- df$size
-    } else if (x_axis == "repeats") {
-      df$x <- df$calculated_repeats
-    } else {
-      stop(
-        call. = FALSE,
-        "Please provide valid x-axis, either: 'size' or 'repeats'"
-      )
+  sample_traces <- vector("list", length(sample_fragments))
+  for (i in seq_along(sample_fragments)) {
+    sample_traces[[i]] <- sample_fragments[[i]]$trace_bp_df
+
+    # check to see if repeats have been called to see what should be plotted on the x_axis
+    if(all(sapply(sample_fragments, function(x) is.null(x$repeat_table_df)))){
+      x_axis <- "size"
+      sample_traces[[i]]$x <- sample_traces[[i]]$size
+    } else{
+      x_axis <- "repeats"
+      if(before_or_after_correction == "before"){
+        # re-calculate repeats using uncorrected size
+        sample_traces[[i]]$x <- (sample_traces[[i]]$size - sample_fragments[[i]]$.__enclos_env__$private$assay_size_without_repeat) / sample_fragments[[i]]$.__enclos_env__$private$repeat_size
+      } else{
+        sample_traces[[i]]$x <- sample_traces[[i]]$calculated_repeats
+      }
     }
-    return(df)
-  })
-
+  }
   # Generate colors dynamically
   n_dfs <- length(sample_traces)
   colors <- rainbow(n_dfs, alpha = 0.5) # Generates n colors with alpha for transparency
@@ -573,6 +573,8 @@ overlapping_plot <- function(sample_fragments) {
     return(x)
   })
 
+  plot_title <- ifelse(before_or_after_correction == "before", "Before correction", "After correction")
+  plot_title <- paste0(plot_title, paste0("\n", unique(sapply(sample_fragments, function(x) x$batch_sample_id))))
 
   # Plot the first dataframe
   plot(sample_traces[[1]]$x, sample_traces[[1]]$rel_signal,
@@ -581,28 +583,18 @@ overlapping_plot <- function(sample_fragments) {
     xlab = ifelse(x_axis == "size", "Size", "Repeats"),
     ylab = "Signal",
     ylim = range(sapply(sample_traces, function(df) range(df$rel_signal))),
-    main = sample_fragments[[1]]$batch_sample_id
-  )
-  # also add point for tallest peak. sample_traces and sample_fragments are in the same order
-  points(
-    ifelse(x_axis == "size", sample_fragments[[1]]$get_allele_peak()$allele_size, sample_fragments[[1]]$get_allele_peak()$allele_repeat),
-    1,
-    col = colors[1]
+    main = plot_title
   )
 
   # Add lines for remaining dataframes
   for (i in 2:n_dfs) {
     graphics::lines(sample_traces[[i]]$x, sample_traces[[i]]$rel_signal, col = colors[i])
-    points(
-      ifelse(x_axis == "size", sample_fragments[[i]]$get_allele_peak()$allele_size, sample_fragments[[i]]$get_allele_peak()$allele_repeat),
-      1,
-      col = colors[i]
-    )
+
   }
 
   graphics::legend("topright", 
   legend = sapply(sample_fragments, function(x) x$unique_id), 
-  col = colors, 
+  col = colors,
   lty = 1, lwd = 1,
   cex = 0.8, # reduce the size of the text
   inset = c(-0.5, 0),  # Adjust position to be inside the plot, but in the corner
@@ -612,15 +604,21 @@ overlapping_plot <- function(sample_fragments) {
 )       
 
 }
-  
-graphics::par(mfrow = c(ceiling(length(split_by_sample) / n_facet_col), n_facet_col)) # Adjust layout as needed
+graphics::par(mfrow = c(1, 2)) 
 # for some reason we need to use the recordPlot() strategy below.
 # just looping over the plots only rendered one for some reason
-recorded_plots <- vector("list", length(split_by_sample))
-for (i in seq_along(split_by_sample)) {
-  overlapping_plot(split_by_sample[[i]])
-  # Record the plot
-  recorded_plots[[i]] <- grDevices::recordPlot()
+recorded_plots <- vector("list", 2)
+
+#before correction plot
+overlapping_plot(controls_fragments_list, before_or_after_correction = "before")
+recorded_plots[[1]] <- grDevices::recordPlot()
+  
+#after correction plot
+if(!all(sapply(controls_fragments_list, function(x) is.null(x$repeat_table_df))) && any(sapply(controls_fragments_list, function(x) !is.na(x$.__enclos_env__$private$batch_correction_factor)))){
+  overlapping_plot(controls_fragments_list, before_or_after_correction = "after")
+  recorded_plots[[2]] <- grDevices::recordPlot()
+} else{
+  recorded_plots[[2]] <- plot.new()
 }
 
 for (i in seq_along(recorded_plots)) {

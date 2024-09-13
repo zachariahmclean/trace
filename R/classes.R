@@ -275,6 +275,8 @@ fragments_repeats <- R6::R6Class(
     # call_repeats data
     batch_correction_factor = NA_real_,
     repeats_not_called_reason = NA_character_,
+    repeat_size = NA_real_,
+    assay_size_without_repeat = NA_real_,
 
     #assign_index_peak data
     index_repeat = NA_real_,

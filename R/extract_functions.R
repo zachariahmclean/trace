@@ -10,10 +10,11 @@
 #' @export
 #'
 #' @examples
+#' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 #'
-#' test_ladders <- find_ladders(trace::cell_line_fsa_list[1])
+#' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
-#' extracted_traces <- extract_trace_table(test_ladders)
+#' extracted_traces <- extract_trace_table(fsa_list)
 #'
 extract_trace_table <- function(fragments_trace_list) {
   # turn the output into a dataframe
@@ -47,13 +48,13 @@ extract_trace_table <- function(fragments_trace_list) {
 #'   min_size_bp = 400
 #' )
 #'
-#' test_alleles <- find_alleles(
+#' find_alleles(
 #'   fragments_list = test_fragments,
 #'   peak_region_size_gap_threshold = 6,
 #'   peak_region_height_threshold_multiplier = 1
 #' )
 #'
-#' extract_alleles(test_alleles)
+#' extract_alleles(test_fragments)
 #'
 extract_alleles <- function(fragments_list) {
   extracted <- lapply(fragments_list, function(x) {
@@ -90,23 +91,23 @@ extract_alleles <- function(fragments_list) {
 #'   min_size_bp = 400
 #' )
 #'
-#' test_metadata <- add_metadata(
+#' add_metadata(
 #'   fragments_list = test_fragments,
 #'   metadata_data.frame = metadata
 #' )
 #'
-#' test_alleles <- find_alleles(
-#'   fragments_list = test_metadata
+#' find_alleles(
+#'   fragments_list = test_fragments
 #' )
 #'
-#' test_repeats <- call_repeats(
-#'   fragments_list = test_alleles,
+#' call_repeats(
+#'   fragments_list = test_fragments,
 #'   repeat_calling_algorithm = "simple",
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
 #'
-#' extract_alleles(test_repeats)
+#' extract_alleles(test_fragments)
 #'
 extract_fragments <- function(fragments_list) {
   suppressWarnings(

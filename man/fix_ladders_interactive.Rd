@@ -28,9 +28,9 @@ be saved and used within a script so that the correct does not need to be done
 every time.
 }
 \examples{
-file_list <- trace::cell_line_fsa_list[c("20230413_B03.fsa")]
+fsa_list <- lapply(cell_line_fsa_list["20230413_B03.fsa"], function(x) x$clone())
 
-test_ladders <- find_ladders(file_list)
+find_ladders(fsa_list, show_progress_bar = FALSE)
 
 # to create an example, lets brake one of the ladders
 brake_ladder_list <- list(
@@ -41,14 +41,12 @@ brake_ladder_list <- list(
   )
 )
 
-test_ladders_broken <- fix_ladders_manual(
-  test_ladders,
+fix_ladders_manual(
+  fsa_list,
   brake_ladder_list
 )
 
-plot_ladders(test_ladders_broken["20230413_B03.fsa"],
-  n_facet_col = 1
-)
+plot_ladders(fsa_list)
 
 
 if (interactive()) {

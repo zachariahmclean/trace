@@ -465,12 +465,12 @@ ladder_self_mod_predict <- function(fragments_trace,
 #'
 #' @examples
 #'
-#' file_list <- trace::cell_line_fsa_list
+#' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 #'
-#' test_ladders <- find_ladders(file_list, show_progress_bar = FALSE)
+#' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
 #' # Manually inspect the ladders
-#' plot_ladders(test_ladders[1])
+#' plot_ladders(fsa_list[1])
 #'
 find_ladders <- function(
     fragments_trace,
@@ -626,15 +626,16 @@ find_ladders <- function(
 #'
 #' @examples
 #'
-#'
-#' test_ladders <- find_ladders(trace::cell_line_fsa_list[1])
+#' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
+#' 
+#' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
 #' # first manually determine the real ladder peaks using your judgment
 #' # the raw ladder signal can be extracted
-#' raw_ladder <- test_ladders[1]$raw_ladder
+#' raw_ladder <- fsa_list[1]$raw_ladder
 #'
 #' # or we can look at the "trace_bp_df" to see a dataframe that includes the scan and ladder signal
-#' raw_ladder_df <- test_ladders[[1]]$trace_bp_df[, c("unique_id", "scan", "ladder_signal")]
+#' raw_ladder_df <- fsa_list[[1]]$trace_bp_df[, c("unique_id", "scan", "ladder_signal")]
 #' plot(raw_ladder_df$scan, raw_ladder_df$ladder_signal)
 #'
 #' # once you have figured what sizes align with which peak, make a dataframe. The
@@ -648,8 +649,8 @@ find_ladders <- function(
 #'   )
 #' )
 #'
-#' test_ladders_fixed_manual <- fix_ladders_manual(
-#'   test_ladders,
+#' fix_ladders_manual(
+#'   fsa_list,
 #'   example_list
 #' )
 #'

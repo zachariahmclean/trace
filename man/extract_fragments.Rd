@@ -25,22 +25,22 @@ test_fragments <- peak_table_to_fragments(gm_raw,
   min_size_bp = 400
 )
 
-test_metadata <- add_metadata(
+add_metadata(
   fragments_list = test_fragments,
   metadata_data.frame = metadata
 )
 
-test_alleles <- find_alleles(
-  fragments_list = test_metadata
+find_alleles(
+  fragments_list = test_fragments
 )
 
-test_repeats <- call_repeats(
-  fragments_list = test_alleles,
+call_repeats(
+  fragments_list = test_fragments,
   repeat_calling_algorithm = "simple",
   assay_size_without_repeat = 87,
   repeat_size = 3
 )
 
-extract_alleles(test_repeats)
+extract_alleles(test_fragments)
 
 }

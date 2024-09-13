@@ -49,23 +49,23 @@ The index peak will be plotted as a vertical dashed line when it has been set us
 }
 \examples{
 
-file_list <- trace::cell_line_fsa_list[1]
+fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
-test_ladders <- find_ladders(file_list)
+find_ladders(fsa_list, show_progress_bar = FALSE)
 
-fragments_list <- find_fragments(test_ladders,
+fragments_list <- find_fragments(fsa_list,
   min_bp_size = 300
 )
 
-test_alleles <- find_alleles(
-  fragments_list = fragments_list
+find_alleles(
+  fragments_list
 )
 
 # Simple conversion from bp size to repeat size
-test_repeats <- call_repeats(
-  fragments_list = test_alleles
+call_repeats(
+  fragments_list
 )
 
-plot_traces(test_repeats[1], xlim = c(105, 150))
+plot_traces(fragments_list, xlim = c(105, 150))
 
 }

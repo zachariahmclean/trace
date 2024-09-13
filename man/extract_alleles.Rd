@@ -24,12 +24,12 @@ test_fragments <- peak_table_to_fragments(gm_raw,
   min_size_bp = 400
 )
 
-test_alleles <- find_alleles(
+find_alleles(
   fragments_list = test_fragments,
   peak_region_size_gap_threshold = 6,
   peak_region_height_threshold_multiplier = 1
 )
 
-extract_alleles(test_alleles)
+extract_alleles(test_fragments)
 
 }

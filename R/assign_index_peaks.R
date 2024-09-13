@@ -35,30 +35,32 @@
 #' @examples
 #'
 #'
-#' file_list <- trace::cell_line_fsa_list
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 #'
-#' ladder_list <- find_ladders(file_list)
+#' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
-#' fragments_list <- find_fragments(ladder_list,
+#' fragments_list <- find_fragments(fsa_list,
 #'   min_bp_size = 300
 #' )
 #'
-#' allele_list <- find_alleles(
-#'   fragments_list = fragments_list
+#' find_alleles(
+#'   fragments_list
 #' )
-#' repeats_list <- call_repeats(
-#'   fragments_list = allele_list
+#' call_repeats(
+#'   fragments_list
 #' )
 #'
-#' metadata_added_list <- add_metadata(
-#'   fragments_list = repeats_list,
+#' add_metadata(
+#'   fragments_list,
 #'   metadata_data.frame = trace::metadata
 #' )
 #'
-#'index_assigned <- assign_index_peaks(metadata_added_list,
-#'                                     grouped = TRUE)
+#'assign_index_peaks(
+#'   fragments_list,
+#'   grouped = TRUE
+#' )
 #'
-#' plot_traces(index_assigned[1], xlim = c(100,150))
+#' plot_traces(fragments_list[1], xlim = c(100,150))
 #'
 #'
 #'

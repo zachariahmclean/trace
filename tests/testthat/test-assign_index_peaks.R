@@ -92,19 +92,19 @@ testthat::test_that("calculate metrics", {
 
 
 
-  test_metadata <- add_metadata(
+  add_metadata(
     fragments_list = test_fragments,
     metadata_data.frame = metadata
   )
 
-  test_alleles <- find_alleles(
-    fragments_list = test_metadata
+  find_alleles(
+    fragments_list = test_fragments
   )
 
 
   suppressWarnings(
-    test_repeats <- call_repeats(
-      fragments_list = test_alleles,
+    call_repeats(
+      fragments_list = test_fragments,
       repeat_calling_algorithm = "simple",
       assay_size_without_repeat = 87,
       repeat_size = 3
@@ -114,12 +114,12 @@ testthat::test_that("calculate metrics", {
 
   #purposely messs up one batch run id to generate warning
 
-  test_repeats[[1]]$batch_run_id <- "wrong_run"
+  test_fragments[[1]]$batch_run_id <- "wrong_run"
 
 suppressMessages(
   tryCatch({
-    test_assignment_grouped <- assign_index_peaks(
-      test_repeats,
+    assign_index_peaks(
+      test_fragments,
       grouped = TRUE
     )
   },

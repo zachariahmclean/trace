@@ -55,7 +55,7 @@ transfer_metadata_helper <- function(old_fragment,
 #'   min_size_bp = 300
 #' )
 #'
-#' test_metadata <- add_metadata(
+#' add_metadata(
 #'   fragments_list = test_fragments,
 #'   metadata_data.frame = metadata,
 #'   unique_id = "unique_id",
@@ -67,7 +67,7 @@ transfer_metadata_helper <- function(old_fragment,
 #'
 #' # skip unwanted metadata by using NA
 #'
-#' test_metadata_skipped <- add_metadata(
+#' add_metadata(
 #'   fragments_list = test_fragments,
 #'   metadata_data.frame = metadata,
 #'   unique_id = "unique_id",

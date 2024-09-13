@@ -33,11 +33,11 @@
 #' If too many and inappropriate peaks are being called, this may also be solved with the different repeat calling algorithms in [call_repeats()].
 #'
 #' @examples
-#' file_list <- trace::cell_line_fsa_list
+#' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 #'
-#' test_ladders <- find_ladders(file_list[1])
+#' find_ladders(fsa_list)
 #'
-#' fragments_list <- find_fragments(test_ladders,
+#' fragments_list <- find_fragments(fsa_list,
 #'   min_bp_size = 300
 #' )
 #'

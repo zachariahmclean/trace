@@ -6,18 +6,17 @@ test_that("{shinytest2} recording: fix_ladder-checkbox", {
   # Don't run these tests on the CRAN build servers
   skip_on_cran()
 
+  fsa_list <- lapply(trace::cell_line_fsa_list[c("20230413_A01.fsa", "20230413_B03.fsa")], function(x) x$clone())
 
-  file_list <- lapply(trace::cell_line_fsa_list[c("20230413_A01.fsa", "20230413_B03.fsa")], function(x) x$clone())
 
-
-  test_ladders <- find_ladders(file_list,
+  find_ladders(fsa_list,
     ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
     max_combinations = 2500000,
     ladder_selection_window = 8,
     show_progress_bar = FALSE
   )
 
-  # sapply(test_ladders[[2]]$local_southern_mod, function(x)  summary(x$mod)$r.squared)
+  # sapply(fsa_list[[2]]$local_southern_mod, function(x)  summary(x$mod)$r.squared)
 
   example_list <- list(
     "20230413_B03.fsa" = data.frame(
@@ -28,22 +27,22 @@ test_that("{shinytest2} recording: fix_ladder-checkbox", {
 
   suppressMessages(
     suppressWarnings(
-      test_ladders_fixed_manual <- fix_ladders_manual(
-        test_ladders,
+      fix_ladders_manual(
+        fsa_list,
         example_list
       )
     )
   )
 
-  # sapply(test_ladders_fixed_manual[[2]]$local_southern_mod, function(x)  summary(x$mod)$r.squared)
+  # sapply(fsa_list[[2]]$local_southern_mod, function(x)  summary(x$mod)$r.squared)
 
 
   # to generate the values below I ran a test like below and copied the values
-  # shinytest2::record_test(fix_ladders_interactive(test_ladders_fixed_manual))
+  # shinytest2::record_test(fix_ladders_interactive(fsa_list))
 
 
   suppressMessages(
-    shiny_app <- fix_ladders_interactive(test_ladders_fixed_manual)
+    shiny_app <- fix_ladders_interactive(fsa_list)
   )
 
 

@@ -15,16 +15,16 @@ testthat::test_that("find_alleles", {
   )
   
 
-  test_alleles <- find_alleles(
+  find_alleles(
     fragments_list = test_fragments
   )
 
-  testthat::expect_true(test_alleles[[1]]$get_allele_peak()$allele_size == 465.82)
-  testthat::expect_true(test_alleles[[10]]$get_allele_peak()$allele_size == 505.21)
+  testthat::expect_true(test_fragments[[1]]$get_allele_peak()$allele_size == 465.82)
+  testthat::expect_true(test_fragments[[10]]$get_allele_peak()$allele_size == 505.21)
 
-  allele_size <- vector("numeric", length(test_alleles))
-  for (i in seq_along(test_alleles)) {
-    allele_size[i] <- test_alleles[[i]]$get_allele_peak()$allele_size
+  allele_size <- vector("numeric", length(test_fragments))
+  for (i in seq_along(test_fragments)) {
+    allele_size[i] <- test_fragments[[i]]$get_allele_peak()$allele_size
   }
 
   testthat::expect_true(all(!is.na(allele_size[-c(4,47)])))

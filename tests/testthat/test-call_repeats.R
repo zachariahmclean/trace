@@ -127,12 +127,15 @@ testthat::test_that("fft", {
 
 testthat::test_that("repeat period", {
 
+  fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
+
   suppressWarnings(
-    test_ladders <- find_ladders(cell_line_fsa_list[1],
-                                 ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
-                                 max_combinations = 2500000,
-                                 ladder_selection_window = 5,
-                                 show_progress_bar = FALSE
+    find_ladders(
+      fsa_list,
+      ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
+      max_combinations = 2500000,
+      ladder_selection_window = 5,
+      show_progress_bar = FALSE
     )
   )
 
@@ -153,7 +156,7 @@ testthat::test_that("repeat period", {
   # dev.off()
 
 
-  peak_list <- find_fragments(test_ladders,
+  peak_list <- find_fragments(fsa_list,
                               minimum_peak_signal = 20,
                               min_bp_size = 300
   )
@@ -194,12 +197,15 @@ testthat::test_that("repeat period", {
 
 
 testthat::test_that("full pipeline repeat size algo", {
+
+  fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+
   suppressWarnings(
-    test_ladders <- find_ladders(cell_line_fsa_list,
-                                 ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
-                                 max_combinations = 2500000,
-                                 ladder_selection_window = 5,
-                                 show_progress_bar = FALSE
+    find_ladders(fsa_list,
+                  ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
+                  max_combinations = 2500000,
+                  ladder_selection_window = 5,
+                  show_progress_bar = FALSE
     )
   )
 
@@ -220,22 +226,22 @@ testthat::test_that("full pipeline repeat size algo", {
   # dev.off()
 
 
-  peak_list <- find_fragments(test_ladders,
+  peak_list <- find_fragments(fsa_list,
                               minimum_peak_signal = 20,
                               min_bp_size = 300
   )
 
-  fragment_metadata <- add_metadata(
+  add_metadata(
     fragments_list = peak_list,
     metadata_data.frame = metadata
   )
 
-  fragment_alleles <- find_alleles(fragments_list = fragment_metadata)
+  find_alleles(peak_list)
 
   suppressMessages(
     suppressWarnings(
-      test_repeats <- call_repeats(
-        fragments_list = fragment_alleles,
+      call_repeats(
+        fragments_list = peak_list,
         repeat_calling_algorithm = "size_period"
       )
     )
@@ -249,8 +255,8 @@ testthat::test_that("full pipeline repeat size algo", {
   # plot_fragments(test_repeats[1:4])
 suppressMessages(
   suppressWarnings(
-    index_list <- assign_index_peaks(
-      test_repeats,
+    assign_index_peaks(
+      peak_list,
       grouped = TRUE
     )
   )
@@ -260,7 +266,7 @@ suppressMessages(
   suppressMessages(
     suppressWarnings(
       test_metrics_grouped <- calculate_instability_metrics(
-        fragments_list = test_repeats,
+        fragments_list = peak_list,
         peak_threshold = 0.05,
         window_around_index_peak = c(-40, 40)
       )
@@ -337,17 +343,19 @@ testthat::test_that("size standards with ids", {
   })
   names(H8_fsa_list) <- paste0("20230413_H08.fsa", "_", 1:10)
 
-  ladder_list <- find_ladders(c(H7_fsa_list, H8_fsa_list),
+  fsa_list <- c(H7_fsa_list, H8_fsa_list)
+
+  find_ladders(fsa_list,
           show_progress_bar = FALSE)
 
-  fragments_list <- find_fragments(ladder_list, min_bp_size = 300)
+  fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
 
-  metadata_list <- add_metadata(fragments_list,
+  add_metadata(fragments_list,
     H7_metadata)
 
 # add a random systematic error to each sample
   # will use the number appended on the end as that for convience
-  metadata_list <- lapply(metadata_list, function(x){
+  fragments_list <- lapply(fragments_list, function(x){
     x$peak_table_df$size <- x$peak_table_df$size + as.numeric(substr(x$unique_id, 18,19))
     x$trace_bp_df$size <- x$trace_bp_df$size + as.numeric(substr(x$unique_id, 18,19))
     #chose one of them to have the peaks swapped
@@ -365,13 +373,13 @@ testthat::test_that("size standards with ids", {
   })
   
 
-  allele_list <- find_alleles(metadata_list)
+  find_alleles(fragments_list)
   suppressWarnings(
-    repeats_list <- call_repeats(allele_list,
+    call_repeats(fragments_list,
       batch_correction = TRUE)
     )
 
-  testthat::expect_true(all.equal(c(seq(-4.5, 4.5, 1), seq(-4.5, 4.5, 1)), as.numeric(sapply(allele_list, function(x) x$.__enclos_env__$private$batch_correction_factor))))
+  testthat::expect_true(all.equal(c(seq(-4.5, 4.5, 1), seq(-4.5, 4.5, 1)), as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor))))
   
   # plot_batch_correction_samples(repeats_list, x_axis = "size", xlim = c(400, 470), n_facet_col = 2)
   # plot_batch_correction_samples(repeats_list, x_axis = "repeats", xlim = c(100, 130), n_facet_col = 2)
@@ -383,25 +391,25 @@ testthat::test_that("size standards with ids", {
 
 testthat::test_that("batch correction", {
 
-
-  ladder_list <- find_ladders(cell_line_fsa_list,
+  fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+  find_ladders(fsa_list,
           show_progress_bar = FALSE)
 
-  fragments_list <- find_fragments(ladder_list, min_bp_size = 300)
+  fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
 
-  metadata_list <- add_metadata(fragments_list,
+  add_metadata(fragments_list,
     metadata)
   
-  allele_list <- find_alleles(metadata_list)
+  find_alleles(fragments_list)
   suppressWarnings(
-    repeats_list <- call_repeats(allele_list,
+   call_repeats(fragments_list,
       batch_correction = TRUE)
     )
 
-  testthat::expect_true(all.equal(c(rep(0.78526, 92), rep(-0.78526, 2)), round(as.numeric(sapply(allele_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)))
+  testthat::expect_true(all.equal(c(rep(0.78526, 92), rep(-0.78526, 2)), round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)))
   
-  # plot_batch_correction_samples(repeats_list, x_axis = "size", xlim = c(400, 430), n_facet_col = 2)
-  # plot_batch_correction_samples(repeats_list, x_axis = "repeats", xlim = c(100, 115), n_facet_col = 2)
+  # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(400, 500))
+  # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(100, 115))
 
 
 })
@@ -422,21 +430,21 @@ testthat::test_that("batch correction with no data in one batch", {
 
   metadata_modification_df <- rbind(metadata,  different_batch_metadata)
 
-
-  ladder_list <- find_ladders(c(cell_line_fsa_list, different_batch),
+  fsa_list <- c(lapply(cell_line_fsa_list, function(x) x$clone()), different_batch)
+  find_ladders(fsa_list,
           show_progress_bar = FALSE)
 
-  fragments_list <- find_fragments(ladder_list, min_bp_size = 300)
+  fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
 
-  metadata_list <- add_metadata(fragments_list,
+  add_metadata(fragments_list,
     metadata_modification_df)
   
 
-  allele_list <- find_alleles(metadata_list)
+  find_alleles(fragments_list)
 
   suppressMessages(
     tryCatch({
-      repeats_list <- call_repeats(allele_list,
+      call_repeats(fragments_list,
         batch_correction = TRUE)
     },
       warning = function(w){

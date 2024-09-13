@@ -192,27 +192,27 @@ repeat_table_subset <- function(repeat_table_df,
 #'   min_size_bp = 400
 #' )
 #'
-#' test_metadata <- add_metadata(
+#' add_metadata(
 #'   fragments_list = test_fragments,
 #'   metadata_data.frame = metadata
 #' )
 #'
-#' test_alleles <- find_alleles(
-#'   fragments_list = test_metadata,
+#' find_alleles(
+#'   fragments_list = test_fragments,
 #'   peak_region_size_gap_threshold = 6,
 #'   peak_region_height_threshold_multiplier = 1
 #' )
 #'
 #'
-#' test_repeats <- call_repeats(
-#'   fragments_list = test_alleles,
+#' call_repeats(
+#'   fragments_list = test_fragments,
 #'   repeat_calling_algorithm = "simple",
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
 #'
-#' test_assigned <- assign_index_peaks(
-#'   fragments_list = test_repeats,
+#' assign_index_peaks(
+#'   fragments_list = test_fragments,
 #'   grouped = TRUE
 #' )
 #'
@@ -220,7 +220,7 @@ repeat_table_subset <- function(repeat_table_df,
 #' # grouped metrics
 #' # uses t=0 samples as indicated in metadata
 #' test_metrics_grouped <- calculate_instability_metrics(
-#'   fragments_list = test_assigned,
+#'   fragments_list = test_fragments,
 #'   peak_threshold = 0.05,
 #'   window_around_index_peak = c(-40, 40),
 #'   percentile_range = c(0.5, 0.75, 0.9, 0.95),

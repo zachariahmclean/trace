@@ -52,64 +52,65 @@ The \code{simple} algorithm is just the repeat size calculated directly from bp.
 }
 \examples{
 
-file_list <- trace::cell_line_fsa_list[c(90:92)]
+fsa_list <- lapply(cell_line_fsa_list[c(90:94)], function(x) x$clone())
 
-test_ladders <- find_ladders(file_list)
+find_ladders(fsa_list, show_progress_bar = FALSE)
 
-fragments_list <- find_fragments(test_ladders,
+fragments_list <- find_fragments(
+  fsa_list,
   min_bp_size = 300
 )
 
-test_alleles <- find_alleles(
-  fragments_list = fragments_list
+find_alleles(
+  fragments_list
 )
 
 # Simple conversion from bp size to repeat size
-test_repeats <- call_repeats(
-  fragments_list = test_alleles,
+call_repeats(
+  fragments_list,
   repeat_calling_algorithm = "simple",
   assay_size_without_repeat = 87,
   repeat_size = 3
 )
 
-plot_traces(test_repeats[1], xlim = c(120, 170))
+plot_traces(fragments_list[1], xlim = c(120, 170))
 
 
 # use different algorithms to call the repeats to ensure only periodic peaks are called
 
 # fft to automatically find peak period
-test_repeats_fft <- call_repeats(
-  fragments_list = test_alleles,
+call_repeats(
+  fragments_list,
   repeat_calling_algorithm = "fft",
   assay_size_without_repeat = 87,
   repeat_size = 3
 )
 
-plot_traces(test_repeats_fft[1], xlim = c(120, 170))
+plot_traces(fragments_list[1], xlim = c(120, 170))
 
 # size_period to manually supply the peak period
-test_repeats_size_period <- call_repeats(
-  fragments_list = test_alleles,
+call_repeats(
+  fragments_list,
   repeat_calling_algorithm = "size_period",
   repeat_calling_algorithm_size_period = 2.75,
   assay_size_without_repeat = 87,
   repeat_size = 3
 )
 
-plot_traces(test_repeats_size_period[1], xlim = c(120, 170))
+plot_traces(fragments_list[1], xlim = c(120, 170))
 
 
 # Use force_whole_repeat_units algorithm to make sure called
 # repeats are the exact number of bp apart
 
-test_repeats_whole_units <- call_repeats(
-  fragments_list = test_alleles,
+call_repeats(
+  fragments_list,
   force_whole_repeat_units = TRUE,
   assay_size_without_repeat = 87,
   repeat_size = 3
 )
 
-plot_traces(test_repeats_whole_units[1], xlim = c(120, 170))
+plot_traces(fragments_list[1], xlim = c(120, 170))
 
 
 }
