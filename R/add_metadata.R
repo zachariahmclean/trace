@@ -133,12 +133,13 @@ add_metadata <- function(
     )
   }
 
+  # make sure dataframe, not tibble
+  metadata_data.frame <- as.data.frame(metadata_data.frame)
+  metadata_data.frame[metadata_data.frame == ''] <- NA
+
   metadata_added <- lapply(
     fragments_list,
     function(fragments) {
-
-      # make sure dataframe, not tibble
-      metadata_data.frame <- as.data.frame(metadata_data.frame)
     
       # filter for row of sample
       sample_metadata <- metadata_data.frame[which(metadata_data.frame[unique_id] == fragments$unique_id), , drop = FALSE]

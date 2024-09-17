@@ -56,6 +56,11 @@ extract_ladder_summary <- function(
     fragments_trace_list,
     sort = FALSE){
 
+  # test to make sure that fragments trace objects
+  if(any(sapply(fragments_trace_list, function(x) class(x)[1] != "fragments_trace"))){
+    stop(call. = FALSE, "Wrong objects supplied. Please supply a list of 'fragments_trace' objects")
+  }
+  
   summary_list <- lapply(fragments_trace_list, function(x){
     rsq <- sapply(x$local_southern_mod, function(mod_list) suppressWarnings(summary(mod_list$mod)$r.squared))
 
