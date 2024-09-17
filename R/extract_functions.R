@@ -28,6 +28,55 @@ extract_trace_table <- function(fragments_trace_list) {
 }
 
 
+
+#' Extract ladder summary
+#'
+#' Extract a table summarizing the ladder models
+#'
+#' @param fragments_trace_list a list of fragments trace objects
+#' @param sort A logical statement for if the samples should be ordered by average ladder R-squared.
+#'
+#' @return a dataframe of ladder quality information
+#' @export
+#'
+#' @details
+#' The ladder peaks are assigned using a custom algorithm that maximizes the fit of detected ladder peaks and given base-pair sizes. The base pair is assigned using the local Southern method. Basically, for each data point, linear models are made for the lower and upper 3 size standard and the predicted sizes are averaged.
+#'
+#' This function summarizes the R-squared values of these individual linear models.
+#'
+#'
+#' @examples
+#'
+#'   fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#'
+#'   find_ladders(fsa_list, show_progress_bar = FALSE)
+#'
+#'   extract_ladder_summary(fsa_list, sort = TRUE)
+extract_ladder_summary <- function(
+    fragments_trace_list,
+    sort = FALSE){
+
+  summary_list <- lapply(fragments_trace_list, function(x){
+    rsq <- sapply(x$local_southern_mod, function(mod_list) suppressWarnings(summary(mod_list$mod)$r.squared))
+
+    data.frame(
+      unique_id = x$unique_id,
+      avg_rsq = mean(rsq),
+      min_rsq = min(rsq)
+    )
+  })
+
+  summary_df <- do.call(rbind, summary_list)
+
+  if(sort == TRUE){
+    summary_df <- summary_df[order(summary_df$avg_rsq), ]
+  }
+
+  return(summary_df)
+
+}
+
+
 # Extract alleles -------------------------------------------------------
 
 #' Extract Modal Peaks
