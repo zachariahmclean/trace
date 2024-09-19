@@ -206,7 +206,6 @@ if (!batch_correction) {
 }
 
 if (!samples_grouped) {
-   ## TOODO fix this for new names
   template_content <- gsub('metadata\\$metrics_group_id <- metadata\\$metrics_group_id', '# metadata$metrics_group_id <- metadata$metrics_group_id', template_content)
   template_content <- gsub('metadata\\$metrics_baseline_control <- metadata\\$metrics_baseline_control', '# metadata$metrics_baseline_control <- metadata$metrics_baseline_control', template_content)
   template_content <- gsub('grouped = TRUE', 'grouped = FALSE', template_content)
@@ -216,10 +215,7 @@ if (!samples_grouped) {
 
 if (!batch_correction & !samples_grouped) {
   template_content <- gsub('metadata <- read.csv\\("")', '# metadata <- read.csv("")', template_content)
-  template_content <- gsub('fragments_list = metadata_added_list', 'fragments_list = peak_list', template_content)
-
-  # Comment out block of input section
-  template_content <- comment_out_lines(template_content, '#Provide the appropriate metadata below by replacing the placeholders', "\\`\\`\\`")
+  template_content <- gsub('metadata\\$unique_id <- metadata\\$unique_id', '# metadata$unique_id <- metadata$unique_id', template_content)
 
   # Comment out the Add metadata section
   template_content <- comment_out_lines(template_content, "\\`\\`\\`\\{r Add metadata\\}", "\\`\\`\\`", "metadata not used")
