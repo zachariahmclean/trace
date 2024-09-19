@@ -278,13 +278,18 @@ size_period_repeat_caller <- function(fragments_repeat,
 
 # find_size_batch_correction_factor
 
-find_batch_correction_factor <- function(fragments_list, trace_window_size = 50, smoothing_window = 301){
+find_batch_correction_factor <- function(
+  fragments_list,
+  assay_size_without_repeat,
+  repeat_size,
+  trace_window_size = 50, smoothing_window = 301){
   # make df for all samples of plate id, batch sample id
   metadata_list <- lapply(fragments_list, function(x){
     df <- data.frame(
       unique_id = x$unique_id,
       batch_run_id = x$batch_run_id,
       batch_sample_id = x$batch_sample_id,
+      batch_sample_repeat_length = x$batch_sample_repeat_length,
       allele_height = x$get_allele_peak()$allele_height
     )
     return(df)
@@ -340,6 +345,33 @@ find_batch_correction_factor <- function(fragments_list, trace_window_size = 50,
       )
     }
   }
+  message("Correcting batch effects")
+  # correct repeat size based on supplied repeat length
+  if (all(!is.na(correction_sample_df$batch_sample_repeat_length))) {
+    message("Correcting repeat lengths")
+    
+    # Calculate base pair and modal differences
+    correction_sample_df$batch_sample_base_pair <- 
+      correction_sample_df$batch_sample_repeat_length * repeat_size + assay_size_without_repeat
+    correction_sample_df$modal_diff <- 
+      correction_sample_df$batch_sample_base_pair - correction_sample_df$smoothed_modal_size
+    
+    # Calculate the correction factor for each batch_run_id
+    correction_sample_df_by_batch_run_id <- split(correction_sample_df, correction_sample_df$batch_run_id)
+    repeat_correction_factor <- sapply(correction_sample_df_by_batch_run_id, function(df) {
+      median(df$modal_diff, na.rm = TRUE)
+    })
+    
+    # I'm not sure that's doing what I want it to
+
+    # Update batch_effects_df with the correction factors in one step
+    batch_effects_df$batch_effect <- batch_effects_df$batch_effect + 
+      ifelse(batch_effects_df$batch_sample_id %in% names(repeat_correction_factor),
+             repeat_correction_factor[batch_effects_df$batch_sample_id], 0)
+  }
+  
+  
+
   # save correction factor for each class object but only if it was actually in the mod
   for (i in seq_along(fragments_list)) {
     if(fragments_list[[i]]$batch_run_id %in% batch_effects_df$batch_sample_id){
@@ -461,7 +493,11 @@ call_repeats <- function(
   # if so, find correction factor by looking across all samples before drilling down to a per sample level
   # the size correction then needs to be applied downstream
   if (batch_correction) {
-    find_batch_correction_factor(fragments_list)
+    find_batch_correction_factor(
+      fragments_list,
+      assay_size_without_repeat = assay_size_without_repeat,
+      repeat_size = repeat_size
+    )
   }
   # call repeats for each sample
   added_repeats <- lapply(

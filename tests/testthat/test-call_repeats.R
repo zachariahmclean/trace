@@ -460,3 +460,39 @@ testthat::test_that("batch correction with no data in one batch", {
 
 
 })
+
+
+testthat::test_that("batch correction with validated repeat lengths", {
+
+  fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+  find_ladders(fsa_list,
+          show_progress_bar = FALSE)
+
+  fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
+
+  add_metadata(fragments_list,
+    metadata)
+  
+  for (i in seq_along(fragments_list)) {
+    if(!is.na(fragments_list[[i]]$batch_sample_id) && fragments_list[[i]]$batch_sample_id == "S-21-211" ){
+      fragments_list[[i]]$batch_sample_repeat_length <- 120
+    } else if(!is.na(fragments_list[[i]]$batch_sample_id) && fragments_list[[i]]$batch_sample_id == "S-21-212" ){
+      fragments_list[[i]]$batch_sample_repeat_length <- 122
+    }
+  }
+  
+  
+  find_alleles(fragments_list)
+  suppressWarnings(
+   call_repeats(fragments_list,
+      batch_correction = TRUE)
+    )
+    sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)
+
+  testthat::expect_true(all.equal(c(rep(0.78526, 92), rep(-0.78526, 2)), round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)))
+  
+  # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(400, 500))
+  # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(100, 115))
+
+
+})

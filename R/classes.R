@@ -24,6 +24,9 @@ fragments <- R6::R6Class("fragments",
     #' @field batch_sample_id An id for the sample used as size standard for repeat calculation. Associated with `add_metadata()`.
     batch_sample_id = NA_character_,
 
+    #' @field batch_sample_repeat_length Validated repeat length for the batch_sample_id. Associated with `add_metadata()`.
+    batch_sample_repeat_length = NA_real_,
+
     #' @description
     #' initialization function that is not used since the child classes are the main object of this package.
     #' @param unique_id unique_id
