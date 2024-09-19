@@ -16,7 +16,7 @@ repeat_table_to_repeats(df, unique_id, repeat_col, frequency_col)
 \item{frequency_col}{A character string indicating the column name for the repeat frequencies.}
 }
 \value{
-A list of fragments_repeats.
+A list of fragments_repeats objects.
 }
 \description{
 This function converts a repeat table data frame into a list of fragments_repeats. class.

@@ -10,7 +10,7 @@ extract_trace_table(fragments_trace_list)
 \item{fragments_trace_list}{a list of fragments objects}
 }
 \value{
-returns a dataframe of the raw trace data. Each row representing a single scan.
+A dataframe of the raw trace data. Each row representing a single scan.
 }
 \description{
 Extract the raw trace from a list of fragments objects

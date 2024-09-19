@@ -30,7 +30,7 @@ add_metadata(
 \item{batch_sample_id}{(optional) A character string indicating the column name for an id of the size standard. For example, a sample code. This can then be used to correct batch effects across different fragment analysis runs. To skip, provide NA.}
 }
 \value{
-A modified list of fragment objects with added metadata.
+This function modifies list of fragments objects in place with metadata added.
 }
 \description{
 This function adds metadata information to a list of fragments.

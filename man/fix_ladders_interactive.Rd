@@ -10,7 +10,7 @@ fix_ladders_interactive(fragment_trace_list)
 \item{fragment_trace_list}{A list of fragments_trace objects containing fragment data}
 }
 \value{
-interactive shiny app
+interactive shiny app for fixing ladders
 }
 \description{
 An app for fixing ladders

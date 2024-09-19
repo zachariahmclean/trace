@@ -60,7 +60,7 @@ combinations that should be tested}
 \item{show_progress_bar}{show progress bar}
 }
 \value{
-list of fragments_trace objects
+This function modifies list of fragments_trace objects in place with the ladder assigned and base pair calculated.
 }
 \description{
 Find the ladder peaks in and use that to call bp size

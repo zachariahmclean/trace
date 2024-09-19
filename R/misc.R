@@ -89,7 +89,7 @@ print_helper <- function(fragment,
         cat(format(paste("character vector length", length(value))), "\n")
       }
     } else if (is.data.frame(value)) {
-      cat(sprintf("data.frame: %d rows × %d cols\n", nrow(value), ncol(value)))
+      cat(sprintf("data.frame: %d rows x %d cols\n", nrow(value), ncol(value)))
     } else {
       cat(class_value, "\n")
     }
@@ -154,7 +154,7 @@ remove_fragments <- function(
 #' @param batch_correction Indicates if the functionality for correcting repeat size using size standards across batches be included in the pipeline. See \code{\link{add_metadata}} & \code{\link{call_repeats}} for more info.
 #' @param samples_grouped Indicates if the functionality for grouping samples for metrics calculations should be included in the pipeline. See \code{\link{add_metadata}} & \code{\link{assign_index_peaks}} for more info.
 #'
-#' @return A Quarto template file
+#' @return A Quarto template file for repeat instability analysis
 #' @export
 #'
 #' @importFrom utils file.edit

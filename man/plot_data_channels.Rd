@@ -14,7 +14,7 @@ plot_data_channels(fragments_list, sample_subset = NULL, n_facet_col = 1)
 \item{n_facet_col}{A numeric value indicating the number of columns for faceting in the plot.}
 }
 \value{
-a plot of ladders
+a plot of the raw data channels
 }
 \description{
 Plot the raw data from the fsa file

@@ -14,7 +14,7 @@ plot_batch_correction_samples(fragments_list, selected_sample, xlim = NULL)
 \item{xlim}{the x limits of the plot. A numeric vector of length two.}
 }
 \value{
-plot traces from fragments object
+plot of batch corrected samples
 }
 \description{
 Plot the overlapping traces of the batch control samples

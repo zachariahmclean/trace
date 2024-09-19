@@ -18,7 +18,7 @@
 #' columns is important since the information is pulled by column position rather
 #' than column name). Closest peak in each sample is selected so the number needs to just be approximate.
 #'
-#' @return A list of \code{"fragments_repeats"} objects with index_repeat and index_height added.
+#' @return This function modifies list of fragments_repeats objects in place with index_repeat and index_height added.
 #' @details
 #' A key part of instability metrics is the index peak. This is the repeat
 #' length used as the reference peak for relative instability metrics calculations, like expansion index.

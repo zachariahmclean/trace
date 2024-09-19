@@ -19,13 +19,16 @@
 #' still called, see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
 #'
 #'
-#' @return a list of fragments_repeats objects, equal length and names to the list input
+#' @return a list of fragments_repeats objects.
 #' @export
 #'
 #' @importFrom pracma findpeaks
 #' @importFrom pracma savgol
 #'
 #' @details
+#' 
+#' [find_fragments()] takes in a list of fragments_trace objects and returns a list of new fragments_repeats objects.
+#' 
 #' This function is basically a wrapper around pracma::findpeaks. As mentioned above,
 #' the default arguments arguments of pracma::findpeaks can be changed by passing them
 #' to find_fragments with ... .

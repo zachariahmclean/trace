@@ -36,7 +36,7 @@ transfer_metadata_helper <- function(old_fragment,
 #' @param batch_run_id (optional) A character string indicating the column name for plate identifiers in the metadata.  To skip, provide NA.
 #' @param batch_sample_id (optional) A character string indicating the column name for an id of the size standard. For example, a sample code. This can then be used to correct batch effects across different fragment analysis runs. To skip, provide NA.
 #'
-#' @return A modified list of fragment objects with added metadata.
+#' @return This function modifies list of fragments objects in place with metadata added.
 #'
 #' @details This function adds specified metadata attributes to each fragment in the list.
 #' It matches the unique sample identifiers from the fragments list with those in the metadata data frame.

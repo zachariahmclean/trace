@@ -70,7 +70,7 @@ clean_generic <- function(
 #' @param dye_channel Genemapper specific. A character string indicating the channel to extract data from. For example, 6-FAM is often "B".
 #' @param allele_col Genemapper specific. A character string specifying column name indicating the called alleles. This is often used when the peaks have been called in genemapper.
 #'
-#' @return A list of fragments_repeats. objects.
+#' @return A list of fragments_repeats objects.
 #'
 #' @details This function takes a peak table data frame (eg. Genemapper output) and converts it into a list of fragment objects.
 #' The function supports different data formats and allows specifying column names for various attributes.
@@ -173,7 +173,7 @@ peak_table_to_fragments <- function(
 #' @param repeat_col A character string indicating the column name for the repeats.
 #' @param frequency_col A character string indicating the column name for the repeat frequencies.
 #'
-#' @return A list of fragments_repeats.
+#' @return A list of fragments_repeats objects.
 #'
 #' @details This function takes a repeat table data frame and converts it into a list of repeats fragments.
 #' The function allows specifying column names for repeats, frequencies, and unique identifiers.

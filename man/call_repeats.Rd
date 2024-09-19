@@ -36,7 +36,7 @@ call_repeats(
 \item{repeat_calling_algorithm_size_period}{A numeric value \code{"size_period"} algorithm to set the peak periodicity by bp size. This is the key variable to change for \code{"size_period"}. In fragment analysis, the peaks are usually slightly below the actual repeat unit size.}
 }
 \value{
-A list of \code{"fragments_repeats"} objects with repeat data added.
+This function modifies list of fragments objects in place with repeats added.
 }
 \description{
 This function calls the repeat lengths for a list of fragments.

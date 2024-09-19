@@ -392,7 +392,7 @@ plot_traces <- function(
 #' @param xlim the x limits of the plot. A numeric vector of length two.
 #' @param ylim the y limits of the plot. A numeric vector of length two.
 #'
-#' @return A base R plot object displaying the peak data.
+#' @return A plot object displaying the peak data.
 #' @export
 #'
 #' @examples
@@ -440,7 +440,7 @@ plot_fragments <- function(
 #' @param selected_sample A character vector of batch_sample_id for a subset of samples to plot. Or alternatively supply a number to select batch sample by position in alphabetical order.
 #' @param xlim the x limits of the plot. A numeric vector of length two.
 #'
-#' @return plot traces from fragments object
+#' @return plot of batch corrected samples
 #' @export
 #' @importFrom grDevices recordPlot replayPlot
 #' 
@@ -639,7 +639,7 @@ graphics::par(mfrow = c(1, 1)) # Reset the layout
 #' @param n_facet_col A numeric value indicating the number of columns for faceting in the plot.
 #' @param sample_subset A character vector of unique ids for a subset of samples to plot
 #'
-#' @return a plot of ladders
+#' @return a plot of the raw data channels
 #' @export
 #' @details
 #' A plot of the raw data channels in the fsa file.

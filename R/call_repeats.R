@@ -366,7 +366,7 @@ find_batch_correction_factor <- function(fragments_list, trace_window_size = 50,
 #' @param repeat_calling_algorithm_peak_assignment_scan_window A numeric value for the scan window when assigning the peak. This is used for both \code{"fft"} and \code{"size_period"}. When the scan period is determined, the algorithm jumps to the predicted scan for the next peak. This value opens a window of the neighboring scans to pick the tallest in.
 #' @param repeat_calling_algorithm_size_period A numeric value \code{"size_period"} algorithm to set the peak periodicity by bp size. This is the key variable to change for \code{"size_period"}. In fragment analysis, the peaks are usually slightly below the actual repeat unit size.
 #'
-#' @return A list of \code{"fragments_repeats"} objects with repeat data added.
+#' @return This function modifies list of fragments objects in place with repeats added.
 #'
 #' @details
 #' Repeat lengths are calculated from the bp size with several different alternative algorithm or options. 

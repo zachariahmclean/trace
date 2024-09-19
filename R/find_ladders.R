@@ -440,7 +440,7 @@ ladder_self_mod_predict <- function(fragments_trace,
 #' @param smoothing_window numeric: ladder signal smoothing window size passed
 #' @param show_progress_bar show progress bar
 #'
-#' @return list of fragments_trace objects
+#' @return This function modifies list of fragments_trace objects in place with the ladder assigned and base pair calculated.
 #' @export
 #'
 #' @details
@@ -611,7 +611,7 @@ find_ladders <- function(
 #' the bp of the standard) and scan (the scan value of the ladder peak). It's
 #' critical that the element name in the list is the unique id of the sample.
 #'
-#' @return Returns a list of fragments trace objects equal to the length input
+#' @return This function modifies list of fragments_trace objects in place with the selected ladders fixed.
 #' @export
 #'
 #' @details

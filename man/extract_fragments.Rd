@@ -10,7 +10,7 @@ extract_fragments(fragments_list)
 \item{fragments_list}{A list of fragments_repeats objects containing fragment data.}
 }
 \value{
-A data.frame containing peak data for each sample.
+A dataframe containing peak data for each sample
 }
 \description{
 Extracts peak data from each sample in a list of fragments.

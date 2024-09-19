@@ -24,7 +24,7 @@ plot_fragments(
 \item{ylim}{the y limits of the plot. A numeric vector of length two.}
 }
 \value{
-A base R plot object displaying the peak data.
+A plot object displaying the peak data.
 }
 \description{
 Plots peak data from a list of fragments.
