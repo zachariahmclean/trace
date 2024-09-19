@@ -21,17 +21,17 @@ It also contains methods for plotting the ladder and traces (if available).
 \describe{
 \item{\code{trace_bp_df}}{A dataframe of bp size for every scan from \code{find_ladders()}.}
 
-\item{\code{peak_table_df}}{A dataframe containing the fragment peak level informtation.}
+\item{\code{peak_table_df}}{A dataframe containing the fragment peak level information.}
 
-\item{\code{repeat_table_df}}{A dataframe containing the fragment peak level informtation with the repeat size added. May or may not be the same as peak_table_df depending on what options are chosen in \code{call_repeats}.}
+\item{\code{repeat_table_df}}{A dataframe containing the fragment peak level information with the repeat size added. May or may not be the same as peak_table_df depending on what options are chosen in \code{call_repeats}.}
 }
 \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-fragments_repeats-get_alleles}{\code{fragments_repeats$get_alleles()}}
-\item \href{#method-fragments_repeats-set_allele}{\code{fragments_repeats$set_allele()}}
+\item \href{#method-fragments_repeats-get_allele_peak}{\code{fragments_repeats$get_allele_peak()}}
+\item \href{#method-fragments_repeats-set_allele_peak}{\code{fragments_repeats$set_allele_peak()}}
 \item \href{#method-fragments_repeats-get_index_peak}{\code{fragments_repeats$get_index_peak()}}
 \item \href{#method-fragments_repeats-set_index_peak}{\code{fragments_repeats$set_index_peak()}}
 \item \href{#method-fragments_repeats-plot_fragments}{\code{fragments_repeats$plot_fragments()}}
@@ -48,29 +48,27 @@ It also contains methods for plotting the ladder and traces (if available).
 </details>
 }}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-fragments_repeats-get_alleles"></a>}}
-\if{latex}{\out{\hypertarget{method-fragments_repeats-get_alleles}{}}}
-\subsection{Method \code{get_alleles()}}{
+\if{html}{\out{<a id="method-fragments_repeats-get_allele_peak"></a>}}
+\if{latex}{\out{\hypertarget{method-fragments_repeats-get_allele_peak}{}}}
+\subsection{Method \code{get_allele_peak()}}{
 This returns a list with the allele information for this object.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{fragments_repeats$get_alleles()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{fragments_repeats$get_allele_peak()}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-fragments_repeats-set_allele"></a>}}
-\if{latex}{\out{\hypertarget{method-fragments_repeats-set_allele}{}}}
-\subsection{Method \code{set_allele()}}{
+\if{html}{\out{<a id="method-fragments_repeats-set_allele_peak"></a>}}
+\if{latex}{\out{\hypertarget{method-fragments_repeats-set_allele_peak}{}}}
+\subsection{Method \code{set_allele_peak()}}{
 This sets a single allele size/repeat. It searches through the appropriate peak table and finds the closest peak to the value that's provided.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{fragments_repeats$set_allele(allele, unit, value)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{fragments_repeats$set_allele_peak(unit, value)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{allele}}{Either \code{1} or \code{2}, indicating which allele information should be set. Allele 1 is the only one used for repeat instability metrics calculations.}
-
 \item{\code{unit}}{Either "size" or "repeats" to indicate if the value you're providing is bp size or repeat length.}
 
 \item{\code{value}}{Numeric vector (length one) of the size/repeat length to set.}

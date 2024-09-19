@@ -16,7 +16,12 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Zachariah McLean \email{zachariah.louis.mclean@gmail.com} (\href{https://orcid.org/0000-0002-0968-0538}{ORCID})
+\strong{Maintainer}: Zachariah McLean \email{zachariah.louis.mclean@gmail.com} (\href{https://orcid.org/0000-0002-0968-0538}{ORCID}) [copyright holder]
+
+Authors:
+\itemize{
+  \item Kevin Correia
+}
 
 }
 \keyword{internal}

@@ -36,7 +36,7 @@ transfer_metadata_helper <- function(old_fragment,
 #' @param batch_run_id (optional) A character string indicating the column name for plate identifiers in the metadata.  To skip, provide NA.
 #' @param batch_sample_id (optional) A character string indicating the column name for an id of the size standard. For example, a sample code. This can then be used to correct batch effects across different fragment analysis runs. To skip, provide NA.
 #'
-#' @return A modified list of fragment objects with added metadata.
+#' @return This function modifies list of fragments objects in place with metadata added.
 #'
 #' @details This function adds specified metadata attributes to each fragment in the list.
 #' It matches the unique sample identifiers from the fragments list with those in the metadata data frame.
@@ -51,10 +51,11 @@ transfer_metadata_helper <- function(old_fragment,
 #'
 #' test_fragments <- peak_table_to_fragments(gm_raw,
 #'   data_format = "genemapper5",
-#'   dye_channel = "B"
+#'   dye_channel = "B",
+#'   min_size_bp = 300
 #' )
 #'
-#' test_metadata <- add_metadata(
+#' add_metadata(
 #'   fragments_list = test_fragments,
 #'   metadata_data.frame = metadata,
 #'   unique_id = "unique_id",
@@ -66,7 +67,7 @@ transfer_metadata_helper <- function(old_fragment,
 #'
 #' # skip unwanted metadata by using NA
 #'
-#' test_metadata_skipped <- add_metadata(
+#' add_metadata(
 #'   fragments_list = test_fragments,
 #'   metadata_data.frame = metadata,
 #'   unique_id = "unique_id",
@@ -132,12 +133,13 @@ add_metadata <- function(
     )
   }
 
+  # make sure dataframe, not tibble
+  metadata_data.frame <- as.data.frame(metadata_data.frame)
+  metadata_data.frame[metadata_data.frame == ''] <- NA
+
   metadata_added <- lapply(
     fragments_list,
     function(fragments) {
-
-      # make sure dataframe, not tibble
-      metadata_data.frame <- as.data.frame(metadata_data.frame)
     
       # filter for row of sample
       sample_metadata <- metadata_data.frame[which(metadata_data.frame[unique_id] == fragments$unique_id), , drop = FALSE]
@@ -156,6 +158,6 @@ add_metadata <- function(
     }
   )
 
-  return(metadata_added)
+  invisible()
 }
 

@@ -31,11 +31,11 @@ Plot the ladder signal
 }
 \examples{
 
-file_list <- trace::cell_line_fsa_list
+fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
-test_ladders <- find_ladders(file_list)
+find_ladders(fsa_list, show_progress_bar = FALSE)
 
 # Manually inspect the ladders
-plot_ladders(test_ladders[1], n_facet_col = 1)
+plot_ladders(fsa_list[1])
 
 }

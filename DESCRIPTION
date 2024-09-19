@@ -1,15 +1,18 @@
 Package: trace
 Title: Tandem Repeat Analysis by Capillary Electrophoresis
-Version: 0.1.0
-Authors@R: 
-    person("Zachariah", "McLean", , "zachariah.louis.mclean@gmail.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-0968-0538"))
+Version: 0.2.0
+Authors@R: c(
+    person("Zachariah", "McLean", , "zachariah.louis.mclean@gmail.com", role = c("aut", "cre", "cph"),
+           comment = c(ORCID = "0000-0002-0968-0538")),
+    person("Kevin", "Correia", role = "aut")
+  )
 Description: The goal of package is to provide a pipeline for short tandem repeat instability analysis from fragment analysis data. This package takes inputs of fsa files or peak tables (eg Genemapper5 software output), and a user supplied metadata data-frame. The package identifies ladders, calls peaks, identifies the modal peaks, calls repeats, then calculates repeat instability metrics (ie expansion index or average repeat gain).
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests: 
+    dplyr,
     ggplot2,
     knitr,
     rmarkdown,
@@ -19,6 +22,7 @@ Config/testthat/edition: 3
 Imports: 
     graphics,
     grDevices,
+    lme4,
     methods,
     plotly,
     pracma,

@@ -10,13 +10,14 @@ find_ladders(
   signal_channel = "DATA.1",
   ladder_sizes = c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490,
     500),
-  spike_location = NULL,
+  ladder_start_scan = NULL,
   minimum_peak_signal = NULL,
   zero_floor = FALSE,
   scan_subset = NULL,
   ladder_selection_window = 5,
   max_combinations = 2500000,
   smoothing_window = 21,
+  warning_rsq_threshold = 0.998,
   show_progress_bar = TRUE
 )
 }
@@ -32,7 +33,7 @@ signal}
 \item{ladder_sizes}{numeric vector: bp sizes of ladder used in fragment analysis.
 defaults to GeneScan™ 500 LIZ™}
 
-\item{spike_location}{numeric: indicate the scan number to start looking for
+\item{ladder_start_scan}{numeric: indicate the scan number to start looking for
 ladder peaks. Usually this can be automatically found (when set to NULL) since
 there's a big spike right at the start. However, if your ladder peaks
 are taller than the big spike, you will need to set this starting scan
@@ -57,10 +58,12 @@ combinations that should be tested}
 
 \item{smoothing_window}{numeric: ladder signal smoothing window size passed}
 
+\item{warning_rsq_threshold}{The value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold.}
+
 \item{show_progress_bar}{show progress bar}
 }
 \value{
-list of fragments_trace objects
+This function modifies list of fragments_trace objects in place with the ladder assigned and base pair calculated.
 }
 \description{
 Find the ladder peaks in and use that to call bp size
@@ -72,6 +75,8 @@ is a list of fragments_traces. bp sizes are assigned using the local Southern
 method. Basically, for each data point, linear models are made for the lower
 and upper 3 size standard and the predicted sizes are averaged.
 
+Use \code{\link[=plot_data_channels]{plot_data_channels()}} to plot the raw data on the fsa file to identify which channel the ladder and data are in.
+
 The ladder peaks are assigned from largest to smallest. I would recommend excluding
 size standard peaks less than 50 bp (eg size standard 35 bp).
 
@@ -80,16 +85,16 @@ assigned.
 }
 \examples{
 
-file_list <- trace::cell_line_fsa_list
+fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
-test_ladders <- find_ladders(file_list, show_progress_bar = FALSE)
+find_ladders(fsa_list, show_progress_bar = FALSE)
 
 # Manually inspect the ladders
-plot_ladders(test_ladders[1])
+plot_ladders(fsa_list[1])
 
 }
 \seealso{
-\code{\link[=fix_ladders_auto]{fix_ladders_auto()}} and \code{\link[=fix_ladders_interactive]{fix_ladders_interactive()}} to fix ladders with
-incorrectly assigned peaks. \code{\link[=plot_ladders]{plot_ladders()}} to plot the assigned ladder
-peaks onto the raw ladder signal.
+\code{\link[=plot_data_channels]{plot_data_channels()}} to plot the raw data in all channels. \code{\link[=plot_ladders]{plot_ladders()}} to plot the assigned ladder
+peaks onto the raw ladder signal. \code{\link[=fix_ladders_interactive]{fix_ladders_interactive()}} to fix ladders with
+incorrectly assigned peaks.
 }

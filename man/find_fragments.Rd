@@ -30,13 +30,15 @@ peakpat has been set to '[+]\{6,\}[0]*[-]\{6,\}' so that peaks with flat tops ar
 still called, see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks}
 }
 \value{
-a list of fragments_repeats objects, equal length and names to the list input
+a list of fragments_repeats objects.
 }
 \description{
 Find fragment peaks in continuous trace data and convert to fragments_repeats
 class.
 }
 \details{
+\code{\link[=find_fragments]{find_fragments()}} takes in a list of fragments_trace objects and returns a list of new fragments_repeats objects.
+
 This function is basically a wrapper around pracma::findpeaks. As mentioned above,
 the default arguments arguments of pracma::findpeaks can be changed by passing them
 to find_fragments with ... .
@@ -44,11 +46,11 @@ to find_fragments with ... .
 If too many and inappropriate peaks are being called, this may also be solved with the different repeat calling algorithms in \code{\link[=call_repeats]{call_repeats()}}.
 }
 \examples{
-file_list <- trace::cell_line_fsa_list
+fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
-test_ladders <- find_ladders(file_list[1])
+find_ladders(fsa_list)
 
-fragments_list <- find_fragments(test_ladders,
+fragments_list <- find_fragments(fsa_list,
   min_bp_size = 300
 )
 

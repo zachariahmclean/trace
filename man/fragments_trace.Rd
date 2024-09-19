@@ -17,7 +17,7 @@ It also contains methods for plotting the ladder and traces
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{unique_id}}{unique id of the sanmple usually the file name}
+\item{\code{unique_id}}{unique id of the sample usually the file name}
 
 \item{\code{fsa}}{The whole fsa file, output from seqinr::read.abif()}
 
@@ -33,7 +33,7 @@ It also contains methods for plotting the ladder and traces
 
 \item{\code{trace_bp_df}}{A dataframe of bp size for every scan from \code{find_ladders()}.}
 
-\item{\code{local_southern_mod}}{Output from \code{local_southern()} function (not exported). It is bascially just a list of lm() after breaking up the ladder into chunks of three.}
+\item{\code{local_southern_mod}}{Output from \code{local_southern()} function (not exported). It is basically just a list of lm() after breaking up the ladder into chunks of three.}
 }
 \if{html}{\out{</div>}}
 }

@@ -10,7 +10,7 @@ extract_fragments(fragments_list)
 \item{fragments_list}{A list of fragments_repeats objects containing fragment data.}
 }
 \value{
-A data.frame containing peak data for each sample.
+A dataframe containing peak data for each sample
 }
 \description{
 Extracts peak data from each sample in a list of fragments.
@@ -25,25 +25,22 @@ test_fragments <- peak_table_to_fragments(gm_raw,
   min_size_bp = 400
 )
 
-test_metadata <- add_metadata(
+add_metadata(
   fragments_list = test_fragments,
   metadata_data.frame = metadata
 )
 
-test_alleles <- find_alleles(
-  fragments_list = test_metadata,
-  number_of_peaks_to_return = 1,
-  peak_region_size_gap_threshold = 6,
-  peak_region_height_threshold_multiplier = 1
+find_alleles(
+  fragments_list = test_fragments
 )
 
-test_repeats <- call_repeats(
-  fragments_list = test_alleles,
+call_repeats(
+  fragments_list = test_fragments,
   repeat_calling_algorithm = "simple",
   assay_size_without_repeat = 87,
   repeat_size = 3
 )
 
-extract_alleles(test_repeats)
+extract_alleles(test_fragments)
 
 }

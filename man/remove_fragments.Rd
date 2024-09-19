@@ -24,7 +24,8 @@ metadata <- trace::metadata
 test_fragments <- peak_table_to_fragments(
   gm_raw,
   data_format = "genemapper5",
-  dye_channel = "B"
+  dye_channel = "B",
+  min_size_bp = 300
 )
 
 all_fragment_names <- names(test_fragments)

@@ -1,44 +1,25 @@
 test_that("index assignment", {
+  gm_raw <- trace::example_data
+  metadata <- trace::metadata
+  # Save raw data as a fragment class
 
   suppressWarnings(
-    test_ladders <- find_ladders(cell_line_fsa_list,
-                                 ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
-                                 max_combinations = 2500000,
-                                 ladder_selection_window = 5,
-                                 show_progress_bar = FALSE
+    test_fragments <- peak_table_to_fragments(gm_raw,
+      data_format = "genemapper5",
+      dye_channel = "B",
+      min_size_bp = 400
     )
   )
 
-  # plot_ladders(test_ladders[1:9], n_facet_col = 3,
-  #              xlim = c(1000, 4800),
-  #              ylim = c(0, 15000))
 
 
-  # # Start a PDF device
-  # pdf(file = "C:/Users/zlm2/Downloads/ladder.pdf", width = 12, height = 6) # Set width and height as desired
-  #
-  # # Loop through the list of plots
-  # for (i in seq_along(test_ladders)) {
-  #   test_ladders[[i]]$plot_ladder(xlim = c(1400, 4500))
-  # }
-  #
-  # # Close the PDF device
-  # dev.off()
-
-
-  peak_list <- find_fragments(test_ladders,
-                              minimum_peak_signal = 20,
-                              min_bp_size = 300
-  )
-
-  fragment_metadata <- add_metadata(
-    fragments_list = peak_list,
+  test_metadata <- add_metadata(
+    fragments_list = test_fragments,
     metadata_data.frame = metadata
   )
 
   fragment_alleles <- find_alleles(
-    fragments_list = fragment_metadata,
-    number_of_peaks_to_return = 1
+    fragments_list = test_metadata
   )
 
   suppressMessages(
@@ -89,3 +70,130 @@ testthat::expect_true(all(sapply(test_assignment, function(x) x$.__enclos_env__$
 
 
 })
+
+
+
+# test warning that index was assigned without batch correction
+
+
+
+testthat::test_that("calculate metrics", {
+  gm_raw <- trace::example_data
+  metadata <- trace::metadata
+  # Save raw data as a fragment class
+
+  suppressWarnings(
+    test_fragments <- peak_table_to_fragments(gm_raw,
+      data_format = "genemapper5",
+      dye_channel = "B",
+      min_size_bp = 400
+    )
+  )
+
+
+
+  add_metadata(
+    fragments_list = test_fragments,
+    metadata_data.frame = metadata
+  )
+
+  find_alleles(
+    fragments_list = test_fragments
+  )
+
+
+  suppressWarnings(
+    call_repeats(
+      fragments_list = test_fragments,
+      repeat_calling_algorithm = "simple",
+      assay_size_without_repeat = 87,
+      repeat_size = 3
+    )
+  )
+
+
+  #purposely messs up one batch run id to generate warning
+
+  test_fragments[[1]]$batch_run_id <- "wrong_run"
+
+suppressMessages(
+  tryCatch({
+    assign_index_peaks(
+      test_fragments,
+      grouped = TRUE
+    )
+  },
+    warning = function(w){
+      assignment_warning <<- w
+    }
+  )
+)
+
+testthat::expect_true(class(assignment_warning)[1] == "simpleWarning")
+testthat::expect_true(grepl("20230413_A01.fsa", assignment_warning))
+testthat::expect_true(grepl("batch_run_id", assignment_warning))
+
+})
+
+
+
+testthat::test_that("test situation where some samples have NA in grouped", {
+  gm_raw <- trace::example_data
+  metadata <- trace::metadata
+  # Save raw data as a fragment class
+
+  suppressWarnings(
+    test_fragments <- peak_table_to_fragments(gm_raw,
+      data_format = "genemapper5",
+      dye_channel = "B",
+      min_size_bp = 400
+    )
+  )
+
+
+
+  test_metadata <- add_metadata(
+    fragments_list = test_fragments,
+    metadata_data.frame = metadata
+  )
+
+  test_alleles <- find_alleles(
+    fragments_list = test_metadata
+  )
+
+
+  suppressWarnings(
+    test_repeats <- call_repeats(
+      fragments_list = test_alleles,
+      repeat_calling_algorithm = "simple",
+      assay_size_without_repeat = 87,
+      repeat_size = 3
+    )
+  )
+
+
+  #purposely messs up one batch run id to generate warning
+
+  test_repeats[[1]]$metrics_group_id <- NA_character_
+
+suppressMessages(
+  tryCatch({
+    test_assignment_grouped <- assign_index_peaks(
+      test_repeats,
+      grouped = TRUE
+    )
+  },
+    warning = function(w){
+      assignment_warning <<- w
+    }
+  )
+)
+
+testthat::expect_true(class(assignment_warning)[1] == "simpleWarning")
+testthat::expect_true(grepl("Group 'NA' has no 'metrics_baseline_control'", assignment_warning))
+
+})
+
+
+
+

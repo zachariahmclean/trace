@@ -24,7 +24,7 @@ plot_fragments(
 \item{ylim}{the y limits of the plot. A numeric vector of length two.}
 }
 \value{
-A base R plot object displaying the peak data.
+A plot object displaying the peak data.
 }
 \description{
 Plots peak data from a list of fragments.
@@ -32,17 +32,15 @@ Plots peak data from a list of fragments.
 \examples{
 gm_raw <- trace::example_data
 
-test_fragments <- peak_table_to_fragments(gm_raw,
+fragments_list <- peak_table_to_fragments(gm_raw,
   data_format = "genemapper5",
-  dye_channel = "B"
+  dye_channel = "B",
+  min_size_bp = 300
 )
 
-test_alleles <- find_alleles(
-  fragments_list = test_fragments,
-  number_of_peaks_to_return = 2,
-  peak_region_size_gap_threshold = 6,
-  peak_region_height_threshold_multiplier = 1
+find_alleles(
+  fragments_list
 )
 
-plot_fragments(test_alleles[1:2])
+plot_fragments(fragments_list[1])
 }

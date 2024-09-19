@@ -10,7 +10,7 @@ extract_alleles(fragments_list)
 \item{fragments_list}{A list of fragments_repeats objects containing fragment data.}
 }
 \value{
-A data.frame containing modal peak information for each sample.
+A dataframe containing modal peak information for each sample
 }
 \description{
 Extracts modal peak information from each sample in a list of fragments.
@@ -24,13 +24,12 @@ test_fragments <- peak_table_to_fragments(gm_raw,
   min_size_bp = 400
 )
 
-test_alleles <- find_alleles(
+find_alleles(
   fragments_list = test_fragments,
-  number_of_peaks_to_return = 1,
   peak_region_size_gap_threshold = 6,
   peak_region_height_threshold_multiplier = 1
 )
 
-extract_alleles(test_alleles)
+extract_alleles(test_fragments)
 
 }

@@ -15,7 +15,7 @@ the bp of the standard) and scan (the scan value of the ladder peak). It's
 critical that the element name in the list is the unique id of the sample.}
 }
 \value{
-Returns a list of fragments trace objects equal to the length input
+This function modifies list of fragments_trace objects in place with the selected ladders fixed.
 }
 \description{
 Manually assign the ladder peaks for samples in a fragments_trace_list
@@ -31,15 +31,16 @@ This is best used with \code{\link[=fix_ladders_interactive]{fix_ladders_interac
 }
 \examples{
 
+fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
-test_ladders <- find_ladders(trace::cell_line_fsa_list[1])
+find_ladders(fsa_list, show_progress_bar = FALSE)
 
 # first manually determine the real ladder peaks using your judgment
 # the raw ladder signal can be extracted
-raw_ladder <- test_ladders[1]$raw_ladder
+raw_ladder <- fsa_list[1]$raw_ladder
 
 # or we can look at the "trace_bp_df" to see a dataframe that includes the scan and ladder signal
-raw_ladder_df <- test_ladders[[1]]$trace_bp_df[, c("unique_id", "scan", "ladder_signal")]
+raw_ladder_df <- fsa_list[[1]]$trace_bp_df[, c("unique_id", "scan", "ladder_signal")]
 plot(raw_ladder_df$scan, raw_ladder_df$ladder_signal)
 
 # once you have figured what sizes align with which peak, make a dataframe. The
@@ -53,8 +54,8 @@ example_list <- list(
   )
 )
 
-test_ladders_fixed_manual <- fix_ladders_manual(
-  test_ladders,
+fix_ladders_manual(
+  fsa_list,
   example_list
 )
 

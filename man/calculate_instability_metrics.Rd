@@ -9,9 +9,7 @@ calculate_instability_metrics(
   peak_threshold = 0.05,
   window_around_index_peak = c(NA, NA),
   percentile_range = c(0.5, 0.75, 0.9, 0.95),
-  repeat_range = c(2, 5, 10, 20),
-  grouped = NA,
-  index_override_dataframe = NA
+  repeat_range = c(2, 5, 10, 20)
 )
 }
 \arguments{
@@ -24,10 +22,6 @@ calculate_instability_metrics(
 \item{percentile_range}{A numeric vector of percentiles to compute (e.g., c(0.5, 0.75, 0.9, 0.95)).}
 
 \item{repeat_range}{A numeric vector specifying ranges of repeats for the inverse quantile computation.}
-
-\item{grouped}{This parameter is here for backwards compatibility and is not intended to be used within this function. It's passed to the \code{\link{assign_index_peaks}} function, see that function for documentation.}
-
-\item{index_override_dataframe}{This parameter is here for backwards compatibility and is not intended to be used within this function. It's passed to the \code{\link{assign_index_peaks}} function, see that function for documentation.}
 }
 \value{
 A data.frame with calculated instability metrics for each sample.
@@ -100,28 +94,27 @@ test_fragments <- peak_table_to_fragments(gm_raw,
   min_size_bp = 400
 )
 
-test_metadata <- add_metadata(
+add_metadata(
   fragments_list = test_fragments,
   metadata_data.frame = metadata
 )
 
-test_alleles <- find_alleles(
-  fragments_list = test_metadata,
-  number_of_peaks_to_return = 1,
+find_alleles(
+  fragments_list = test_fragments,
   peak_region_size_gap_threshold = 6,
   peak_region_height_threshold_multiplier = 1
 )
 
 
-test_repeats <- call_repeats(
-  fragments_list = test_alleles,
+call_repeats(
+  fragments_list = test_fragments,
   repeat_calling_algorithm = "simple",
   assay_size_without_repeat = 87,
   repeat_size = 3
 )
 
-test_assigned <- assign_index_peaks(
-  fragments_list = test_repeats,
+assign_index_peaks(
+  fragments_list = test_fragments,
   grouped = TRUE
 )
 
@@ -129,7 +122,7 @@ test_assigned <- assign_index_peaks(
 # grouped metrics
 # uses t=0 samples as indicated in metadata
 test_metrics_grouped <- calculate_instability_metrics(
-  fragments_list = test_assigned,
+  fragments_list = test_fragments,
   peak_threshold = 0.05,
   window_around_index_peak = c(-40, 40),
   percentile_range = c(0.5, 0.75, 0.9, 0.95),

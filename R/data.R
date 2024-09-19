@@ -41,7 +41,7 @@
 
 #' metadata
 #'
-#' This is a dataframe containing the metadata information for the exmaple data
+#' This is a dataframe containing the metadata information for the example data
 #'
 #' @format ## `metadata`
 #' A genemapper output dataframe

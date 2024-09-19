@@ -10,15 +10,16 @@ extract_trace_table(fragments_trace_list)
 \item{fragments_trace_list}{a list of fragments objects}
 }
 \value{
-returns a dataframe of the raw trace data. Each row representing a single scan.
+A dataframe of the raw trace data. Each row representing a single scan.
 }
 \description{
 Extract the raw trace from a list of fragments objects
 }
 \examples{
+fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
-test_ladders <- find_ladders(trace::cell_line_fsa_list[1])
+find_ladders(fsa_list, show_progress_bar = FALSE)
 
-extracted_traces <- extract_trace_table(test_ladders)
+extracted_traces <- extract_trace_table(fsa_list)
 
 }

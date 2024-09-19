@@ -5,9 +5,11 @@
 # plot fragments ----------------------------------------------------------
 
 
-testthat::test_that("full pipline", {
+testthat::test_that("full pipeline", {
+
+  fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
   suppressWarnings(
-    test_ladders <- find_ladders(cell_line_fsa_list,
+    find_ladders(fsa_list,
       ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
       max_combinations = 2500000,
       ladder_selection_window = 5,
@@ -32,25 +34,24 @@ testthat::test_that("full pipline", {
   # dev.off()
 
 
-  peak_list <- find_fragments(test_ladders,
+  fragments_list <- find_fragments(fsa_list,
     minimum_peak_signal = 20,
     min_bp_size = 300
   )
 
-  fragment_metadata <- add_metadata(
-    fragments_list = peak_list,
+add_metadata(
+    fragments_list = fragments_list,
     metadata_data.frame = metadata
   )
 
-  fragment_alleles <- find_alleles(
-    fragments_list = fragment_metadata,
-    number_of_peaks_to_return = 1
+find_alleles(
+    fragments_list = fragments_list
   )
 
   suppressMessages(
     suppressWarnings(
-      test_repeats <- call_repeats(
-        fragments_list = fragment_alleles,
+      call_repeats(
+        fragments_list = fragments_list,
       )
     )
   )
@@ -65,8 +66,8 @@ testthat::test_that("full pipline", {
 
   suppressMessages(
     suppressWarnings(
-      test_assignment <- assign_index_peaks(
-        test_repeats,
+      assign_index_peaks(
+        fragments_list,
         grouped = TRUE
       )
     )
@@ -75,7 +76,7 @@ testthat::test_that("full pipline", {
   suppressMessages(
     suppressWarnings(
       test_metrics_grouped <- calculate_instability_metrics(
-        fragments_list = test_assignment,
+        fragments_list = fragments_list,
         peak_threshold = 0.05,
         window_around_index_peak = c(-40, 40)
       )

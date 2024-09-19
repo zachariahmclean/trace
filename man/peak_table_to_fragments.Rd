@@ -13,7 +13,7 @@ peak_table_to_fragments(
   dye_col = NULL,
   dye_channel = NULL,
   allele_col = NULL,
-  min_size_bp = 100,
+  min_size_bp = 200,
   max_size_bp = 1000
 )
 }
@@ -39,7 +39,7 @@ peak_table_to_fragments(
 \item{max_size_bp}{Numeric value indicating the maximum size of the peak table to import.}
 }
 \value{
-A list of fragments_repeats. objects.
+A list of fragments_repeats objects.
 }
 \description{
 This function converts a peak table data frame into a list of fragments_repeats objects.

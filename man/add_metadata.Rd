@@ -30,7 +30,7 @@ add_metadata(
 \item{batch_sample_id}{(optional) A character string indicating the column name for an id of the size standard. For example, a sample code. This can then be used to correct batch effects across different fragment analysis runs. To skip, provide NA.}
 }
 \value{
-A modified list of fragment objects with added metadata.
+This function modifies list of fragments objects in place with metadata added.
 }
 \description{
 This function adds metadata information to a list of fragments.
@@ -47,10 +47,11 @@ metadata <- trace::metadata
 
 test_fragments <- peak_table_to_fragments(gm_raw,
   data_format = "genemapper5",
-  dye_channel = "B"
+  dye_channel = "B",
+  min_size_bp = 300
 )
 
-test_metadata <- add_metadata(
+add_metadata(
   fragments_list = test_fragments,
   metadata_data.frame = metadata,
   unique_id = "unique_id",
@@ -62,7 +63,7 @@ test_metadata <- add_metadata(
 
 # skip unwanted metadata by using NA
 
-test_metadata_skipped <- add_metadata(
+add_metadata(
   fragments_list = test_fragments,
   metadata_data.frame = metadata,
   unique_id = "unique_id",

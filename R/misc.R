@@ -44,9 +44,6 @@ print_helper <- function(fragment,
     alleles_names <- c(alleles_names, "index_repeat")
     for (name in alleles_names) {
       value <- fragment$.__enclos_env__$private[[name]]
-      if(grepl("allele_2", name) & is.na(value)){
-        next
-      }
       class_value <- class(value)
 
       cat(sprintf("\033[1m%-30s\033[0m", name))
@@ -92,7 +89,7 @@ print_helper <- function(fragment,
         cat(format(paste("character vector length", length(value))), "\n")
       }
     } else if (is.data.frame(value)) {
-      cat(sprintf("data.frame: %d rows × %d cols\n", nrow(value), ncol(value)))
+      cat(sprintf("data.frame: %d rows x %d cols\n", nrow(value), ncol(value)))
     } else {
       cat(class_value, "\n")
     }
@@ -121,7 +118,8 @@ print_helper <- function(fragment,
 #' test_fragments <- peak_table_to_fragments(
 #'   gm_raw,
 #'   data_format = "genemapper5",
-#'   dye_channel = "B"
+#'   dye_channel = "B",
+#'   min_size_bp = 300
 #' )
 #'
 #' all_fragment_names <- names(test_fragments)
@@ -153,10 +151,10 @@ remove_fragments <- function(
 #' Generate a Quarto file that has the instability pipeline preset
 #'
 #' @param file_name Name of file to create
-#' @param size_standards Indicates if the functionality for correcting repeat size using size standards be included in the pipeline. See \code{\link{add_metadata}} & \code{\link{call_repeats}} for more info.
+#' @param batch_correction Indicates if the functionality for correcting repeat size using size standards across batches be included in the pipeline. See \code{\link{add_metadata}} & \code{\link{call_repeats}} for more info.
 #' @param samples_grouped Indicates if the functionality for grouping samples for metrics calculations should be included in the pipeline. See \code{\link{add_metadata}} & \code{\link{assign_index_peaks}} for more info.
 #'
-#' @return A Quarto template file
+#' @return A Quarto template file for repeat instability analysis
 #' @export
 #'
 #' @importFrom utils file.edit
@@ -191,7 +189,7 @@ if (is.null(file_name)) {
   stop("You must provide a valid file_name")
 }
 
-source_file <- system.file("extdata/_extensions/template.qmd", package = "instability")
+source_file <- system.file("extdata/_extensions/template.qmd", package = "trace")
 
 if (!file.exists(source_file)) {
   stop(paste("Source file does not exist:", source_file))
@@ -201,13 +199,13 @@ template_content <- readLines(source_file)
 
 if (!batch_correction) {
   template_content <- gsub('metadata\\$batch_run_id <- metadata\\$batch_run_id', '# metadata$batch_run_id <- metadata$batch_run_id', template_content)
+  template_content <- gsub('metadata\\$batch_sample_id <- metadata\\$batch_sample_id', '# metadata$batch_sample_id <- metadata$batch_sample_id', template_content)
   template_content <- gsub('batch_correction = TRUE', 'batch_correction = FALSE', template_content)
   template_content <- gsub('batch_run_id = "batch_run_id"', 'batch_run_id = NA', template_content)
-  ## TOODO fix this for new names
+  template_content <- gsub('batch_sample_id = "batch_sample_id"', 'batch_sample_id = NA', template_content)
 }
 
 if (!samples_grouped) {
-   ## TOODO fix this for new names
   template_content <- gsub('metadata\\$metrics_group_id <- metadata\\$metrics_group_id', '# metadata$metrics_group_id <- metadata$metrics_group_id', template_content)
   template_content <- gsub('metadata\\$metrics_baseline_control <- metadata\\$metrics_baseline_control', '# metadata$metrics_baseline_control <- metadata$metrics_baseline_control', template_content)
   template_content <- gsub('grouped = TRUE', 'grouped = FALSE', template_content)
@@ -217,10 +215,7 @@ if (!samples_grouped) {
 
 if (!batch_correction & !samples_grouped) {
   template_content <- gsub('metadata <- read.csv\\("")', '# metadata <- read.csv("")', template_content)
-  template_content <- gsub('fragments_list = metadata_added_list', 'fragments_list = peak_list', template_content)
-
-  # Comment out block of input section
-  template_content <- comment_out_lines(template_content, '#Provide the appropriate metadata below by replacing the placeholders', "\\`\\`\\`")
+  template_content <- gsub('metadata\\$unique_id <- metadata\\$unique_id', '# metadata$unique_id <- metadata$unique_id', template_content)
 
   # Comment out the Add metadata section
   template_content <- comment_out_lines(template_content, "\\`\\`\\`\\{r Add metadata\\}", "\\`\\`\\`", "metadata not used")
