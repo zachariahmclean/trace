@@ -2,8 +2,11 @@
 <url><loc>https://zachariahmclean.github.io/trace/404.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/LICENSE-text.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/LICENSE.html</loc></url>
+<url><loc>https://zachariahmclean.github.io/trace/articles/index.html</loc></url>
+<url><loc>https://zachariahmclean.github.io/trace/articles/plotting_traces.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/authors.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/index.html</loc></url>
+<url><loc>https://zachariahmclean.github.io/trace/news/index.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/add_metadata.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/assign_index_peaks.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/calculate_instability_metrics.html</loc></url>
@@ -14,6 +17,7 @@
 <url><loc>https://zachariahmclean.github.io/trace/reference/example_data_repeat_table.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/extract_alleles.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/extract_fragments.html</loc></url>
+<url><loc>https://zachariahmclean.github.io/trace/reference/extract_ladder_summary.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/extract_trace_table.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/find_alleles.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/find_fragments.html</loc></url>

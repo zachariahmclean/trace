@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -16,6 +16,11 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/plotting_traces.html">Plotting traces</a></li>
+  </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
       </ul></div>
@@ -53,11 +58,11 @@
 
 
 <dt><code>peak_table_df</code></dt>
-<dd><p>A dataframe containing the fragment peak level informtation.</p></dd>
+<dd><p>A dataframe containing the fragment peak level information.</p></dd>
 
 
 <dt><code>repeat_table_df</code></dt>
-<dd><p>A dataframe containing the fragment peak level informtation with the repeat size added. May or may not be the same as peak_table_df depending on what options are chosen in <code>call_repeats</code>.</p></dd>
+<dd><p>A dataframe containing the fragment peak level information with the repeat size added. May or may not be the same as peak_table_df depending on what options are chosen in <code>call_repeats</code>.</p></dd>
 
 
 </dl><p></p></div>
@@ -68,8 +73,8 @@
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
-<ul><li><p><a href="#method-fragments_repeats-get_alleles"><code>fragments_repeats$get_alleles()</code></a></p></li>
-<li><p><a href="#method-fragments_repeats-set_allele"><code>fragments_repeats$set_allele()</code></a></p></li>
+<ul><li><p><a href="#method-fragments_repeats-get_allele_peak"><code>fragments_repeats$get_allele_peak()</code></a></p></li>
+<li><p><a href="#method-fragments_repeats-set_allele_peak"><code>fragments_repeats$set_allele_peak()</code></a></p></li>
 <li><p><a href="#method-fragments_repeats-get_index_peak"><code>fragments_repeats$get_index_peak()</code></a></p></li>
 <li><p><a href="#method-fragments_repeats-set_index_peak"><code>fragments_repeats$set_index_peak()</code></a></p></li>
 <li><p><a href="#method-fragments_repeats-plot_fragments"><code>fragments_repeats$plot_fragments()</code></a></p></li>
@@ -77,28 +82,24 @@
 </ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="trace" data-topic="fragments" data-id="initialize"><a href="../../trace/html/fragments.html#method-fragments-initialize"><code>trace::fragments$initialize()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="trace" data-topic="fragments" data-id="plot_trace"><a href="../../trace/html/fragments.html#method-fragments-plot_trace"><code>trace::fragments$plot_trace()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="trace" data-topic="fragments" data-id="print"><a href="../../trace/html/fragments.html#method-fragments-print"><code>trace::fragments$print()</code></a></span></li>
-</ul></details></p><hr><a id="method-fragments_repeats-get_alleles"></a><div class="section">
-<h3 id="method-get-alleles-">Method <code>get_alleles()</code><a class="anchor" aria-label="anchor" href="#method-get-alleles-"></a></h3>
+</ul></details></p><hr><a id="method-fragments_repeats-get_allele_peak"></a><div class="section">
+<h3 id="method-get-allele-peak-">Method <code>get_allele_peak()</code><a class="anchor" aria-label="anchor" href="#method-get-allele-peak-"></a></h3>
 <p>This returns a list with the allele information for this object.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">fragments_repeats</span><span class="op">$</span><span class="fu">get_alleles</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">fragments_repeats</span><span class="op">$</span><span class="fu">get_allele_peak</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 
-</div><p></p><hr><a id="method-fragments_repeats-set_allele"></a><div class="section">
-<h3 id="method-set-allele-">Method <code>set_allele()</code><a class="anchor" aria-label="anchor" href="#method-set-allele-"></a></h3>
+</div><p></p><hr><a id="method-fragments_repeats-set_allele_peak"></a><div class="section">
+<h3 id="method-set-allele-peak-">Method <code>set_allele_peak()</code><a class="anchor" aria-label="anchor" href="#method-set-allele-peak-"></a></h3>
 <p>This sets a single allele size/repeat. It searches through the appropriate peak table and finds the closest peak to the value that's provided.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">fragments_repeats</span><span class="op">$</span><span class="fu">set_allele</span><span class="op">(</span><span class="va">allele</span>, <span class="va">unit</span>, <span class="va">value</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">fragments_repeats</span><span class="op">$</span><span class="fu">set_allele_peak</span><span class="op">(</span><span class="va">unit</span>, <span class="va">value</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>allele</code></dt>
-<dd><p>Either <code>1</code> or <code>2</code>, indicating which allele information should be set. Allele 1 is the only one used for repeat instability metrics calculations.</p></dd>
-
-
-<dt><code>unit</code></dt>
+<p></p><div class="arguments"><dl><dt><code>unit</code></dt>
 <dd><p>Either "size" or "repeats" to indicate if the value you're providing is bp size or repeat length.</p></dd>
 
 
@@ -182,11 +183,11 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Zachariah McLean.</p>
+  <p>Developed by Zachariah McLean, Kevin Correia.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer></div>

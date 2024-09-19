@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -16,6 +16,11 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/plotting_traces.html">Plotting traces</a></li>
+  </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
       </ul></div>
@@ -43,23 +48,23 @@
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
     <p></p><div class="r6-fields"><dl><dt><code>unique_id</code></dt>
-<dd><p>unique id of the sanmple usually the file name</p></dd>
+<dd><p>unique id of the sample usually the file name</p></dd>
 
 
 <dt><code>metrics_group_id</code></dt>
-<dd><p>sample grouping for metrics calculations. Associated with <code>add_metdata()</code>.</p></dd>
+<dd><p>sample grouping for metrics calculations. Associated with <code><a href="add_metadata.html">add_metadata()</a></code>.</p></dd>
 
 
 <dt><code>metrics_baseline_control</code></dt>
-<dd><p>logical to indicate if sample is the baseline control. Associated with <code>add_metdata()</code>.</p></dd>
+<dd><p>logical to indicate if sample is the baseline control. Associated with <code><a href="add_metadata.html">add_metadata()</a></code>.</p></dd>
 
 
 <dt><code>batch_run_id</code></dt>
-<dd><p>fragment analsyis run. Associated with <code>add_metdata()</code>.</p></dd>
+<dd><p>fragment analysis run. Associated with <code><a href="add_metadata.html">add_metadata()</a></code>.</p></dd>
 
 
 <dt><code>batch_sample_id</code></dt>
-<dd><p>An id for the sample used as size standard for repeat calculation. Associated with <code>add_metdata()</code>.</p></dd>
+<dd><p>An id for the sample used as size standard for repeat calculation. Associated with <code><a href="add_metadata.html">add_metadata()</a></code>.</p></dd>
 
 
 </dl><p></p></div>
@@ -115,7 +120,7 @@
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>show_peaks</code></dt>
-<dd><p>A logical to say if the called peaks should be overlayed on top of the trace. Only valid for fragments_repeats objects.</p></dd>
+<dd><p>A logical to say if the called peaks should be plotted on top of the trace. Only valid for fragments_repeats objects.</p></dd>
 
 
 <dt><code>x_axis</code></dt>
@@ -131,7 +136,7 @@
 
 
 <dt><code>height_color_threshold</code></dt>
-<dd><p>A thershold value to colour the peaks relative to the tallest peak.</p></dd>
+<dd><p>A threshold value to colour the peaks relative to the tallest peak.</p></dd>
 
 
 <dt><code>plot_title</code></dt>
@@ -170,11 +175,11 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Zachariah McLean.</p>
+  <p>Developed by Zachariah McLean, Kevin Correia.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer></div>
