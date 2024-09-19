@@ -438,6 +438,7 @@ ladder_self_mod_predict <- function(fragments_trace,
 #'        the we iterate through the scans in blocks and test their linear fit ( We can assume that the ladder is linear over a short distance)
 #'        This value defines how large that block of peaks should be.
 #' @param smoothing_window numeric: ladder signal smoothing window size passed
+#' @param warning_rsq_threshold The value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold.
 #' @param show_progress_bar show progress bar
 #'
 #' @return This function modifies list of fragments_trace objects in place with the ladder assigned and base pair calculated.
@@ -484,6 +485,7 @@ find_ladders <- function(
     ladder_selection_window = 5,
     max_combinations = 2500000,
     smoothing_window = 21,
+    warning_rsq_threshold = 0.998,
     show_progress_bar = TRUE) {
 
   fit_ladder <- function(
@@ -588,7 +590,7 @@ find_ladders <- function(
 
     # make a warning if one of the ladder modes is bad
     ladder_rsq_warning_helper(fragments_trace[[i]],
-      rsq_threshold = 0.998
+      rsq_threshold = warning_rsq_threshold
     )
 
     if (show_progress_bar) {
@@ -627,7 +629,7 @@ find_ladders <- function(
 #' @examples
 #'
 #' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
-#' 
+#'
 #' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
 #' # first manually determine the real ladder peaks using your judgment

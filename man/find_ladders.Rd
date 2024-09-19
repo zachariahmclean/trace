@@ -17,6 +17,7 @@ find_ladders(
   ladder_selection_window = 5,
   max_combinations = 2500000,
   smoothing_window = 21,
+  warning_rsq_threshold = 0.998,
   show_progress_bar = TRUE
 )
 }
@@ -56,6 +57,8 @@ This value defines how large that block of peaks should be.}
 combinations that should be tested}
 
 \item{smoothing_window}{numeric: ladder signal smoothing window size passed}
+
+\item{warning_rsq_threshold}{The value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold.}
 
 \item{show_progress_bar}{show progress bar}
 }
