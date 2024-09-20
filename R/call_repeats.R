@@ -314,13 +314,20 @@ find_batch_correction_factor <- function(fragments_list, trace_window_size = 50,
     })
   # scale it for the model
   correction_sample_df$smoothed_modal_size_scaled <- correction_sample_df$smoothed_modal_size - median(correction_sample_df$smoothed_modal_size)
-  
-  # used mixed model rather than fixed effects model for more flexible in handling unbalanced designs and non-overlapping batches.
-  model <- lme4::lmer(smoothed_modal_size_scaled ~ batch_sample_id + (1|batch_run_id), data = correction_sample_df)
-  batch_effects_df <- data.frame(
-    batch_sample_id = row.names(lme4::ranef(model)$batch_run_id),
-    batch_effect = lme4::ranef(model)$batch_run_id[[1]]
-  )
+  if(length(unique(na.omit(correction_sample_df$batch_sample_id ))) <= 1){
+    # Calculate batch effect directly from the smoothed modal sizes within the single batch
+    batch_effects_df <- data.frame(
+      batch_sample_id = correction_sample_df$batch_run_id,
+      batch_effect = correction_sample_df$smoothed_modal_size_scaled
+    )
+  } else{
+    # used mixed model rather than fixed effects model for more flexible in handling unbalanced designs and non-overlapping batches.
+    model <- lme4::lmer(smoothed_modal_size_scaled ~ batch_sample_id + (1|batch_run_id), data = correction_sample_df)
+    batch_effects_df <- data.frame(
+      batch_sample_id = row.names(lme4::ranef(model)$batch_run_id),
+      batch_effect = lme4::ranef(model)$batch_run_id[[1]]
+    )
+  }
 
   # do some checks to see if any batches have not been corrected
   fragments_batch_runs <- sapply(fragments_list, function(x) x$batch_run_id)
