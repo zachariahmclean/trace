@@ -41,6 +41,11 @@ reference:
   - fragments
   - fragments_trace
   - fragments_repeats
-
+- title: Example data
+  desc:  A collection of data that can be used for example analyses
+- contents:
+  - cell_line_fsa_list
+  - metadata
+  - starts_with("example_data")
 
 
