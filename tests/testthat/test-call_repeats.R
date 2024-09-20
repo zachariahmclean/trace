@@ -488,13 +488,12 @@ testthat::test_that("batch correction with a single sample id", {
   
 
   find_alleles(fragments_list)
-
-  call_repeats(fragments_list,
-    batch_correction = TRUE)
+  suppressWarnings(call_repeats(fragments_list, batch_correction = TRUE))
+  
   
   # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(100, 120))
 
-  testthat::expect_true(all.equal(c(rep(0.78526, 92), rep(-0.78526, 2)), round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)))
+  testthat::expect_true(all.equal(c(rep(0.86519, 92), rep(-0.86519, 2)), round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)))
 
 
 

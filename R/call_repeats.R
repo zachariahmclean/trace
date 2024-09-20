@@ -316,9 +316,13 @@ find_batch_correction_factor <- function(fragments_list, trace_window_size = 50,
   correction_sample_df$smoothed_modal_size_scaled <- correction_sample_df$smoothed_modal_size - median(correction_sample_df$smoothed_modal_size)
   if(length(unique(na.omit(correction_sample_df$batch_sample_id ))) <= 1){
     # Calculate batch effect directly from the smoothed modal sizes within the single batch
+    #deal with case where there is replicates of the same sample by first splitting by batch
+    correction_sample_df_split <- split(correction_sample_df, correction_sample_df$batch_run_id)
+    batch_effect <- sapply(correction_sample_df_split, function(x) median(x$smoothed_modal_size_scaled))
+
     batch_effects_df <- data.frame(
-      batch_sample_id = correction_sample_df$batch_run_id,
-      batch_effect = correction_sample_df$smoothed_modal_size_scaled
+      batch_sample_id = names(correction_sample_df_split),
+      batch_effect = batch_effect
     )
   } else{
     # used mixed model rather than fixed effects model for more flexible in handling unbalanced designs and non-overlapping batches.
