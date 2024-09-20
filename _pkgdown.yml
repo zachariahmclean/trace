@@ -1,4 +1,46 @@
 url: https://zachariahmclean.github.io/trace/
 template:
   bootstrap: 5
+reference:
+- title: Main functions
+  desc:  Process fsa files to generate instability metrics
+- contents:
+  - read_fsa
+  - add_metadata
+  - find_ladders
+  - find_fragments
+  - find_alleles
+  - call_repeats
+  - assign_index_peaks
+  - calculate_instability_metrics
+- title: Plotting functions
+  desc:  Explore data through plots
+- contents:
+  - starts_with("plot_")
+- title: Ladder fixing
+  desc:  Functions for fixing ladders
+- contents:
+  - starts_with("fix_ladders")
+- title: Helper functions
+  desc:  Useful functions for extracting information samples or modifying lists of objects
+- contents:
+  - starts_with("extract_")
+  - remove_fragments
+- title: Generate template
+  desc:  Functions that generate templates
+- contents:
+  - generate_trace_template
+- title: Import data
+  desc:  Import data from non-fsa formats as a peak table or repeat table
+- contents:
+  - peak_table_to_fragments
+  - repeat_table_to_repeats
+- title: Package R6 objects
+  desc:  documentation for objects used in this package
+- contents:
+  - fragments
+  - fragments_trace
+  - fragments_repeats
+
+
 
