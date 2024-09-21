@@ -8,9 +8,10 @@
 
 This package provides a pipeline for short tandem repeat instability
 analysis from fragment analysis data. The inputs are fsa files or peak
-tables (eg Genemapper 5 software output), and a user supplied metadata
-data-frame. The functions identify ladders, calls peaks, and calculate
-repeat instability metrics (ie expansion index or average repeat gain).
+tables (e.g. Genemapper 5 software peak table output), and a user
+supplied metadata data-frame. The functions identify ladders, calls
+peaks, and calculate repeat instability metrics (i.e. expansion index or
+average repeat gain).
 
 This code is not intended to function as a genotyping tool in its
 current form. While the repeat lengths generated are precise, they are
