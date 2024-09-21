@@ -18,7 +18,7 @@ generate_trace_template(
 \item{samples_grouped}{Indicates if the functionality for grouping samples for metrics calculations should be included in the pipeline. See \code{\link{add_metadata}} & \code{\link{assign_index_peaks}} for more info.}
 }
 \value{
-A Quarto template file
+A Quarto template file for repeat instability analysis
 }
 \description{
 Generate a Quarto file that has the instability pipeline preset

@@ -23,7 +23,7 @@ columns is important since the information is pulled by column position rather
 than column name). Closest peak in each sample is selected so the number needs to just be approximate.}
 }
 \value{
-A list of \code{"fragments_repeats"} objects with index_repeat and index_height added.
+This function modifies list of fragments_repeats objects in place with index_repeat and index_height added.
 }
 \description{
 Assign index peaks in preparation for calculation of instability metrics

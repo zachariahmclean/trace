@@ -462,6 +462,44 @@ testthat::test_that("batch correction with no data in one batch", {
 })
 
 
+
+
+testthat::test_that("batch correction with a single sample id", {
+
+
+
+  fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+  find_ladders(fsa_list,
+          show_progress_bar = FALSE)
+
+  fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
+
+  add_metadata(fragments_list,
+    metadata)
+  
+    fragments_list <- lapply(fragments_list, function(x){
+    if(x$batch_sample_id %in% "S-21-211"){
+      x$batch_sample_id <- NA_character_ 
+    } 
+      
+      return(x)
+     
+      })
+  
+
+  find_alleles(fragments_list)
+  suppressWarnings(call_repeats(fragments_list, batch_correction = TRUE))
+  
+  
+  # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(100, 120))
+
+  testthat::expect_true(all.equal(c(rep(0.86519, 92), rep(-0.86519, 2)), round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)))
+
+
+
+})
+
+
 testthat::test_that("batch correction with validated repeat lengths", {
 
   fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())

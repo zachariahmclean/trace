@@ -8,9 +8,10 @@
 
 This package provides a pipeline for short tandem repeat instability
 analysis from fragment analysis data. The inputs are fsa files or peak
-tables (eg Genemapper 5 software output), and a user supplied metadata
-data-frame. The functions identify ladders, calls peaks, and calculate
-repeat instability metrics (ie expansion index or average repeat gain).
+tables (e.g. Genemapper 5 software peak table output), and a user
+supplied metadata data-frame. The functions identify ladders, calls
+peaks, and calculate repeat instability metrics (i.e. expansion index or
+average repeat gain).
 
 This code is not intended to function as a genotyping tool in its
 current form. While the repeat lengths generated are precise, they are
@@ -191,13 +192,13 @@ automatically parsed by `add_metadata()`, otherwise you will need to
 match up which column name belongs to which metadata category (as done
 below in `add_metadata()`):
 
-| Metadata table column    | Functionality metadata is associated with           | Description                                                                                                                                                                                                                                                                                                     |
-|--------------------------|-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| unique_id                | Required for adding metadata using `add_metadata()` | The unique identifier for the fsa file. Usually the sample file name. This must be unique, including across runs.                                                                                                                                                                                               |
-| metrics_group_id         | `assign_index_peaks()`, allows setting `grouped`    | This groups the samples for instability metric calculations. Provide a group id value for each sample. For example, in a mouse experiment and using the expansion index, you need to group the samples since they have the same metrics baseline control (eg inherited repeat length), so provide the mouse id. |
-| metrics_baseline_control | `assign_index_peaks()`, allows setting `grouped`    | This is related to metrics_group_id. Indicate with ‘TRUE’ to specify which sample is the baseline control (eg mouse tail for inherited repeat length, or day-zero sample in cell line experiments)                                                                                                              |
-| batch_run_id             | `call_repeats()`, allows setting `batch_correction` | This groups the samples by batch. Provide a value for each fragment analysis run (eg date).                                                                                                                                                                                                                     |
-| batch_sample_id          | `call_repeats()`, allows setting `batch_correction` | This groups the samples across batches. Give a unique sample id to each different sample.                                                                                                                                                                                                                       |
+| Metadata table column | Functionality metadata is associated with | Description |
+|----|----|----|
+| unique_id | Required for adding metadata using `add_metadata()` | The unique identifier for the fsa file. Usually the sample file name. This must be unique, including across runs. |
+| metrics_group_id | `assign_index_peaks()`, allows setting `grouped` | This groups the samples for instability metric calculations. Provide a group id value for each sample. For example, in a mouse experiment and using the expansion index, you need to group the samples since they have the same metrics baseline control (eg inherited repeat length), so provide the mouse id. |
+| metrics_baseline_control | `assign_index_peaks()`, allows setting `grouped` | This is related to metrics_group_id. Indicate with ‘TRUE’ to specify which sample is the baseline control (eg mouse tail for inherited repeat length, or day-zero sample in cell line experiments) |
+| batch_run_id | `call_repeats()`, allows setting `batch_correction` | This groups the samples by batch. Provide a value for each fragment analysis run (eg date). |
+| batch_sample_id | `call_repeats()`, allows setting `batch_correction` | This groups the samples across batches. Give a unique sample id to each different sample. |
 
 ``` r
 

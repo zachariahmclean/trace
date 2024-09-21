@@ -10,7 +10,7 @@ extract_alleles(fragments_list)
 \item{fragments_list}{A list of fragments_repeats objects containing fragment data.}
 }
 \value{
-A data.frame containing modal peak information for each sample.
+A dataframe containing modal peak information for each sample
 }
 \description{
 Extracts modal peak information from each sample in a list of fragments.

@@ -301,7 +301,7 @@ server_function <- function(input, output, session, fragment_trace_list) {
 #'
 #' @param fragment_trace_list A list of fragments_trace objects containing fragment data
 #'
-#' @return interactive shiny app
+#' @return interactive shiny app for fixing ladders
 #' @export
 #' @details
 #' This function helps you fix ladders that are incorrectly assigned. Run `fix_ladders_interactive()`

@@ -319,13 +319,24 @@ find_batch_correction_factor <- function(
     })
   # scale it for the model
   correction_sample_df$smoothed_modal_size_scaled <- correction_sample_df$smoothed_modal_size - median(correction_sample_df$smoothed_modal_size)
-  
-  # used mixed model rather than fixed effects model for more flexible in handling unbalanced designs and non-overlapping batches.
-  model <- lme4::lmer(smoothed_modal_size_scaled ~ batch_sample_id + (1|batch_run_id), data = correction_sample_df)
-  batch_effects_df <- data.frame(
-    batch_sample_id = row.names(lme4::ranef(model)$batch_run_id),
-    batch_effect = lme4::ranef(model)$batch_run_id[[1]]
-  )
+  if(length(unique(na.omit(correction_sample_df$batch_sample_id ))) <= 1){
+    # Calculate batch effect directly from the smoothed modal sizes within the single batch
+    #deal with case where there is replicates of the same sample by first splitting by batch
+    correction_sample_df_split <- split(correction_sample_df, correction_sample_df$batch_run_id)
+    batch_effect <- sapply(correction_sample_df_split, function(x) median(x$smoothed_modal_size_scaled))
+
+    batch_effects_df <- data.frame(
+      batch_sample_id = names(correction_sample_df_split),
+      batch_effect = batch_effect
+    )
+  } else{
+    # used mixed model rather than fixed effects model for more flexible in handling unbalanced designs and non-overlapping batches.
+    model <- lme4::lmer(smoothed_modal_size_scaled ~ batch_sample_id + (1|batch_run_id), data = correction_sample_df)
+    batch_effects_df <- data.frame(
+      batch_sample_id = row.names(lme4::ranef(model)$batch_run_id),
+      batch_effect = lme4::ranef(model)$batch_run_id[[1]]
+    )
+  }
 
   # do some checks to see if any batches have not been corrected
   fragments_batch_runs <- sapply(fragments_list, function(x) x$batch_run_id)
@@ -398,7 +409,7 @@ find_batch_correction_factor <- function(
 #' @param repeat_calling_algorithm_peak_assignment_scan_window A numeric value for the scan window when assigning the peak. This is used for both \code{"fft"} and \code{"size_period"}. When the scan period is determined, the algorithm jumps to the predicted scan for the next peak. This value opens a window of the neighboring scans to pick the tallest in.
 #' @param repeat_calling_algorithm_size_period A numeric value \code{"size_period"} algorithm to set the peak periodicity by bp size. This is the key variable to change for \code{"size_period"}. In fragment analysis, the peaks are usually slightly below the actual repeat unit size.
 #'
-#' @return A list of \code{"fragments_repeats"} objects with repeat data added.
+#' @return This function modifies list of fragments objects in place with repeats added.
 #'
 #' @details
 #' Repeat lengths are calculated from the bp size with several different alternative algorithm or options. 

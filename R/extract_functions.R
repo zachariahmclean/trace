@@ -6,7 +6,7 @@
 #'
 #' @param fragments_trace_list a list of fragments objects
 #'
-#' @return returns a dataframe of the raw trace data. Each row representing a single scan.
+#' @return A dataframe of the raw trace data. Each row representing a single scan.
 #' @export
 #'
 #' @examples
@@ -90,7 +90,7 @@ extract_ladder_summary <- function(
 #'
 #' @param fragments_list A list of fragments_repeats objects containing fragment data.
 #'
-#' @return A data.frame containing modal peak information for each sample.
+#' @return A dataframe containing modal peak information for each sample
 #' @export
 #'
 #' @examples
@@ -132,7 +132,7 @@ extract_alleles <- function(fragments_list) {
 #'
 #' @param fragments_list A list of fragments_repeats objects containing fragment data.
 #'
-#' @return A data.frame containing peak data for each sample.
+#' @return A dataframe containing peak data for each sample
 #' @export
 #'
 #' @examples

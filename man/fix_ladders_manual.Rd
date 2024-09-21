@@ -15,7 +15,7 @@ the bp of the standard) and scan (the scan value of the ladder peak). It's
 critical that the element name in the list is the unique id of the sample.}
 }
 \value{
-Returns a list of fragments trace objects equal to the length input
+This function modifies list of fragments_trace objects in place with the selected ladders fixed.
 }
 \description{
 Manually assign the ladder peaks for samples in a fragments_trace_list
