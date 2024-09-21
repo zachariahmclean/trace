@@ -408,7 +408,6 @@ testthat::test_that("batch correction", {
 
   testthat::expect_true(all.equal(c(rep(0.78526, 92), rep(-0.78526, 2)), round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)))
   
-  # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(400, 500))
   # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(100, 115))
 
 
@@ -519,18 +518,15 @@ testthat::test_that("batch correction with validated repeat lengths", {
     }
   }
   
-  
   find_alleles(fragments_list)
-  suppressWarnings(
-   call_repeats(fragments_list,
-      batch_correction = TRUE)
-    )
+  call_repeats(fragments_list,
+    batch_correction = TRUE)
+  
     sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)
 
   testthat::expect_true(all.equal(c(rep(0.78526, 92), rep(-0.78526, 2)), round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)))
   
-  # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(400, 500))
-  # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(100, 115))
+  # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(100, 130))
 
 
 })

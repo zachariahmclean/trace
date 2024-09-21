@@ -326,14 +326,14 @@ find_batch_correction_factor <- function(
     batch_effect <- sapply(correction_sample_df_split, function(x) median(x$smoothed_modal_size_scaled))
 
     batch_effects_df <- data.frame(
-      batch_sample_id = names(correction_sample_df_split),
+      batch_run_id = names(correction_sample_df_split),
       batch_effect = batch_effect
     )
   } else{
     # used mixed model rather than fixed effects model for more flexible in handling unbalanced designs and non-overlapping batches.
     model <- lme4::lmer(smoothed_modal_size_scaled ~ batch_sample_id + (1|batch_run_id), data = correction_sample_df)
     batch_effects_df <- data.frame(
-      batch_sample_id = row.names(lme4::ranef(model)$batch_run_id),
+      batch_run_id = row.names(lme4::ranef(model)$batch_run_id),
       batch_effect = lme4::ranef(model)$batch_run_id[[1]]
     )
   }
@@ -341,8 +341,8 @@ find_batch_correction_factor <- function(
   # do some checks to see if any batches have not been corrected
   fragments_batch_runs <- sapply(fragments_list, function(x) x$batch_run_id)
   unique_fragments_batch_runs <- unique(fragments_batch_runs)
-  if(any(!unique_fragments_batch_runs %in% batch_effects_df$batch_sample_id)){
-    non_corrected_batches <- unique_fragments_batch_runs[which(!unique_fragments_batch_runs %in% batch_effects_df$batch_sample_id)]
+  if(any(!unique_fragments_batch_runs %in% batch_effects_df$batch_run_id)){
+    non_corrected_batches <- unique_fragments_batch_runs[which(!unique_fragments_batch_runs %in% batch_effects_df$batch_run_id)]
     if(length(non_corrected_batches) == 1 && is.na(non_corrected_batches)){
       warning(
         call. = FALSE,
@@ -360,34 +360,27 @@ find_batch_correction_factor <- function(
   # correct repeat size based on supplied repeat length
   if (all(!is.na(correction_sample_df$batch_sample_repeat_length))) {
     message("Correcting repeat lengths")
+
+    # apply batch correction to smoothed_modal_size
+    correction_sample_df <- merge(correction_sample_df, batch_effects_df, by = "batch_run_id", all.x = TRUE)
     
     # Calculate base pair and modal differences
     correction_sample_df$batch_sample_base_pair <- 
       correction_sample_df$batch_sample_repeat_length * repeat_size + assay_size_without_repeat
+
+    correction_sample_df$smoothed_modal_size_corrected <- correction_sample_df$smoothed_modal_size + correction_sample_df$batch_effect
+
     correction_sample_df$modal_diff <- 
-      correction_sample_df$batch_sample_base_pair - correction_sample_df$smoothed_modal_size
+      correction_sample_df$batch_sample_base_pair - correction_sample_df$smoothed_modal_size_corrected
     
-    # Calculate the correction factor for each batch_run_id
-    correction_sample_df_by_batch_run_id <- split(correction_sample_df, correction_sample_df$batch_run_id)
-    repeat_correction_factor <- sapply(correction_sample_df_by_batch_run_id, function(df) {
-      median(df$modal_diff, na.rm = TRUE)
-    })
-    
-    # I'm not sure that's doing what I want it to
-
-    # Update batch_effects_df with the correction factors in one step
-    batch_effects_df$batch_effect <- batch_effects_df$batch_effect + 
-      ifelse(batch_effects_df$batch_sample_id %in% names(repeat_correction_factor),
-             repeat_correction_factor[batch_effects_df$batch_sample_id], 0)
+    # now adjust the correction factor
+    batch_effects_df$batch_effect <- batch_effects_df$batch_effect - median(correction_sample_df$modal_diff)
   }
-  
-  
-
   # save correction factor for each class object but only if it was actually in the mod
   for (i in seq_along(fragments_list)) {
-    if(fragments_list[[i]]$batch_run_id %in% batch_effects_df$batch_sample_id){
+    if(fragments_list[[i]]$batch_run_id %in% batch_effects_df$batch_run_id){
       # Made the plate id explicitly match the list name for cases when the plate name is a number. It could cause subsetting issues
-      fragments_list[[i]]$.__enclos_env__$private$batch_correction_factor <- batch_effects_df[which(batch_effects_df$batch_sample_id == fragments_list[[i]]$batch_run_id), "batch_effect"]
+      fragments_list[[i]]$.__enclos_env__$private$batch_correction_factor <- batch_effects_df[which(batch_effects_df$batch_run_id == fragments_list[[i]]$batch_run_id), "batch_effect"]
     } 
   }
 }
@@ -509,6 +502,12 @@ call_repeats <- function(
       assay_size_without_repeat = assay_size_without_repeat,
       repeat_size = repeat_size
     )
+
+    # Major issue here is around handling case when you want to correction the size but there not multiple batches
+    # need to figure out what to do about that
+
+
+
   }
   # call repeats for each sample
   added_repeats <- lapply(
