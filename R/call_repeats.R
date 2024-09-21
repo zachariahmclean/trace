@@ -321,14 +321,14 @@ find_batch_correction_factor <- function(fragments_list, trace_window_size = 50,
     batch_effect <- sapply(correction_sample_df_split, function(x) median(x$smoothed_modal_size_scaled))
 
     batch_effects_df <- data.frame(
-      batch_sample_id = names(correction_sample_df_split),
+      batch_run_id = names(correction_sample_df_split),
       batch_effect = batch_effect
     )
   } else{
     # used mixed model rather than fixed effects model for more flexible in handling unbalanced designs and non-overlapping batches.
     model <- lme4::lmer(smoothed_modal_size_scaled ~ batch_sample_id + (1|batch_run_id), data = correction_sample_df)
     batch_effects_df <- data.frame(
-      batch_sample_id = row.names(lme4::ranef(model)$batch_run_id),
+      batch_run_id = row.names(lme4::ranef(model)$batch_run_id),
       batch_effect = lme4::ranef(model)$batch_run_id[[1]]
     )
   }
@@ -336,8 +336,8 @@ find_batch_correction_factor <- function(fragments_list, trace_window_size = 50,
   # do some checks to see if any batches have not been corrected
   fragments_batch_runs <- sapply(fragments_list, function(x) x$batch_run_id)
   unique_fragments_batch_runs <- unique(fragments_batch_runs)
-  if(any(!unique_fragments_batch_runs %in% batch_effects_df$batch_sample_id)){
-    non_corrected_batches <- unique_fragments_batch_runs[which(!unique_fragments_batch_runs %in% batch_effects_df$batch_sample_id)]
+  if(any(!unique_fragments_batch_runs %in% batch_effects_df$batch_run_id)){
+    non_corrected_batches <- unique_fragments_batch_runs[which(!unique_fragments_batch_runs %in% batch_effects_df$batch_run_id)]
     if(length(non_corrected_batches) == 1 && is.na(non_corrected_batches)){
       warning(
         call. = FALSE,
@@ -353,9 +353,9 @@ find_batch_correction_factor <- function(fragments_list, trace_window_size = 50,
   }
   # save correction factor for each class object but only if it was actually in the mod
   for (i in seq_along(fragments_list)) {
-    if(fragments_list[[i]]$batch_run_id %in% batch_effects_df$batch_sample_id){
+    if(fragments_list[[i]]$batch_run_id %in% batch_effects_df$batch_run_id){
       # Made the plate id explicitly match the list name for cases when the plate name is a number. It could cause subsetting issues
-      fragments_list[[i]]$.__enclos_env__$private$batch_correction_factor <- batch_effects_df[which(batch_effects_df$batch_sample_id == fragments_list[[i]]$batch_run_id), "batch_effect"]
+      fragments_list[[i]]$.__enclos_env__$private$batch_correction_factor <- batch_effects_df[which(batch_effects_df$batch_run_id == fragments_list[[i]]$batch_run_id), "batch_effect"]
     } 
   }
 }
