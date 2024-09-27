@@ -24,8 +24,8 @@ fragments <- R6::R6Class("fragments",
     #' @field batch_sample_id An id for the sample used as size standard for repeat calculation. Associated with `add_metadata()`.
     batch_sample_id = NA_character_,
 
-    #' @field batch_sample_repeat_length Validated repeat length for the batch_sample_id. Associated with `add_metadata()`.
-    batch_sample_repeat_length = NA_real_,
+    #' @field batch_sample_modal_repeat_length Validated repeat length for the modal repeat repeat in that sample. Associated with `add_metadata()`.
+    batch_sample_modal_repeat_length = NA_real_,
 
     #' @description
     #' initialization function that is not used since the child classes are the main object of this package.
@@ -277,6 +277,8 @@ fragments_repeats <- R6::R6Class(
 
     # call_repeats data
     batch_correction_factor = NA_real_,
+    repeat_correction_mod = NULL,
+    repeat_correction_factor = NA_real_,
     repeats_not_called_reason = NA_character_,
     repeat_size = NA_real_,
     assay_size_without_repeat = NA_real_,

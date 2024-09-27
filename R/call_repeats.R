@@ -280,8 +280,6 @@ size_period_repeat_caller <- function(fragments_repeat,
 
 find_batch_correction_factor <- function(
   fragments_list,
-  assay_size_without_repeat,
-  repeat_size,
   trace_window_size = 50, smoothing_window = 301){
   # make df for all samples of plate id, batch sample id
   metadata_list <- lapply(fragments_list, function(x){
@@ -289,7 +287,7 @@ find_batch_correction_factor <- function(
       unique_id = x$unique_id,
       batch_run_id = x$batch_run_id,
       batch_sample_id = x$batch_sample_id,
-      batch_sample_repeat_length = x$batch_sample_repeat_length,
+      batch_sample_modal_repeat_length = x$batch_sample_modal_repeat_length,
       allele_height = x$get_allele_peak()$allele_height
     )
     return(df)
@@ -357,25 +355,6 @@ find_batch_correction_factor <- function(
     }
   }
   message("Correcting batch effects")
-  # correct repeat size based on supplied repeat length
-  if (all(!is.na(correction_sample_df$batch_sample_repeat_length))) {
-    message("Correcting repeat lengths")
-
-    # apply batch correction to smoothed_modal_size
-    correction_sample_df <- merge(correction_sample_df, batch_effects_df, by = "batch_run_id", all.x = TRUE)
-    
-    # Calculate base pair and modal differences
-    correction_sample_df$batch_sample_base_pair <- 
-      correction_sample_df$batch_sample_repeat_length * repeat_size + assay_size_without_repeat
-
-    correction_sample_df$smoothed_modal_size_corrected <- correction_sample_df$smoothed_modal_size + correction_sample_df$batch_effect
-
-    correction_sample_df$modal_diff <- 
-      correction_sample_df$batch_sample_base_pair - correction_sample_df$smoothed_modal_size_corrected
-    
-    # now adjust the correction factor
-    batch_effects_df$batch_effect <- batch_effects_df$batch_effect - median(correction_sample_df$modal_diff)
-  }
   # save correction factor for each class object but only if it was actually in the mod
   for (i in seq_along(fragments_list)) {
     if(fragments_list[[i]]$batch_run_id %in% batch_effects_df$batch_run_id){
@@ -383,6 +362,164 @@ find_batch_correction_factor <- function(
       fragments_list[[i]]$.__enclos_env__$private$batch_correction_factor <- batch_effects_df[which(batch_effects_df$batch_run_id == fragments_list[[i]]$batch_run_id), "batch_effect"]
     } 
   }
+
+  invisible()
+}
+
+# repeat length correction -------------------------------------------------------
+
+model_repeat_length <- function(
+    fragments_list,
+    repeat_size) {
+  calling_close_neighbouring_repeats <- function(controls_fragments) {
+    # use np_repeat to accurately call the repeat length of the neighboring peaks
+    # extract a dataframe of the called repeats that can then be used to make a model
+    controls_fragments_df_list <- lapply(controls_fragments, function(x) {
+      df_length <- nrow(x$peak_table_df)
+      # identify peaks close to modal peak and at least 20% as high
+      main_peak_delta <- x$peak_table_df$size - x$get_allele_peak()$allele_size
+      height_prop <- x$peak_table_df$height / x$get_allele_peak()$allele_height
+      peak_cluster <- vector("logical", length = nrow(x$peak_table_df))
+      for (i in seq_along(main_peak_delta)) {
+        if (abs(main_peak_delta[[i]]) < 30 & height_prop[[i]] > 0.2) {
+          peak_cluster[[i]] <- TRUE
+        } else {
+          peak_cluster[[i]] <- FALSE
+        }
+      }
+      cluster_df <- x$peak_table_df[peak_cluster, ]
+      cluster_df_length <- nrow(cluster_df)
+      # use np_repeat method to accurately call the neighboring repeats
+      data.frame(
+        unique_id = rep(x$unique_id, cluster_df_length),
+        size = cluster_df$size,
+        validated_repeats = np_repeat(
+          size = cluster_df$size,
+          main_peak_size = x$get_allele_peak()$allele_size,
+          main_peak_repeat = x$batch_sample_modal_repeat_length,
+          repeat_size = repeat_size
+        ),
+        height = cluster_df$height,
+        batch_run_id = rep(x$batch_run_id, cluster_df_length)
+      )
+    })
+
+    controls_repeats_df <- do.call(rbind, controls_fragments_df_list)
+  }
+
+  ## first pull out a data.frame for all samples with a column that indicates if it's a positive control or not
+  extracted <- lapply(fragments_list, function(x) {
+    data.frame(
+      unique_id = x$unique_id,
+      allele_size = x$get_allele_peak()$allele_size,
+      batch_run_id = x$batch_run_id,
+      batch_sample_id = x$batch_sample_id,
+      batch_sample_modal_repeat_length = x$batch_sample_modal_repeat_length
+    )
+  })
+  extracted_df <- do.call(rbind, extracted)
+
+  # Check to see if there are controls, if there are none, give error
+  if (!any(!is.na(extracted_df$batch_sample_modal_repeat_length))) {
+    stop("No samples with batch_sample_modal_repeat_length were detected. Ensure that the metadata has been added to the samples with 'add_metadata()'.",
+      call. = FALSE
+    )
+  }
+  # pull out the controls
+  controls_df <- extracted_df[which(!is.na(extracted_df$batch_sample_modal_repeat_length)), , drop = FALSE]
+  controls_fragments <- fragments_list[which(names(fragments_list) %in% controls_df$unique_id)]
+  controls_repeats_df <- calling_close_neighbouring_repeats(controls_fragments)
+
+  # Check to see if there are controls for each plate, if there are no controls for a plate, give error
+  all_batch_run_ids <- lapply(fragments_list, function(x) x$batch_run_id)
+  control_batch_run_ids <- unique(controls_repeats_df$batch_run_id)
+  if (length(unique(control_batch_run_ids)) != length(unique(all_batch_run_ids))) {
+    plates_missing_controls <- paste0(all_batch_run_ids[which(!all_batch_run_ids %in% control_batch_run_ids)], collapse = ", ")
+    stop(paste("Plate(s)", plates_missing_controls, "have no repeat-length control samples"),
+      call. = FALSE
+    )
+  }
+
+  # identify size stds with shared id for more quality control
+  # can compare to each other to make sure that the same peak in the distribution has been selected as the modal
+    
+    #TOODO
+    # update this to be the smoothing method from batch correction
+    
+    
+  standard_sample_ids <- sapply(controls_fragments, function(x) x$size_standard_sample_id)
+  if (any(!is.na(standard_sample_ids))) {
+    unique_standard_sample_ids <- unique(standard_sample_ids)
+
+    for (i in seq_along(unique_standard_sample_ids)) {
+      ids_i <- controls_df[which(controls_df$size_standard_sample_id == unique_standard_sample_ids[i]), "unique_id"]
+      controls_repeats_df_i <- controls_repeats_df[which(controls_repeats_df$unique_id %in% ids_i), ]
+      controls_repeats_df_list_i <- split(controls_repeats_df_i, controls_repeats_df_i$unique_id)
+      differences_i <- sapply(controls_repeats_df_list_i, function(x) {
+        # this compares the average (weighted mean) and the mode
+        # if there's a little wobble at the top with two cloes peaks
+        # then the average size shouldn't change much
+        # but the difference between the mode and the average changes a whole repeat unit
+        # which can indicate to us that one of the stds might be off
+        weighted.mean(x$size, x$height) - x$size[which.max(x$height)]
+      })
+      differences_of_differences_i <- lapply(differences_i, function(x) differences <- x - differences_i)
+      if (any(sapply(differences_of_differences_i, function(x) abs(x) > repeat_size * 0.8))) {
+        # how do you dtermine which of the samples might be off?
+        # perhaps we could try and help the person figure that out
+        # but that is complicated, instead give them a warning
+        warning(
+          call. = FALSE,
+          paste0(
+            "Warning! It looks like at least one of the samples in the size standard group '",
+            unique_standard_sample_ids[i], "' has a different modal peak than the other samples. ",
+            "It's possible that the modal peak has shifted to a different spot in the distribution in at least of one the runs. ",
+            "Use plot_size_standard_samples() to visualize and identify this sample, the update metadata with the correct repeat length of the modal peak."
+          )
+        )
+      }
+    }
+  }
+
+    message(paste0("Repeat correction model: ", length(unique(controls_repeats_df$unique_id)), " samples used to build model"))
+
+    # Can now make a model based on the bp size and the known repeat size
+    if (length(unique(controls_repeats_df$batch_run_id)) == 1) {
+      # when there's only one plate just set up simple lm
+      correction_mods <- stats::lm(validated_repeats ~ size, data = controls_repeats_df)
+      repeat_bp_size <- round(1 / correction_mods$coefficients[2], 2)
+      message(paste0("Repeat correction model: ", repeat_bp_size, " bp increase per repeat"))
+    } else {
+      # when there are multiple samples a linear model can be made using the modal peak and the known repeat length of the modal peak
+      correction_mods <- lm(validated_repeats ~ size * batch_run_id, data = controls_repeats_df)
+    }
+
+    # check to see if any samples look off
+    controls_repeats_df$predicted_repeat <- stats::predict.lm(correction_mods, controls_repeats_df)
+    controls_repeats_df$residuals <- correction_mods$residuals
+    message(paste0("Repeat correction model: Average repeat residual ", round(mean(controls_repeats_df$residuals), 10)))
+
+    if (any(abs(controls_repeats_df$residuals) > 0.3)) {
+      message("Repeat correction model: Warning! The following samples may be off and need investigaion. It's possible that at least one of these samples has the incorrect repeat length indicated in the metadata.")
+
+      samples_all_controls <- unique(controls_repeats_df$unique_id)
+      samples_high_diff <- unique(controls_repeats_df[which(abs(controls_repeats_df$residuals) > 0.5), "unique_id"])
+      for (i in seq_along(samples_high_diff)) {
+        sample_id <- samples_high_diff[i]
+        sample_control_df <- controls_repeats_df[which(controls_repeats_df$unique_id == sample_id), ]
+        sample_control_peaks_n <- nrow(sample_control_df)
+        sample_control_peaks_off_df <- sample_control_df[which(abs(sample_control_df$residuals) > 0.5), ]
+        sample_control_peaks_off_df_n <- nrow(sample_control_peaks_off_df)
+
+        message(paste0(sample_id, " has ", sample_control_peaks_off_df_n, "/", sample_control_peaks_n, " peaks used for making model with high residual repeat size (average residual ", round(mean(sample_control_df$residuals), 2), " repeats)"))
+      }
+    }
+
+    for (i in seq_along(fragments_list)) {
+      fragments_list[[i]]$.__enclos_env__$private$repeat_correction_mod <- correction_mods
+    }
+
+  invisible()
 }
 
 
@@ -396,6 +533,7 @@ find_batch_correction_factor <- function(
 #' @param assay_size_without_repeat An integer specifying the assay size without repeat for repeat calling. This is the length of the sequence flanking the repeat in the PCR product.
 #' @param repeat_size An integer specifying the repeat size for repeat calling. Default is 3.
 #' @param force_whole_repeat_units A logical value specifying if the peaks should be forced to be whole repeat units apart. Usually the peaks are slightly under the whole repeat unit if left unchanged.
+#' @param correction A character vector of either "batch" to carry out a batch correction from common samples across runs (known repeat length not required), or "repeat" to use samples with validated modal repeat lengths to correct the repeat length. Requires metadata to be added (see [add_metadata()]) with both "batch" and "repeat" requiring \code{"batch_run_id"}, "batch" requiring (\code{"batch_sample_id"}) and "repeat" requiring \code{"batch_sample_modal_repeat_length"} (but also benefits from having \code{"batch_sample_id"}).
 #' @param batch_correction A logical specifying if the size should be adjusted across fragment analysis runs. Requires metadata to be added to specify samples (\code{"batch_sample_id"}) common across runs (\code{"batch_run_id"})(see [add_metadata()]).
 #' @param repeat_calling_algorithm A character specifying the repeat calling algorithm. Options: \code{"simple"}, \code{"fft"}, or \code{"size_period"} (see details section for more information on these).
 #' @param repeat_calling_algorithm_size_window_around_allele A numeric value for how big of a window around the tallest peak should be used to find the peak periodicity. Used for both \code{"fft"} and \code{"size_period"}. For \code{"fft"}, you want to make sure that this window is limited to where there are clear peaks. For \code{"size_period"}, it will not make a big difference.
@@ -405,11 +543,11 @@ find_batch_correction_factor <- function(
 #' @return This function modifies list of fragments objects in place with repeats added.
 #'
 #' @details
-#' Repeat lengths are calculated from the bp size with several different alternative algorithm or options. 
+#' Repeat lengths are calculated from the bp size with several different alternative algorithm or options to correct batch effects or accurately determine repeat length. 
 #' 
 #' The `force_whole_repeat_units` option aims to correct for the systematic underestimation in fragment sizes that occurs in capillary electrophoresis. It is independent to the algorithms described below and can be used in conjunction. It modifies repeat lengths in a way that helps align peaks with the underlying repeat pattern, making the repeat lengths whole units (rather than ~0.9 repeats). The calculated repeat lengths start from the main peak's repeat length and increases in increments of the specified `repeat_size` in either direction.
 #' 
-#' `batch_correction` involves using common sample(s) across fragment analysis runs to correct systematic batch effects that occur with repeat-containing amplicons in capillary electrophoresis. There are slight fluctuations of size across runs for amplicons containing repeats that result in systematic differences, so if samples are to be analyzed for different runs, the absolute bp size is not comparable unless this batch effect is corrected. This is only relevant when the absolute size of a amplicons are compared for grouping metrics as described in [assign_index_peaks()] and [add_metadata()] (otherwise instability metrics are all relative and it doesn’t matter that there’s systematic batch effects across runs). This correction can be achieved by running a couple of samples in every fragment analysis run, or having a single run that takes a couple of samples from every run together, thereby linking them. These samples are then indicated in the metadata with `batch_run_id` (to group samples by fragment analysis run) and `batch_sample_id` (to enable linking samples across batches).
+#' `correction` involves using common sample(s) across fragment analysis runs to correct systematic batch effects that occur with repeat-containing amplicons in capillary electrophoresis. There are slight fluctuations of size across runs for amplicons containing repeats that result in systematic differences, so if samples are to be analyzed for different runs, the absolute bp size is not comparable unless this batch effect is corrected. This is only relevant when the absolute size of a amplicons are compared for grouping metrics as described in [assign_index_peaks()] and [add_metadata()] (otherwise instability metrics are all relative and it doesn’t matter that there’s systematic batch effects across runs). This correction can be achieved by running a couple of samples in every fragment analysis run, or having a single run that takes a couple of samples from every run together, thereby linking them. These samples are then indicated in the metadata with `batch_run_id` (to group samples by fragment analysis run) and `batch_sample_id` (to enable linking samples across batches).
 #' 
 #' The `simple` algorithm is just the repeat size calculated directly from bp. The `fft` or `size_period` algorithms both re-call the peaks based on empirically determined (`fft`) or specified (`size_period`) periodicity of the peaks. The main application of these algorithms is to solve the issue of contaminating peaks in the expected regular pattern of peaks. The `fft` approach applies a fourier transform to the peak signal to determine the underlying periodicity of the signal. `size_period` is similar and simpler, where instead of automatically figuring out the periodicity, we as users specify the periodicity (since we usually know the size distance between repeat units). We can use the periodicity to jump between peaks.
 #'
@@ -488,35 +626,35 @@ call_repeats <- function(
     assay_size_without_repeat = 87,
     repeat_size = 3,
     force_whole_repeat_units = FALSE,
-    batch_correction = FALSE,
+    correction = "none",
     repeat_calling_algorithm = "simple",
     repeat_calling_algorithm_size_window_around_allele = repeat_size * 5,
     repeat_calling_algorithm_peak_assignment_scan_window = 3,
     repeat_calling_algorithm_size_period = repeat_size * 0.93) {
-  # Check to see if repeats are to be batch corrected
-  # if so, find correction factor by looking across all samples before drilling down to a per sample level
-  # the size correction then needs to be applied downstream
-  if (batch_correction) {
-    find_batch_correction_factor(
-      fragments_list,
-      assay_size_without_repeat = assay_size_without_repeat,
+  
+  # Check to see if repeats are to be batch corrected or repeat corrected
+  # if so, do that across all samples before drilling down to a per sample level
+  # the batch or repeat correction then needs to be applied downstream
+
+  if (correction == "repeat") {
+    model_repeat_length(
+      fragments_list = fragments_list,
       repeat_size = repeat_size
     )
-
-    # Major issue here is around handling case when you want to correction the size but there not multiple batches
-    # need to figure out what to do about that
-
-
-
+  } else if(correction == "batch"){
+    find_batch_correction_factor(fragments_list)
+  } else if(correction != "none"){
+    stop(call. = FALSE, "Invalid correction type. Select either 'repeat' or 'batch'")
   }
+
   # call repeats for each sample
   added_repeats <- lapply(
     fragments_list,
     function(fragment) {
       ### in this function, we are doing three key things
-      #### 1) correct bp size if required
-      #### 2) calculate repeats by assay_size_without_repeat and repeat size
-      #### 3) use a method to calculate repeats
+      #### 1) use repeat_calling_algorithm to find repeats and generate a new repeat table dataframe
+      #### 2) apply batch correction or repeat correction
+      #### 3) call repeats with or without force whole repeat units
 
       # check to make sure all the required inputs for the function have been given
       if (fragment$.__enclos_env__$private$find_main_peaks_used == FALSE) {
@@ -542,34 +680,17 @@ call_repeats <- function(
           off_scale = logical()
         )
 
-        # still calculate repeat length for the trace-level data if it exists
-        ## this is the same code as below, perhaps too duplicative and needs refactoring
-        if (!is.null(fragment$trace_bp_df)) {
-          if (batch_correction && !is.na(fragment$.__enclos_env__$private$batch_correction_factor)) {
-            trace_bp_size <- fragment$trace_bp_df$size - fragment$.__enclos_env__$private$batch_correction_factor
-          } else{
-            trace_bp_size <- fragment$trace_bp_df$size
-          }
-          fragment$trace_bp_df$calculated_repeats <- (trace_bp_size - assay_size_without_repeat) / repeat_size
-        }
         # exit lapply early 
         return(fragment)
       } 
       # repeat calling algorithm
       if (repeat_calling_algorithm == "simple") {
 
-        if (batch_correction && !is.na(fragment$.__enclos_env__$private$batch_correction_factor)) {
-          peak_table_size <- fragment$peak_table_df$size - fragment$.__enclos_env__$private$batch_correction_factor
-        } else{
-          peak_table_size <- fragment$peak_table_df$size
-        }
-
         repeat_table_df <- data.frame(
           unique_id = fragment$peak_table_df$unique_id,
-          size = fragment$peak_table_df$size, #use the original size so that the correction in the repeat table is only applied to repeats rather than size
+          size = fragment$peak_table_df$size, 
           height = fragment$peak_table_df$height,
-          calculated_repeats = (peak_table_size- assay_size_without_repeat) / repeat_size,
-          repeats = (peak_table_size - assay_size_without_repeat) / repeat_size,
+          calculated_repeats = (fragment$peak_table_df$size- assay_size_without_repeat) / repeat_size,
           off_scale = ifelse(any(colnames(fragment$peak_table_df) == "off_scale"),
           fragment$peak_table_df$off_scale,
             rep(FALSE, nrow(fragment$peak_table_df))
@@ -583,23 +704,17 @@ call_repeats <- function(
           )
         }
 
+        # this function generates a new peak table
         fft_peak_df <- fft_repeat_caller(fragment,
           fragment_window = repeat_calling_algorithm_size_window_around_allele,
           scan_peak_window = repeat_calling_algorithm_peak_assignment_scan_window
         )
 
-        if (batch_correction && !is.na(fragment$.__enclos_env__$private$batch_correction_factor)) {
-          fft_peak_size <- fft_peak_df$size - fragment$.__enclos_env__$private$batch_correction_factor
-        } else{
-          fft_peak_size <- fft_peak_df$size
-        }
-
         repeat_table_df <- data.frame(
           unique_id = fft_peak_df$unique_id,
-          size = fft_peak_df$size, #use the original size so that the correction in the repeat table is only applied to repeats rather than size
+          size = fft_peak_df$size, 
           height = fft_peak_df$signal,
-          calculated_repeats = (fft_peak_size - assay_size_without_repeat) / repeat_size,
-          repeats = (fft_peak_size - assay_size_without_repeat) / repeat_size,
+          calculated_repeats = (fft_peak_df$size - assay_size_without_repeat) / repeat_size,
           off_scale = fft_peak_df$off_scale
         )
       } else if (repeat_calling_algorithm == "size_period") {
@@ -615,19 +730,11 @@ call_repeats <- function(
           fragment_window = repeat_calling_algorithm_size_window_around_allele,
           scan_peak_window = repeat_calling_algorithm_peak_assignment_scan_window
         )
-
-        if (batch_correction && !is.na(fragment$.__enclos_env__$private$batch_correction_factor)) {
-          size_period_size <- size_period_df$size - fragment$.__enclos_env__$private$batch_correction_factor
-        } else{
-          size_period_size <- size_period_df$size
-        }
-
         repeat_table_df <- data.frame(
           unique_id = size_period_df$unique_id,
           size = size_period_df$size, #use the original size so that the correction in the repeat table is only applied to repeats rather than size
           height = size_period_df$signal,
-          calculated_repeats = (size_period_size - assay_size_without_repeat) / repeat_size,
-          repeats = (size_period_size - assay_size_without_repeat) / repeat_size,
+          calculated_repeats = (size_period_df$size - assay_size_without_repeat) / repeat_size,
           off_scale = size_period_df$off_scale
         )
       } else {
@@ -637,34 +744,72 @@ call_repeats <- function(
         )
       }
 
-      # Force the repeat units to be whole numbers
-      if (force_whole_repeat_units == TRUE) {
+      if(correction == "batch"){
+        # re-calculate calculated_repeats repeats but now including batch correction
+        repeat_table_df$calculated_repeats <- (repeat_table_df$size - assay_size_without_repeat - fragment$.__enclos_env__$private$batch_correction_factor) / repeat_size
+      } else if(correction == "repeat"){
+        # Predicted modal repeat size and calculate a repeat correction factor
+        repeat_table_df$batch_run_id <- rep(fragment$batch_run_id, nrow(repeat_table_df))
+        modal_row_df <- repeat_table_df[which(repeat_table_df$size == fragment$get_allele_peak()$allele_size), ]
+        predicted_modal_repeat <- stats::predict.lm(
+          fragment$.__enclos_env__$private$repeat_correction_mod, 
+          modal_row_df
+        )
+        fragment$.__enclos_env__$private$repeat_correction_factor <- predicted_modal_repeat - modal_row_df$calculated_repeats
+
+        # apply correction factor to all calculated repeats
+        repeat_table_df$calculated_repeats  <- repeat_table_df$calculated_repeats + fragment$.__enclos_env__$private$repeat_correction_factor         
+      }
+
+      # Finally call repeats with or without forcing whole repeat units
+      if (force_whole_repeat_units) {
         repeat_table_df$repeats <- np_repeat(
           size = repeat_table_df$size,
           main_peak_size = fragment$get_allele_peak()$allele_size,
           main_peak_repeat = repeat_table_df$calculated_repeats[which(repeat_table_df$size == fragment$get_allele_peak()$allele_size)],
           repeat_size = repeat_size
         )
+      } else{
+        repeat_table_df$repeats <- repeat_table_df$calculated_repeats
       }
 
       # Finally save main peak repeat length and repeats data
       fragment$repeat_table_df <- repeat_table_df
       allele_subset <- repeat_table_df$repeats[which(repeat_table_df$size == fragment$get_allele_peak()$allele_size)]
-      fragment$set_allele_peak(unit = "repeats", value = ifelse(length(allele_subset) == 1, allele_subset, NA_real_))
-
-      # also calculate repeat length for the trace-level data if it exists
-      if (!is.null(fragment$trace_bp_df)) {
-        if (batch_correction && !is.na(fragment$.__enclos_env__$private$batch_correction_factor)) {
-          trace_bp_size <- fragment$trace_bp_df$size - fragment$.__enclos_env__$private$batch_correction_factor
-        } else{
-          trace_bp_size <- fragment$trace_bp_df$size
-        }
-        fragment$trace_bp_df$calculated_repeats <- (trace_bp_size - assay_size_without_repeat) / repeat_size
-      }
+      fragment$set_allele_peak(unit = "repeats", value = allele_subset)
 
       return(fragment)
     }
   )
+
+
+  # need to go over samples and apply repeat to all traces if it exists
+  if(correction == "repeat"){
+    # need to figure out correction factor for samples that repeat lengths were not called because no alleles
+    repeat_correction_list <- lapply(fragments_list, function(x){
+      data.frame(batch_run_id = x$batch_run_id, repeat_correction_factor = x$.__enclos_env__$private$repeat_correction_factor)
+    })
+    repeat_correction_df <- do.call(rbind, repeat_correction_list)
+    repeat_correction_factor_by_batch <- lapply(
+      split(repeat_correction_df, repeat_correction_df$batch_run_id), 
+      function(x) median(x$repeat_correction_factor, na.rm = TRUE)
+    )
+    for (i in seq_along(fragments_list)) {
+      if(is.na(fragments_list[[i]]$.__enclos_env__$private$repeat_correction_factor)){
+        fragments_list[[i]]$.__enclos_env__$private$repeat_correction_factor <- repeat_correction_factor_by_batch[[fragments_list[[i]]$batch_run_id]]
+      }
+      fragments_list[[i]]$trace_bp_df$calculated_repeats <- (fragments_list[[i]]$trace_bp_df$size - assay_size_without_repeat) / repeat_size
+      fragments_list[[i]]$trace_bp_df$calculated_repeats <- fragments_list[[i]]$trace_bp_df$calculated_repeats + fragments_list[[i]]$.__enclos_env__$private$repeat_correction_factor 
+    }
+  } else if(correction == "batch"){
+    for (i in seq_along(fragments_list)) {
+      fragments_list[[i]]$trace_bp_df$calculated_repeats <- (fragments_list[[i]]$trace_bp_df$size - assay_size_without_repeat - fragments_list[[i]]$.__enclos_env__$private$batch_correction_factor) / repeat_size
+    }
+  } else{
+    for (i in seq_along(fragments_list)) {
+      fragments_list[[i]]$trace_bp_df$calculated_repeats <- (fragments_list[[i]]$trace_bp_df$size - assay_size_without_repeat) / repeat_size
+    }
+  }
 
   # loop over samples to give appropriate warnings about certain events
   repeats_not_called_reason <- sapply(fragments_list, function(x) x$.__enclos_env__$private$repeats_not_called_reason)

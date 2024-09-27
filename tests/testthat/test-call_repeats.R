@@ -376,7 +376,7 @@ testthat::test_that("size standards with ids", {
   find_alleles(fragments_list)
   suppressWarnings(
     call_repeats(fragments_list,
-      batch_correction = TRUE)
+      correction = "batch")
     )
 
   testthat::expect_true(all.equal(c(seq(-4.5, 4.5, 1), seq(-4.5, 4.5, 1)), as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor))))
@@ -403,7 +403,7 @@ testthat::test_that("batch correction", {
   find_alleles(fragments_list)
   suppressWarnings(
    call_repeats(fragments_list,
-      batch_correction = TRUE)
+      correction = "batch")
     )
 
   testthat::expect_true(all.equal(c(rep(0.78526, 92), rep(-0.78526, 2)), round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)))
@@ -444,7 +444,7 @@ testthat::test_that("batch correction with no data in one batch", {
   suppressMessages(
     tryCatch({
       call_repeats(fragments_list,
-        batch_correction = TRUE)
+        correction = "batch")
     },
       warning = function(w){
         assignment_warning <<- w
@@ -487,7 +487,7 @@ testthat::test_that("batch correction with a single sample id", {
   
 
   find_alleles(fragments_list)
-  suppressWarnings(call_repeats(fragments_list, batch_correction = TRUE))
+  suppressWarnings(call_repeats(fragments_list, correction = "batch"))
   
   
   # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(100, 120))
@@ -499,7 +499,7 @@ testthat::test_that("batch correction with a single sample id", {
 })
 
 
-testthat::test_that("batch correction with validated repeat lengths", {
+testthat::test_that("repeat correction", {
 
   fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
   find_ladders(fsa_list,
@@ -512,15 +512,15 @@ testthat::test_that("batch correction with validated repeat lengths", {
   
   for (i in seq_along(fragments_list)) {
     if(!is.na(fragments_list[[i]]$batch_sample_id) && fragments_list[[i]]$batch_sample_id == "S-21-211" ){
-      fragments_list[[i]]$batch_sample_repeat_length <- 120
+      fragments_list[[i]]$batch_sample_modal_repeat_length <- 120
     } else if(!is.na(fragments_list[[i]]$batch_sample_id) && fragments_list[[i]]$batch_sample_id == "S-21-212" ){
-      fragments_list[[i]]$batch_sample_repeat_length <- 122
+      fragments_list[[i]]$batch_sample_modal_repeat_length <- 122
     }
   }
   
   find_alleles(fragments_list)
   call_repeats(fragments_list,
-    batch_correction = TRUE)
+    correction = "repeat")
   
     sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)
 
