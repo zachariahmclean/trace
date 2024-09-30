@@ -24,8 +24,8 @@ fragments <- R6::R6Class("fragments",
     #' @field batch_sample_id An id for the sample used as size standard for repeat calculation. Associated with `add_metadata()`.
     batch_sample_id = NA_character_,
 
-    #' @field batch_sample_modal_repeat_length Validated repeat length for the modal repeat repeat in that sample. Associated with `add_metadata()`.
-    batch_sample_modal_repeat_length = NA_real_,
+    #' @field batch_sample_modal_repeat Validated repeat length for the modal repeat repeat in that sample. Associated with `add_metadata()`.
+    batch_sample_modal_repeat = NA_real_,
 
     #' @description
     #' initialization function that is not used since the child classes are the main object of this package.
@@ -38,7 +38,7 @@ fragments <- R6::R6Class("fragments",
     #' A function to print informative information to the console
     print = function() {
       print_helper(self,
-        sample_attrs = c("unique_id",  "metrics_group_id", "metrics_baseline_control","batch_run_id", "batch_sample_id")
+        sample_attrs = c("unique_id",  "metrics_group_id", "metrics_baseline_control","batch_run_id", "batch_sample_id", "batch_sample_modal_repeat")
       )
     },
     #' @description

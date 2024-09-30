@@ -14,12 +14,14 @@ knitr::opts_chunk$set(
 # Tandem Repeat Analysis from Capillary Electrophoresis (trace)
 
 <!-- badges: start -->
+
 [![R-CMD-check](https://github.com/zachariahmclean/trace/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/zachariahmclean/trace/actions/workflows/R-CMD-check.yaml)
+
 <!-- badges: end -->
 
 This package provides a pipeline for short tandem repeat instability analysis from fragment analysis data. The inputs are fsa files or peak tables (e.g. Genemapper 5 software peak table output), and a user supplied metadata data-frame. The functions identify ladders, calls peaks, and calculate repeat instability metrics (i.e. expansion index or average repeat gain).
 
-This code is not intended to function as a genotyping tool in its current form. While the repeat lengths generated are precise, they are not accurate. The conversion from bp size to repeat length underestimates the actual repeat length because amplicons containing repeats do not run linearly with the internal size standard ladder. However, for calculating instability metrics, this inaccuracy is inconsequential since these metrics are relative measures.
+This code is not for clinical use or accurate repeat genotyping. There are features for accurate repeat sizing if you use validated control samples, but whole repeat units are never returned.
 
 To report bugs or feature requests, please visit the Github issue tracker [here](https://github.com/zachariahmclean/trace/issues). For assistance or any other inquires, contact [Zach McLean](mailto:zmclean@mgh.harvard.edu?subject=%5BGitHub%5D%20trace).
 
@@ -29,7 +31,7 @@ If you use this package, please cite [this](https://www.nature.com/articles/s414
 
 For an easy way to get started with your own data or to run an example, use `trace::generate_trace_template()` to generate a document with the pipeline pre-populated.
 
-In this package, each sample is represented by an R6 'fragments' object, which are organized in lists. Functions in the package iterate over these lists, so you usually don't need to interact with the objects directly. If you do, the attributes of the objects can be accessed with \$, and note that most functions modify the objects in place, so re-assignment isn't necessary. The only exception to that `find_fragments`, which transitions to a new object since the class structure changes.
+In this package, each sample is represented by an R6 'fragments' object, which are organized in lists. Functions in the package iterate over these lists, so you usually don't need to interact with the objects directly. If you do, the attributes of the objects can be accessed with \$, and note that most functions modify the objects in place, so re-assignment isn't necessary. The only exception to that `find_fragments()`, which transitions to a new object since the class structure changes.
 
 There are several important factors to a successful repeat instability experiment and things to consider when using this package:
 
@@ -37,7 +39,11 @@ There are several important factors to a successful repeat instability experimen
 
 -   (optional) Baseline control for your experiment. For example, specifying a sample where the modal allele is the inherited repeat length (eg a mouse tail sample) or a sample at the start of a time-course experiment. This is indicated with a `TRUE` in the `metrics_baseline_control` column of the metadata. Samples are then grouped together with the `metrics_group_id` column of the metadata. Multiple samples can be `metrics_baseline_control`, which can be helpful for the average repeat gain metric to have a more accurate representation of the average repeat at the start of the experiment.
 
--   (optional) Using common sample(s) across fragment analysis runs to correct systematic batch effects that occur with repeat-containing amplicons in capillary electrophoresis. There are slight fluctuations of size across runs for amplicons containing repeats that result in systematic differences around 1-3 base pairs. So, if samples are to be analyzed for different runs, the absolute bp size is not comparable unless this batch effect is corrected. This is only relevant when the absolute size of a amplicons are compared for grouping metrics as described above (otherwise instability metrics are all relative and it doesn't matter that there's systematic batch effects across runs) or when plotting traces from different runs. This correction can be achieved by running a couple of samples in every fragment analysis run, or having a single run that takes a couple of samples from every run together, thereby linking them. These samples are then indicated in the metadata with `batch_run_id` (to group samples by fragment analysis run) and `batch_sample_id` (to enable linking samples across batches).
+-   (optional) Batch or repeat length correction for systematic batch effects that occur with repeat-containing amplicons in capillary electrophoresis.
+
+    -   Repeat containing amplicons do not run linearly with internal ladder sizes in capillary electrophoresis resulting is an underestimation of repeat length if you just convert from base-pair size. Furthermore, these differences are not always consistent across runs which can result in batch effects in the repeat size. So, if the repeat length is to be directly compared for samples from different runs, this batch effect needs to be corrected. This is only relevant when the absolute size of a amplicons are compared for grouping metrics as described above (otherwise instability metrics are all relative and it doesn't matter that there's systematic batch effects across runs), when plotting traces from different runs, or if an accurate repeat length is desired.
+
+    -   There are two main correction approaches that are somewhat related: either 'batch' or 'repeat' in `call_repeats()`. Batch correction is relatively simple and just requires you to link samples across batches by indicating them from metadata. However, even though the repeat size that is return will be precise, it will not be accurate and underestimates the real repeat length. By contrast, repeat correction can be used to accurately call repeat lengths (which also corrects the batch effects). However, the repeat correction will only be as good as your sample(s) used to call the repeat length, so this can a challenging and advanced feature. You need to use a sample that reliably returns the same peak as the modal peak, or you need to be willing to understand the shape of the distribution and manually validate the repeat length of each control sample for each run.
 
 -   If starting from fsa files, the GeneScan™ 1200 LIZ™ dye Size Standard ladder assignment may not work very well. The ladder identification algorithm is optimized for GeneScan™ 500 LIZ™ or GeneScan™ 600 LIZ™ or other ladders with relatively few peaks. The 1200 LIZ™ ladder has a challenging pattern of ladder peaks to automatically assign. However, these ladders can be fixed by playing with the various parameters or manually with the built-in fix_ladders_interactive() app.
 
@@ -117,15 +123,16 @@ fragments_list_genemapper <- peak_table_to_fragments(example_data,
 
 # Add metadata
 
-Metadata can be incorporated to allow additional functionality in `call_repeats()` (correcting batch effects across fragment analysis runs) and `assign_index_peaks()` (assigning index peak from another sample). Prepare a file (eg spreadsheet saved as .csv) with the following columns. If you use the specified column names, it will be automatically parsed by `add_metadata()`, otherwise you will need to match up which column name belongs to which metadata category (as done below in `add_metadata()`):
+Metadata can be incorporated to allow additional functionality in `call_repeats()` (batch or repeat correction) and `assign_index_peaks()` (assigning index peak from another sample). Prepare a file (eg spreadsheet saved as .csv) with the following columns. If you use the specified column names, it will be automatically parsed by `add_metadata()`, otherwise you will need to match up which column name belongs to which metadata category (as done below in `add_metadata()`):
 
-| Metadata table column    | Functionality metadata is associated with                   | Description                                                                                                                                                                                                                                                                                                     |
+| Metadata table column     | Functionality metadata is associated with                           | Description                                                                                                                                                                                                                                                                                                     |
 |---------------------|------------------|---------------------------------|
-| unique_id                | Required for adding metadata using `add_metadata()`          | The unique identifier for the fsa file. Usually the sample file name. This must be unique, including across runs.                                                                                                                                                                                               |
-| metrics_group_id         | `assign_index_peaks()`, allows setting `grouped`            | This groups the samples for instability metric calculations. Provide a group id value for each sample. For example, in a mouse experiment and using the expansion index, you need to group the samples since they have the same metrics baseline control (eg inherited repeat length), so provide the mouse id. |
-| metrics_baseline_control | `assign_index_peaks()`, allows setting `grouped`            | This is related to metrics_group_id. Indicate with ‘TRUE’ to specify which sample is the baseline control (eg mouse tail for inherited repeat length, or day-zero sample in cell line experiments)                                                                                                              |
-| batch_run_id             | `call_repeats()`, allows setting `batch_correction` | This groups the samples by batch. Provide a value for each fragment analysis run (eg date).                                                                                                                                                                                                                     |
-| batch_sample_id          | `call_repeats()`, allows setting `batch_correction` | This groups the samples across batches. Give a unique sample id to each different sample.                                                                                                                                                                                                                       |
+| unique_id                 | Required for adding metadata using `add_metadata()`                 | The unique identifier for the fsa file. Usually the sample file name. This must be unique, including across runs.                                                                                                                                                                                               |
+| metrics_group_id          | `assign_index_peaks()`, allows setting `grouped`                    | This groups the samples for instability metric calculations. Provide a group id value for each sample. For example, in a mouse experiment and using the expansion index, you need to group the samples since they have the same metrics baseline control (eg inherited repeat length), so provide the mouse id. |
+| metrics_baseline_control  | `assign_index_peaks()`, allows setting `grouped`                    | This is related to metrics_group_id. Indicate with ‘TRUE’ to specify which sample is the baseline control (eg mouse tail for inherited repeat length, or day-zero sample in cell line experiments)                                                                                                              |
+| batch_run_id              | `call_repeats()`, allows setting `correction` = "batch" or "repeat" | This groups the samples by batch. Provide a value for each fragment analysis run (eg date).                                                                                                                                                                                                                     |
+| batch_sample_id           | `call_repeats()`, allows setting `correction` = "batch" or "repeat" | This groups the samples across batches. Give a unique sample id to each different sample.                                                                                                                                                                                                                       |
+| batch_sample_modal_repeat | `call_repeats()`, allows setting `correction` = "repeat"            | The validated modal repeat length for the particular `batch_sample_id` sample used to accurately call repeat length.                                                                                                                                                                                            |
 
 ```{r add_metadata}
 
@@ -136,13 +143,14 @@ add_metadata(
   metrics_group_id = "metrics_group_id",
   metrics_baseline_control = "metrics_baseline_control",
   batch_run_id = "batch_run_id",
-  batch_sample_id = "batch_sample_id"
+  batch_sample_id = "batch_sample_id",
+  batch_sample_modal_repeat = "batch_sample_modal_repeat"
 )
 ```
 
 # Identify modal peaks and call repeats
 
-Next we identify the modal peaks with `find_alleles()` and convert the base pair fragments to repeats with `call_repeats(`).
+Next we identify the modal peaks with `find_alleles()` and convert the base pair fragments to repeats with `call_repeats()`.
 
 ```{r find_alleles_and_repeats, warning=FALSE, message=FALSE}
 find_alleles(fragments_list)

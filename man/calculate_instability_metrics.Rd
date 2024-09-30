@@ -108,7 +108,7 @@ find_alleles(
 
 call_repeats(
   fragments_list = test_fragments,
-  repeat_calling_algorithm = "simple",
+  repeat_calling_algorithm = "none",
   assay_size_without_repeat = 87,
   repeat_size = 3
 )

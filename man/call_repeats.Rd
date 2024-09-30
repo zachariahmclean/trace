@@ -9,8 +9,8 @@ call_repeats(
   assay_size_without_repeat = 87,
   repeat_size = 3,
   force_whole_repeat_units = FALSE,
-  batch_correction = FALSE,
-  repeat_calling_algorithm = "simple",
+  correction = "none",
+  repeat_calling_algorithm = "none",
   repeat_calling_algorithm_size_window_around_allele = repeat_size * 5,
   repeat_calling_algorithm_peak_assignment_scan_window = 3,
   repeat_calling_algorithm_size_period = repeat_size * 0.93
@@ -25,15 +25,17 @@ call_repeats(
 
 \item{force_whole_repeat_units}{A logical value specifying if the peaks should be forced to be whole repeat units apart. Usually the peaks are slightly under the whole repeat unit if left unchanged.}
 
-\item{batch_correction}{A logical specifying if the size should be adjusted across fragment analysis runs. Requires metadata to be added to specify samples (\code{"batch_sample_id"}) common across runs (\code{"batch_run_id"})(see \code{\link[=add_metadata]{add_metadata()}}).}
+\item{correction}{A character vector of either "batch" to carry out a batch correction from common samples across runs (known repeat length not required), or "repeat" to use samples with validated modal repeat lengths to correct the repeat length. Requires metadata to be added (see \code{\link[=add_metadata]{add_metadata()}}) with both "batch" and "repeat" requiring \code{"batch_run_id"}, "batch" requiring (\code{"batch_sample_id"}) and "repeat" requiring \code{"batch_sample_modal_repeat"} (but also benefits from having \code{"batch_sample_id"}).}
 
-\item{repeat_calling_algorithm}{A character specifying the repeat calling algorithm. Options: \code{"simple"}, \code{"fft"}, or \code{"size_period"} (see details section for more information on these).}
+\item{repeat_calling_algorithm}{A character specifying the repeat calling algorithm. Options: \code{"none"}, \code{"fft"}, or \code{"size_period"} (see details section for more information on these).}
 
 \item{repeat_calling_algorithm_size_window_around_allele}{A numeric value for how big of a window around the tallest peak should be used to find the peak periodicity. Used for both \code{"fft"} and \code{"size_period"}. For \code{"fft"}, you want to make sure that this window is limited to where there are clear peaks. For \code{"size_period"}, it will not make a big difference.}
 
 \item{repeat_calling_algorithm_peak_assignment_scan_window}{A numeric value for the scan window when assigning the peak. This is used for both \code{"fft"} and \code{"size_period"}. When the scan period is determined, the algorithm jumps to the predicted scan for the next peak. This value opens a window of the neighboring scans to pick the tallest in.}
 
 \item{repeat_calling_algorithm_size_period}{A numeric value \code{"size_period"} algorithm to set the peak periodicity by bp size. This is the key variable to change for \code{"size_period"}. In fragment analysis, the peaks are usually slightly below the actual repeat unit size.}
+
+\item{batch_correction}{A logical specifying if the size should be adjusted across fragment analysis runs. Requires metadata to be added to specify samples (\code{"batch_sample_id"}) common across runs (\code{"batch_run_id"})(see \code{\link[=add_metadata]{add_metadata()}}).}
 }
 \value{
 This function modifies list of fragments objects in place with repeats added.
@@ -42,13 +44,23 @@ This function modifies list of fragments objects in place with repeats added.
 This function calls the repeat lengths for a list of fragments.
 }
 \details{
-Repeat lengths are calculated from the bp size with several different alternative algorithm or options.
+This function has a lot of different options features for determining the repeat length of your samples. This includes i) an option to force the peaks to be whole repeat units apart, ii) corrections to correct batch effects or accurately call repeat length by comparing to samples of known length, and iii) algorithms or re-calling the peaks to remove any contaminating peaks or shoulder-peaks.
 
-The \code{force_whole_repeat_units} option aims to correct for the systematic underestimation in fragment sizes that occurs in capillary electrophoresis. It is independent to the algorithms described below and can be used in conjunction. It modifies repeat lengths in a way that helps align peaks with the underlying repeat pattern, making the repeat lengths whole units (rather than ~0.9 repeats). The calculated repeat lengths start from the main peak's repeat length and increases in increments of the specified \code{repeat_size} in either direction.
+--- force_whole_repeat_units ---
 
-\code{batch_correction} involves using common sample(s) across fragment analysis runs to correct systematic batch effects that occur with repeat-containing amplicons in capillary electrophoresis. There are slight fluctuations of size across runs for amplicons containing repeats that result in systematic differences, so if samples are to be analyzed for different runs, the absolute bp size is not comparable unless this batch effect is corrected. This is only relevant when the absolute size of a amplicons are compared for grouping metrics as described in \code{\link[=assign_index_peaks]{assign_index_peaks()}} and \code{\link[=add_metadata]{add_metadata()}} (otherwise instability metrics are all relative and it doesn’t matter that there’s systematic batch effects across runs). This correction can be achieved by running a couple of samples in every fragment analysis run, or having a single run that takes a couple of samples from every run together, thereby linking them. These samples are then indicated in the metadata with \code{batch_run_id} (to group samples by fragment analysis run) and \code{batch_sample_id} (to enable linking samples across batches).
+The \code{force_whole_repeat_units} option aims to correct for the systematic underestimation in fragment sizes that occurs in capillary electrophoresis. It is independent to the algorithms described above and can be used in conjunction. It modifies repeat lengths in a way that helps align peaks with the underlying repeat pattern, making the repeat lengths whole units (rather than ~0.9 repeats). The calculated repeat lengths start from the main peak's repeat length and increases in increments of the specified \code{repeat_size} in either direction. This option basically enables you to get exactly the same result as expansion_index values calculated from data from Genemapper.
 
-The \code{simple} algorithm is just the repeat size calculated directly from bp. The \code{fft} or \code{size_period} algorithms both re-call the peaks based on empirically determined (\code{fft}) or specified (\code{size_period}) periodicity of the peaks. The main application of these algorithms is to solve the issue of contaminating peaks in the expected regular pattern of peaks. The \code{fft} approach applies a fourier transform to the peak signal to determine the underlying periodicity of the signal. \code{size_period} is similar and simpler, where instead of automatically figuring out the periodicity, we as users specify the periodicity (since we usually know the size distance between repeat units). We can use the periodicity to jump between peaks.
+--- correction ---
+
+There are two main correction approaches that are somewhat related: either 'batch' or 'repeat'. Batch correction is relatively simple and just requires you to link samples across batches to correct batch-batch variation in repeat sizes. However, even though the repeat size that is return will be precise, it will not be accurate and underestimates the real repeat length. By contrast, repeat correction can be used to accurately call repeat lengths (which also corrects the batch effects). However, the repeat correction will only be as good as your sample used to call the repeat length so this is a challenging and advanced feature. You need to use a sample that reliably returns the same peak as the modal peak, or you need to be willing to understand the shape of the distribution and manually validate the repeat length of each batch_sample_id for each run.
+
+Batch correction uses common sample(s) across fragment analysis runs to correct systematic batch effects that occur with repeat-containing amplicons in capillary electrophoresis. There are slight fluctuations of size across runs for amplicons containing repeats that result in systematic differences around 1-3 base pairs. So, if samples are to be analyzed for different runs, the absolute bp size is not comparable unless this batch effect is corrected. This is only relevant when the absolute size of a amplicons are compared for grouping metrics as described above (otherwise instability metrics are all relative and it doesn’t matter that there’s systematic batch effects across runs) or when plotting traces from different runs. This correction can be achieved by running a couple of samples in every fragment analysis run, or having a single run that takes a couple of samples from every run together, thereby linking them. These samples are then indicated in the metadata with batch_run_id (to group samples by fragment analysis run) and batch_sample_id (to enable linking samples across batches) (see \code{\link[=add_metadata]{add_metadata()}}).
+
+Samples with known and validated repeat size can be used to accurately call the repeat length (and therefore also correct batch effects). Similar to batch correction, batch_run_id (to group samples by fragment analysis run) and batch_sample_id (to enable linking samples across batches) are used, but importantly batch_sample_modal_repeat is also set (see \code{\link[=add_metadata]{add_metadata()}}). The batch_sample_modal_repeat is the validated repeat length of the modal repeat of the sample. This validated repeat length is then used to call the repeat length of the modal repeat for each sample (by each batch_run_id). Importantly, this correction requires you to know with confidence the repeat length of the modal peak of the sample. Therefore it's important that the sample used for repeat correction has a clear and prominent modal peak. If the repeat length is very long, it's common for the modal peak of a sample to change so if you use this feature you're going to have to understand the shape of the distribution of your sample and double check that the correct peak has been called as the modal peak after you have used \code{\link[=find_alleles]{find_alleles()}}. If a different peak is selected as the modal peak than usual, you need to go back to the metadata and adjust the repeat size of the size standard (For example, your size standard sample has been validated to have 120 repeats. You run \code{\link[=find_alelles]{find_alelles()}} and look at the distribution of peaks and notice that the peak one repeat unit higher is the modal peak this time. Therefore, you're going to need to set the batch_sample_modal_repeat as 121 in the metadata just for that batch_run_id. In the other runs you would keep the batch_sample_modal_repeat as 120.).
+
+--- repeat_calling_algorithm ---
+
+The \code{fft} or \code{size_period} algorithms both re-call the peaks based on empirically determined (\code{fft}) or specified (\code{size_period}) periodicity of the peaks. The main application of these algorithms is to solve the issue of contaminating peaks in the expected regular pattern of peaks. The \code{fft} approach applies a fourier transform to the peak signal to determine the underlying periodicity of the signal. \code{size_period} is similar and simpler, where instead of automatically figuring out the periodicity, we as users specify the periodicity (since we usually know the size distance between repeat units). We can use the periodicity to jump between peaks.
 }
 \examples{
 
@@ -61,20 +73,51 @@ fragments_list <- find_fragments(
   min_bp_size = 300
 )
 
-find_alleles(
-  fragments_list
-)
+find_alleles(fragments_list)
+
+add_metadata(fragments_list)
 
 # Simple conversion from bp size to repeat size
 call_repeats(
   fragments_list,
-  repeat_calling_algorithm = "simple",
   assay_size_without_repeat = 87,
   repeat_size = 3
 )
 
 plot_traces(fragments_list[1], xlim = c(120, 170))
 
+# Use force_whole_repeat_units algorithm to make sure called
+# repeats are the exact number of bp apart
+
+call_repeats(
+  fragments_list,
+  force_whole_repeat_units = TRUE,
+  assay_size_without_repeat = 87,
+  repeat_size = 3
+)
+
+plot_traces(fragments_list[1], xlim = c(120, 170))
+
+
+# apply batch correction
+call_repeats(
+  fragments_list,
+  correction = "batch",
+  assay_size_without_repeat = 87,
+  repeat_size = 3
+)
+
+plot_traces(fragments_list[1], xlim = c(120, 170))
+
+# apply repeat correction
+call_repeats(
+  fragments_list,
+  correction = "repeat",
+  assay_size_without_repeat = 87,
+  repeat_size = 3
+)
+
+plot_traces(fragments_list[1], xlim = c(120, 170))
 
 # use different algorithms to call the repeats to ensure only periodic peaks are called
 
@@ -98,20 +141,6 @@ call_repeats(
 )
 
 plot_traces(fragments_list[1], xlim = c(120, 170))
-
-
-# Use force_whole_repeat_units algorithm to make sure called
-# repeats are the exact number of bp apart
-
-call_repeats(
-  fragments_list,
-  force_whole_repeat_units = TRUE,
-  assay_size_without_repeat = 87,
-  repeat_size = 3
-)
-
-plot_traces(fragments_list[1], xlim = c(120, 170))
-
 
 }
 \seealso{
