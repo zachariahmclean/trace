@@ -1,5 +1,5 @@
 testthat::test_that("find_fragments", {
-  # simple option:
+  # none option:
 
   fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
   fsa_list <- fsa_list["20230413_B03.fsa"]

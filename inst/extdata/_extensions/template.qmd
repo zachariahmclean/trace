@@ -147,7 +147,7 @@ call_repeats(
   force_whole_repeat_units = TRUE,
   batch_correction = TRUE,
   # advanced parameters for fine tuning
-  repeat_calling_algorithm = "simple",
+  repeat_calling_algorithm = "none",
   repeat_calling_algorithm_size_window_around_allele = repeat_size * 5,
   repeat_calling_algorithm_peak_assignment_scan_window = 3,
   repeat_calling_algorithm_size_period = repeat_size * 0.93

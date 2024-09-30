@@ -21,6 +21,8 @@ This is the parent class of both fragments_trace and fragments_repeats object. T
 \item{\code{batch_run_id}}{fragment analysis run. Associated with \code{add_metadata()}.}
 
 \item{\code{batch_sample_id}}{An id for the sample used as size standard for repeat calculation. Associated with \code{add_metadata()}.}
+
+\item{\code{batch_sample_modal_repeat}}{Validated repeat length for the modal repeat repeat in that sample. Associated with \code{add_metadata()}.}
 }
 \if{html}{\out{</div>}}
 }

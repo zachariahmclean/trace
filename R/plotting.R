@@ -472,7 +472,7 @@ plot_fragments <- function(
 #'
 #' call_repeats(
 #'   fragments_list = fragments_list,
-#'   repeat_calling_algorithm = "simple",
+#'   repeat_calling_algorithm = "none",
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3,
 #'   batch_correction = TRUE
@@ -493,11 +493,11 @@ plot_batch_correction_samples <- function(
   
 if(all(sapply(fragments_list, function(x) is.null(x$repeat_table_df)))){
   warning(call. = FALSE,
-    "Repeats not detected. Only samples before correction values will be plotted. Use call_repeats(batch_correction = TRUE) to see the effect of batch correction on selected sample."
+    "Repeats not detected. Only samples before correction values will be plotted. Use call_repeats(correction = 'batch') or call_repeats(correction = 'repeat') to see the effect of batch correction on selected sample."
   )
-} else if(!any(sapply(fragments_list, function(x) !is.na(x$.__enclos_env__$private$batch_correction_factor)))){
+} else if(!any(sapply(fragments_list, function(x) !is.na(x$.__enclos_env__$private$batch_correction_factor))) & !any(sapply(fragments_list, function(x) !is.na(x$.__enclos_env__$private$repeat_correction_factor)))){
   warning(call. = FALSE,
-    "Batch correction not detected. Only samples before correction values will be plotted. Use call_repeats(batch_correction = TRUE) to see the effect of batch correction on selected sample."
+    "Batch or repeat correction not detected. Only samples before correction values will be plotted. Use call_repeats(correction = 'batch') or call_repeats(correction = 'repeat') to see the effect of batch correction on selected sample."
   )
 }
   
@@ -614,7 +614,7 @@ overlapping_plot(controls_fragments_list, before_or_after_correction = "before")
 recorded_plots[[1]] <- grDevices::recordPlot()
   
 #after correction plot
-if(!all(sapply(controls_fragments_list, function(x) is.null(x$repeat_table_df))) && any(sapply(controls_fragments_list, function(x) !is.na(x$.__enclos_env__$private$batch_correction_factor)))){
+if(!all(sapply(controls_fragments_list, function(x) is.null(x$repeat_table_df))) && any(sapply(controls_fragments_list, function(x) !is.na(x$.__enclos_env__$private$batch_correction_factor))) | any(sapply(controls_fragments_list, function(x) !is.na(x$.__enclos_env__$private$repeat_correction_factor)))){
   overlapping_plot(controls_fragments_list, before_or_after_correction = "after")
   recorded_plots[[2]] <- grDevices::recordPlot()
 } else{
@@ -674,4 +674,110 @@ plot_data_channels <- function(
   graphics::par(mfrow = c(1, 1)) # Reset the layout
 }
 
+
+
+#' Plot Repeat Correction Model
+#'
+#' Plots the results of the repeat correction model for a list of fragments.
+#'
+#' @param fragments_list A list of fragments_repeats class objects obtained from the 'call_repeats' function when the 'repeat_length_correction' was either 'from_metadata' or 'from_genemapper'.
+#'
+#' @return A base R graphic object displaying the repeat correction model results.
+#' @export
+#'
+#' @examples
+#'
+#'
+#' gm_raw <- instability::example_data
+#' metadata <- instability::metadata
+#'
+#' test_fragments <- peak_table_to_fragments(
+#'   gm_raw,
+#'   data_format = "genemapper5",
+#'   dye_channel = "B"
+#' )
+#'
+#' test_alleles <- find_alleles(
+#'   fragments_list = test_fragments,
+#'   number_of_peaks_to_return = 2,
+#'   peak_region_size_gap_threshold = 6,
+#'   peak_region_height_threshold_multiplier = 1
+#' )
+#'
+#' test_metadata <- add_metadata(
+#'   fragments_list = test_alleles,
+#'   metadata_data.frame = metadata
+#' )
+#'
+#' test_repeats_corrected <- call_repeats(
+#'   fragments_list = test_metadata,
+#'   repeat_calling_algorithm = "none",
+#'   assay_size_without_repeat = 87,
+#'   repeat_size = 3,
+#'   repeat_length_correction = "from_metadata"
+#' )
+#'
+#' plot_repeat_correction_model(test_repeats_corrected)
+#'
+plot_repeat_correction_model <- function(fragments_list, batch_run_id_subset = NULL) {
+  # Check if all models in the list are the same
+  first_model_df <- fragments_list[[1]]$.__enclos_env__$private$repeat_correction_mod
+  identical_model_test <- logical(length(fragments_list))
+  for (i in seq_along(fragments_list)) {
+    identical_model_test[i] <- identical(first_model_df, fragments_list[[i]]$.__enclos_env__$private$repeat_correction_mod)
+  }
+
+  if (!all(identical_model_test)) {
+    stop("The supplied fragments list must come from the same 'call_repeats' function output", call. = FALSE)
+  }
+
+  controls_repeats_df <- fragments_list[[1]]$.__enclos_env__$private$repeat_correction_mod$model
+  controls_repeats_df$unique_id <- sub("\\.[0-9]+$", "", row.names(controls_repeats_df))
+  # add back in batch_run_id if it's not there (because a different lm is made when just one run)
+  # assume that all the samples are the same batch since they have identical model
+  if(!"batch_run_id" %in% names(controls_repeats_df)){
+    controls_repeats_df$batch_run_id <- rep(fragments_list[[1]]$batch_run_id, nrow(controls_repeats_df))
+  }
+
+  # Plotting
+  unique_batch_run_ids <- unique(controls_repeats_df$batch_run_id)
+
+  if(!is.null(batch_run_id_subset) && is.numeric(batch_run_id_subset)){
+    if(batch_run_id_subset > length(unique_batch_run_ids)){
+      stop(call. = FALSE, paste0("The 'batch_run_id_subset' number was too large. There are only ",length(unique_batch_run_ids), " 'batch_run_id'."))
+    }
+    unique_batch_run_ids <- unique_batch_run_ids[batch_run_id_subset]
+  } else if(is.character(batch_run_id_subset)){
+    unique_batch_run_ids <- unique_batch_run_ids[which(unique_batch_run_ids %in% batch_run_id_subset)]
+  }
+# TOODO
+  # add n_facet_col
+
+  graphics::par(mfrow = c(1, length(unique_batch_run_ids)))
+  recorded_plots <- vector("list", length(unique_batch_run_ids))
+  for (i in 1:length(unique_batch_run_ids)) {
+    plate_data <- controls_repeats_df[which(controls_repeats_df$batch_run_id == unique_batch_run_ids[i]),]
+
+    # Generating unique colors for each unique value in unique_id
+    unique_ids <- unique(plate_data$unique_id)
+    colors <- grDevices::rainbow(length(unique_ids))
+    id_color_map <- setNames(colors, unique_ids)
+
+    plot(plate_data$size, plate_data$validated_repeats,
+      pch = 21, col = id_color_map[plate_data$unique_id],
+      cex = 2, main = paste("Plate ID:", unique_batch_run_ids[i]), xlab = "Size", ylab = "User supplied repeat length"
+    )
+
+    lm_model <- lm(validated_repeats ~ size, data = plate_data)
+    graphics::abline(lm_model, col = "blue")
+
+    # Record the plot
+    recorded_plots[[i]] <- grDevices::recordPlot()
+  }
+
+  for (i in 1:length(unique_batch_run_ids)) {
+    grDevices::replayPlot(recorded_plots[[i]])
+  }
+
+}
 
