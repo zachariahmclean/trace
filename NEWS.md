@@ -1,10 +1,6 @@
-# trace 0.2.0
-
-# trace 0.1.0
+# trace 0.3.0
 
 Along with a new name, this is a major update to the [previous version of the package](https://github.com/zachariahmclean/instability). The updates below are changes relative to the main branch of the 'instability' github branch.
-
-The nature of these changes are on focusing this tool for instability metrics calculation rather and accurate genotyping of repeat length.
 
 ## Breaking changes
 
@@ -12,16 +8,17 @@ The nature of these changes are on focusing this tool for instability metrics ca
 
     -   This applies to the following functions: `find_ladders()`, `add_metadata()`, `find_alleles()`, `call_repeats()`, and `assign_index_peaks()`.
 
--   Removed repeat calling using size standard of known repeat length
+-   Repeat correction changes
 
-    -   The argument `repeat_length_correction` has been removed `from call_repeats()`.
-    -   This functionality has been transferred to a newer and much simplier approach of batch correction (see documentation for `call_repeats()`.
-    -   The associated plotting function `plot_size_standard_model()` was also removed.
+    -   The argument `repeat_length_correction` has been removed `from call_repeats()` and been replaced with `correction`.
+    -   Now you chose between "repeat" or "batch" correction (see `call_repeats()` documentation for more info).
 
 -   Metadata categories renamed
 
     -   Renamed for clarity and to make it clearer which functionality it's associated with
-    -   plate_id -\> batch_id, group_id -\> metrics_group_id, and as mentioned above size_standard & size_standard_repeat_length removed
+    -   plate_id -\> batch_id, group_id -\> metrics_group_id
+    -   size_standard_repeat_length -\> batch_sample_modal_repeat
+    -   "size_standard" removed due to unnecessary redundancy of category.
 
 -   Now only possible to find one allele
 
@@ -29,7 +26,7 @@ The nature of these changes are on focusing this tool for instability metrics ca
 
 -   Allele and index peak information can no longer be directly interacted with in the class
 
-    -   Setters (`fragment_repeats$set_allele_peak()` & f`ragment_repeats$set_index_peak()`) and getters (`fragment_repeats$get_allele_peak()` & `fragment_repeats$get_index_peak()`) have been introduced so users don't accidentally break things if they chose to directly interact with objects.
+    -   Setters (`fragment_repeats$set_allele_peak()` & `fragment_repeats$set_index_peak()`) and getters (`fragment_repeats$get_allele_peak()` & `fragment_repeats$get_index_peak()`) have been introduced so users don't accidentally break things if they chose to directly interact with objects.
 
 -   Removed backwards compatibility of index assignment in `calculate_instability_metrics()`
 

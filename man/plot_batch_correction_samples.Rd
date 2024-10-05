@@ -46,10 +46,7 @@ add_metadata(
 
 call_repeats(
   fragments_list = fragments_list,
-  repeat_calling_algorithm = "simple",
-  assay_size_without_repeat = 87,
-  repeat_size = 3,
-  batch_correction = TRUE
+  correction = "batch"
 )
 
 # traces of bp size shows traces at different sizes

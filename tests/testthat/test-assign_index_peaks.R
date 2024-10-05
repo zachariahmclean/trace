@@ -13,19 +13,19 @@ test_that("index assignment", {
 
 
 
-  test_metadata <- add_metadata(
+  add_metadata(
     fragments_list = test_fragments,
     metadata_data.frame = metadata
   )
 
-  fragment_alleles <- find_alleles(
-    fragments_list = test_metadata
+  find_alleles(
+    fragments_list = test_fragments
   )
 
   suppressMessages(
     suppressWarnings(
-      test_repeats <- call_repeats(
-        fragments_list = fragment_alleles
+      call_repeats(
+        fragments_list = test_fragments
       )
     )
   )
@@ -39,8 +39,8 @@ test_that("index assignment", {
 
   suppressMessages(
     suppressWarnings(
-      test_assignment <- assign_index_peaks(
-        test_repeats,
+      assign_index_peaks(
+        test_fragments,
         grouped = TRUE
       )
     )
@@ -57,14 +57,14 @@ test_that("index assignment", {
   suppressMessages(
     suppressWarnings(
       test_metrics_grouped <- calculate_instability_metrics(
-        fragments_list = test_assignment,
+        fragments_list = test_fragments,
         peak_threshold = 0.05,
         window_around_index_peak = c(-40, 40)
       )
     )
   )
 
-testthat::expect_true(all(sapply(test_assignment, function(x) x$.__enclos_env__$private$assigned_index_peak_used)))
+testthat::expect_true(all(sapply(test_fragments, function(x) x$.__enclos_env__$private$assigned_index_peak_used)))
 
 
 
@@ -105,7 +105,6 @@ testthat::test_that("calculate metrics", {
   suppressWarnings(
     call_repeats(
       fragments_list = test_fragments,
-      repeat_calling_algorithm = "simple",
       assay_size_without_repeat = 87,
       repeat_size = 3
     )
@@ -152,20 +151,19 @@ testthat::test_that("test situation where some samples have NA in grouped", {
 
 
 
-  test_metadata <- add_metadata(
+  add_metadata(
     fragments_list = test_fragments,
     metadata_data.frame = metadata
   )
 
-  test_alleles <- find_alleles(
-    fragments_list = test_metadata
+  find_alleles(
+    fragments_list = test_fragments
   )
 
 
   suppressWarnings(
-    test_repeats <- call_repeats(
-      fragments_list = test_alleles,
-      repeat_calling_algorithm = "simple",
+    call_repeats(
+      fragments_list = test_fragments,
       assay_size_without_repeat = 87,
       repeat_size = 3
     )
@@ -174,12 +172,12 @@ testthat::test_that("test situation where some samples have NA in grouped", {
 
   #purposely messs up one batch run id to generate warning
 
-  test_repeats[[1]]$metrics_group_id <- NA_character_
+  test_fragments[[1]]$metrics_group_id <- NA_character_
 
 suppressMessages(
   tryCatch({
-    test_assignment_grouped <- assign_index_peaks(
-      test_repeats,
+    assign_index_peaks(
+      test_fragments,
       grouped = TRUE
     )
   },

@@ -120,9 +120,6 @@ find_alleles <- function(
       fragment$set_allele_peak(unit = "repeats", value = fragment_sizes[top_regional_peaks_positions])
     }
 
-    # peak_regions
-    fragment$.__enclos_env__$private$peak_regions <- peak_regions
-
     return(fragment)
   })
 

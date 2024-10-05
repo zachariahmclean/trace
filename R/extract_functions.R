@@ -156,7 +156,6 @@ extract_alleles <- function(fragments_list) {
 #'
 #' call_repeats(
 #'   fragments_list = test_fragments,
-#'   repeat_calling_algorithm = "simple",
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
@@ -175,8 +174,7 @@ extract_fragments <- function(fragments_list) {
           main_peak_size = rep(x$get_allele_peak()$allele_size, df_length),
           main_peak_height = rep(x$get_allele_peak()$allele_height, df_length),
           height = x$peak_table_df$height,
-          size = x$peak_table_df$size,
-          peak_region = x$.__enclos_env__$private$peak_regions
+          size = x$peak_table_df$size
         )
       } else if (!is.null(x$repeat_table_df)) {
         df_length <- nrow(x$repeat_table_df)
@@ -185,8 +183,7 @@ extract_fragments <- function(fragments_list) {
           main_peak_repeat = rep(x$get_allele_peak()$allele_repeat, df_length),
           main_peak_height = rep(x$get_allele_peak()$allele_height, df_length),
           height = x$repeat_table_df$height,
-          repeats = x$repeat_table_df$repeats,
-          peak_region = x$.__enclos_env__$private$peak_regions
+          repeats = x$repeat_table_df$repeats
         )
       }
     })
