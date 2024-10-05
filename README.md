@@ -14,9 +14,9 @@ supplied metadata data-frame. The functions identify ladders, calls
 peaks, and calculate repeat instability metrics (i.e. expansion index or
 average repeat gain).
 
-This code is not for clinical use or accurate repeat genotyping. There
-are features for accurate repeat sizing if you use validated control
-samples, but whole repeat units are never returned.
+This code is not for clinical use. There are features for accurate
+repeat sizing if you use validated control samples, but integer repeat
+units are not returned.
 
 To report bugs or feature requests, please visit the Github issue
 tracker [here](https://github.com/zachariahmclean/trace/issues). For
@@ -63,23 +63,23 @@ experiment and things to consider when using this package:
 
   - Repeat containing amplicons do not run linearly with internal ladder
     sizes in capillary electrophoresis resulting is an underestimation
-    of repeat length if you just convert from base-pair size.
-    Furthermore, these differences are not always consistent across runs
-    which can result in batch effects in the repeat size. So, if the
-    repeat length is to be directly compared for samples from different
-    runs, this batch effect needs to be corrected. This is only relevant
-    when the absolute size of a amplicons are compared for grouping
-    metrics as described above (otherwise instability metrics are all
-    relative and it doesn’t matter that there’s systematic batch effects
-    across runs), when plotting traces from different runs, or if an
-    accurate repeat length is desired.
+    of repeat length if you just convert from base-pair size. These
+    differences are not always consistent across runs which can result
+    in batch effects in the repeat size. So, if the repeat length is to
+    be directly compared for samples from different runs, this batch
+    effect needs to be corrected. This is only relevant when the
+    absolute size of a amplicons are compared for grouping metrics as
+    described above (otherwise instability metrics are all relative and
+    it doesn’t matter that there’s systematic batch effects across
+    runs), when plotting traces from different runs, or if an accurate
+    repeat length is desired.
 
   - There are two main correction approaches that are somewhat related:
     either ‘batch’ or ‘repeat’ in `call_repeats()`. Batch correction is
     relatively simple and just requires you to link samples across
-    batches by indicating them from metadata. However, even though the
-    repeat size that is return will be precise, it will not be accurate
-    and underestimates the real repeat length. By contrast, repeat
+    batches by indicating them from metadata. But even though the repeat
+    size that is return will be precise, it will not be accurate and
+    underestimates the real repeat length. By contrast, repeat
     correction can be used to accurately call repeat lengths (which also
     corrects the batch effects). However, the repeat correction will
     only be as good as your sample(s) used to call the repeat length, so
