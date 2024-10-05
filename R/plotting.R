@@ -472,10 +472,7 @@ plot_fragments <- function(
 #'
 #' call_repeats(
 #'   fragments_list = fragments_list,
-#'   repeat_calling_algorithm = "none",
-#'   assay_size_without_repeat = 87,
-#'   repeat_size = 3,
-#'   batch_correction = TRUE
+#'   correction = "batch"
 #' )
 #'
 #' # traces of bp size shows traces at different sizes
@@ -683,43 +680,45 @@ plot_data_channels <- function(
 #' @param fragments_list A list of fragments_repeats class objects obtained from the 'call_repeats' function when the 'repeat_length_correction' was either 'from_metadata' or 'from_genemapper'.
 #'
 #' @return A base R graphic object displaying the repeat correction model results.
+#' @param batch_run_id_subset A character vector for a subset of batch_sample_id to plot. Or alternatively supply a number to select batch sample by position in alphabetical order.
+#' @param n_facet_col A numeric value indicating the number of columns for faceting in the plot.
 #' @export
 #'
 #' @examples
 #'
 #'
-#' gm_raw <- instability::example_data
-#' metadata <- instability::metadata
+#' fsa_list <- lapply(cell_line_fsa_list[91:94], function(x) x$clone())
 #'
-#' test_fragments <- peak_table_to_fragments(
-#'   gm_raw,
-#'   data_format = "genemapper5",
-#'   dye_channel = "B"
-#' )
+#' find_ladders(fsa_list, show_progress_bar = FALSE)
+#'
+#' fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
 #'
 #' test_alleles <- find_alleles(
-#'   fragments_list = test_fragments,
-#'   number_of_peaks_to_return = 2,
-#'   peak_region_size_gap_threshold = 6,
-#'   peak_region_height_threshold_multiplier = 1
+#'   fragments_list 
+#' )
+#' 
+#' add_metadata(
+#'   fragments_list,
+#'   metadata
 #' )
 #'
-#' test_metadata <- add_metadata(
-#'   fragments_list = test_alleles,
-#'   metadata_data.frame = metadata
+#'
+#' call_repeats(
+#'   fragments_list = fragments_list,
+#'   correction = "repeat"
 #' )
 #'
-#' test_repeats_corrected <- call_repeats(
-#'   fragments_list = test_metadata,
-#'   repeat_calling_algorithm = "none",
-#'   assay_size_without_repeat = 87,
-#'   repeat_size = 3,
-#'   repeat_length_correction = "from_metadata"
+#' # traces of bp size shows traces at different sizes
+#' plot_repeat_correction_model(
+#'   fragments_list,
+#'   batch_run_id_subset = "20230414"
 #' )
 #'
-#' plot_repeat_correction_model(test_repeats_corrected)
 #'
-plot_repeat_correction_model <- function(fragments_list, batch_run_id_subset = NULL) {
+plot_repeat_correction_model <- function(
+  fragments_list, 
+  batch_run_id_subset = NULL,
+  n_facet_col = 1) {
   # Check if all models in the list are the same
   first_model_df <- fragments_list[[1]]$.__enclos_env__$private$repeat_correction_mod
   identical_model_test <- logical(length(fragments_list))
@@ -733,6 +732,7 @@ plot_repeat_correction_model <- function(fragments_list, batch_run_id_subset = N
 
   controls_repeats_df <- fragments_list[[1]]$.__enclos_env__$private$repeat_correction_mod$model
   controls_repeats_df$unique_id <- sub("\\.[0-9]+$", "", row.names(controls_repeats_df))
+  
   # add back in batch_run_id if it's not there (because a different lm is made when just one run)
   # assume that all the samples are the same batch since they have identical model
   if(!"batch_run_id" %in% names(controls_repeats_df)){
@@ -743,17 +743,15 @@ plot_repeat_correction_model <- function(fragments_list, batch_run_id_subset = N
   unique_batch_run_ids <- unique(controls_repeats_df$batch_run_id)
 
   if(!is.null(batch_run_id_subset) && is.numeric(batch_run_id_subset)){
-    if(batch_run_id_subset > length(unique_batch_run_ids)){
+    if(batch_run_id_subset[length(batch_run_id_subset)] > length(unique_batch_run_ids)){
       stop(call. = FALSE, paste0("The 'batch_run_id_subset' number was too large. There are only ",length(unique_batch_run_ids), " 'batch_run_id'."))
     }
     unique_batch_run_ids <- unique_batch_run_ids[batch_run_id_subset]
   } else if(is.character(batch_run_id_subset)){
     unique_batch_run_ids <- unique_batch_run_ids[which(unique_batch_run_ids %in% batch_run_id_subset)]
   }
-# TOODO
-  # add n_facet_col
 
-  graphics::par(mfrow = c(1, length(unique_batch_run_ids)))
+  graphics::par(mfrow = c(ceiling(length(unique_batch_run_ids) / n_facet_col), n_facet_col)) # Adjust layout as needed
   recorded_plots <- vector("list", length(unique_batch_run_ids))
   for (i in 1:length(unique_batch_run_ids)) {
     plate_data <- controls_repeats_df[which(controls_repeats_df$batch_run_id == unique_batch_run_ids[i]),]
@@ -765,7 +763,7 @@ plot_repeat_correction_model <- function(fragments_list, batch_run_id_subset = N
 
     plot(plate_data$size, plate_data$validated_repeats,
       pch = 21, col = id_color_map[plate_data$unique_id],
-      cex = 2, main = paste("Plate ID:", unique_batch_run_ids[i]), xlab = "Size", ylab = "User supplied repeat length"
+      cex = 2, main = paste("batch_run_id:", unique_batch_run_ids[i]), xlab = "Size", ylab = "User supplied repeat length"
     )
 
     lm_model <- lm(validated_repeats ~ size, data = plate_data)
@@ -778,6 +776,8 @@ plot_repeat_correction_model <- function(fragments_list, batch_run_id_subset = N
   for (i in 1:length(unique_batch_run_ids)) {
     grDevices::replayPlot(recorded_plots[[i]])
   }
+
+  graphics::par(mfrow = c(1, 1)) # Reset the layout
 
 }
 

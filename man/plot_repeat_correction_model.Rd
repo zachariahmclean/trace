@@ -4,10 +4,18 @@
 \alias{plot_repeat_correction_model}
 \title{Plot Repeat Correction Model}
 \usage{
-plot_repeat_correction_model(fragments_list, batch_run_id_subset = NULL)
+plot_repeat_correction_model(
+  fragments_list,
+  batch_run_id_subset = NULL,
+  n_facet_col = 1
+)
 }
 \arguments{
 \item{fragments_list}{A list of fragments_repeats class objects obtained from the 'call_repeats' function when the 'repeat_length_correction' was either 'from_metadata' or 'from_genemapper'.}
+
+\item{batch_run_id_subset}{A character vector for a subset of batch_sample_id to plot. Or alternatively supply a number to select batch sample by position in alphabetical order.}
+
+\item{n_facet_col}{A numeric value indicating the number of columns for faceting in the plot.}
 }
 \value{
 A base R graphic object displaying the repeat correction model results.
@@ -18,35 +26,32 @@ Plots the results of the repeat correction model for a list of fragments.
 \examples{
 
 
-gm_raw <- instability::example_data
-metadata <- instability::metadata
+fsa_list <- lapply(cell_line_fsa_list[91:94], function(x) x$clone())
 
-test_fragments <- peak_table_to_fragments(
-  gm_raw,
-  data_format = "genemapper5",
-  dye_channel = "B"
-)
+find_ladders(fsa_list, show_progress_bar = FALSE)
+
+fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
 
 test_alleles <- find_alleles(
-  fragments_list = test_fragments,
-  number_of_peaks_to_return = 2,
-  peak_region_size_gap_threshold = 6,
-  peak_region_height_threshold_multiplier = 1
+  fragments_list 
 )
 
-test_metadata <- add_metadata(
-  fragments_list = test_alleles,
-  metadata_data.frame = metadata
+add_metadata(
+  fragments_list,
+  metadata
 )
 
-test_repeats_corrected <- call_repeats(
-  fragments_list = test_metadata,
-  repeat_calling_algorithm = "none",
-  assay_size_without_repeat = 87,
-  repeat_size = 3,
-  repeat_length_correction = "from_metadata"
+
+call_repeats(
+  fragments_list = fragments_list,
+  correction = "repeat"
 )
 
-plot_repeat_correction_model(test_repeats_corrected)
+# traces of bp size shows traces at different sizes
+plot_repeat_correction_model(
+  fragments_list,
+  batch_run_id_subset = "20230414"
+)
+
 
 }

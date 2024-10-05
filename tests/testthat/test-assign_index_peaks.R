@@ -105,7 +105,6 @@ testthat::test_that("calculate metrics", {
   suppressWarnings(
     call_repeats(
       fragments_list = test_fragments,
-      repeat_calling_algorithm = "none",
       assay_size_without_repeat = 87,
       repeat_size = 3
     )
@@ -165,7 +164,6 @@ testthat::test_that("test situation where some samples have NA in grouped", {
   suppressWarnings(
     call_repeats(
       fragments_list = test_fragments,
-      repeat_calling_algorithm = "none",
       assay_size_without_repeat = 87,
       repeat_size = 3
     )

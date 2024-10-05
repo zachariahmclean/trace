@@ -20,7 +20,6 @@ suppressWarnings(
     suppressMessages(
       call_repeats(
         fragments_list = test_fragments,
-        repeat_calling_algorithm = "none",
         assay_size_without_repeat = 87,
         repeat_size = 3
       )
@@ -54,77 +53,6 @@ suppressWarnings(
 
   #TOODO come up with test for whole repeat units here
   
-})
-
-
-testthat::test_that("fft", {
-  fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
-
-  suppressWarnings(
-    find_ladders(fsa_list,
-                                 ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
-                                 max_combinations = 2500000,
-                                 ladder_selection_window = 5,
-                                 show_progress_bar = FALSE
-    )
-  )
-
-  # plot_ladders(test_ladders[1:9], n_facet_col = 3,
-  #              xlim = c(1000, 4800),
-  #              ylim = c(0, 15000))
-
-
-  # # Start a PDF device
-  # pdf(file = "C:/Users/zlm2/Downloads/ladder.pdf", width = 12, height = 6) # Set width and height as desired
-  #
-  # # Loop through the list of plots
-  # for (i in seq_along(test_ladders)) {
-  #   test_ladders[[i]]$plot_ladder(xlim = c(1400, 4500))
-  # }
-  #
-  # # Close the PDF device
-  # dev.off()
-
-
-  peak_list <- find_fragments(fsa_list,
-                              minimum_peak_signal = 20,
-                              min_bp_size = 300
-  )
-
-
-  find_alleles(
-    fragments_list = peak_list
-  )
-
-  test_repeats_size_fft <- lapply(peak_list, function(x) x$clone())
-
-  suppressMessages(
-    suppressWarnings(
-       call_repeats(
-        fragments_list = test_repeats_size_fft,
-        repeat_calling_algorithm = "fft"
-      )
-    )
-  )
-
-  test_repeats_size_none <- lapply(peak_list, function(x) x$clone())
-
-  suppressMessages(
-    suppressWarnings(
-       call_repeats(
-        fragments_list = test_repeats_size_none,
-        repeat_calling_algorithm = "none"
-      )
-    )
-  )
-
-
-  testthat::expect_true(
-    identical( test_repeats_size_fft[[1]]$repeat_table_df[which(test_repeats_size_fft[[1]]$repeat_table_df$repeats > 117 & test_repeats_size_fft[[1]]$repeat_table_df$repeats <140),"repeats"],
-               test_repeats_size_none[[1]]$repeat_table_df[which(test_repeats_size_none[[1]]$repeat_table_df$repeats > 117 & test_repeats_size_none[[1]]$repeat_table_df$repeats <140),"repeats"]
-    )
-  )
-
 })
 
 
@@ -177,7 +105,7 @@ find_alleles(
     suppressWarnings(
        call_repeats(
         fragments_list = test_repeats_size_period,
-        repeat_calling_algorithm = "size_period"
+        force_repeat_pattern = TRUE
       )
     )
   )
@@ -188,7 +116,7 @@ find_alleles(
     suppressWarnings(
      call_repeats(
         fragments_list = test_repeats_size_none,
-        repeat_calling_algorithm = "none"
+        force_repeat_pattern = FALSE
       )
     )
   )
@@ -251,7 +179,7 @@ testthat::test_that("full pipeline repeat size algo", {
     suppressWarnings(
       call_repeats(
         fragments_list = peak_list,
-        repeat_calling_algorithm = "size_period"
+        force_repeat_pattern = TRUE
       )
     )
   )
@@ -512,6 +440,45 @@ testthat::test_that("repeat correction with one sample off warning", {
   testthat::expect_true(grepl("It looks like the following 'batch_sample_id' need", assignment_warning))
 
 
+
+})
+
+
+testthat::test_that("repeat correction one run missing", {
+
+  fsa_list <- lapply(cell_line_fsa_list[91:94], function(x) x$clone())
+  find_ladders(fsa_list,
+          show_progress_bar = FALSE)
+  
+  
+  fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
+
+  metadata_2 <- metadata[91:94, ]
+
+  metadata_2$batch_sample_modal_repeat <- ifelse(metadata_2$batch_run_id == "20230414", NA_real_,  metadata_2$batch_sample_modal_repeat)
+
+
+  add_metadata(fragments_list,
+    metadata_2)
+    
+  find_alleles(fragments_list)
+
+
+  suppressMessages(
+    tryCatch({
+      call_repeats(
+        fragments_list = fragments_list,
+        correction  = "repeat"
+      )
+    },
+      error = function(e){
+        assignment_error <<- e
+      }
+    )
+  )
+
+  testthat::expect_true(class(assignment_error)[1] == "simpleError")
+  testthat::expect_true(grepl("no samples with 'batch_sample_modal_repeat'", assignment_error))
 
 })
 

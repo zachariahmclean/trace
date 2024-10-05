@@ -273,7 +273,6 @@ fragments_repeats <- R6::R6Class(
     allele_repeat = NA_real_,
     allele_height = NA_real_,
     find_main_peaks_used = FALSE,
-    peak_regions = NA_real_,
 
     # call_repeats data
     batch_correction_factor = NA_real_,

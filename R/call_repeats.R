@@ -97,93 +97,48 @@ np_repeat <- function(size,
 }
 
 
-# fft algo ----------------------------------------------------------------
 
-
-####### fft helpers
-fragments_fft <- function(df) {
-  Fs <- 1 # Arbitrary sampling frequency
-  Ts <- 1 / Fs # Arbitrary sampling time
-
-  signal_periodic <- as.vector(pracma::detrend(df$signal))
-
-  n <- length(signal_periodic)
-  xf <- seq(0, 1 / (2 * Ts), length.out = n %/% 2) # int div in R is % / %
-  yf <- stats::fft(signal_periodic)
-  yf <- (2 / n) * abs(yf[seq(1, n %/% 2)])
-
-  data.frame(
-    "xf" = xf,
-    "yf" = yf
-  )
-}
-
-
-find_main_freq <- function(fft_df, skip_rows = 3) {
-  # skip rows to avoid noise at start
-  df2 <- fft_df[skip_rows + 1:nrow(fft_df), ]
-  peaks <- pracma::findpeaks(df2$yf)
-  fund_freq_position <- peaks[which(peaks[, 1] == max(peaks[, 1], na.rm = TRUE)), 2][1]
-  freq <- df2[fund_freq_position, "xf"] * 3
-
-  return(freq)
-}
-
-find_scan_period <- function(df,
-                             main_peak_scan) {
-  fft_df <- fragments_fft(df)
-
-  # detrend signal
-  fft_df$yf <- detrend_signal(fft_df$yf)
-
-  main_freq <- find_main_freq(fft_df)
-  pure_wave <- cos(2 * main_freq * (df$scan - main_peak_scan))
-  cos_max <- pracma::findpeaks(pure_wave, nups = 3)
-  scans_diffs <- diff(df[cos_max[, 2], "scan"])
-  peak_scan_period <- round(median(scans_diffs))
-
-
-  return(peak_scan_period)
-}
-
-find_peaks_by_scan_period <- function(df,
-                                      main_peak_scan,
-                                      peak_scan_period,
-                                      direction,
-                                      window) {
-  if (direction == 1) {
-    df_post_main <- df[which(df$scan > main_peak_scan), ]
-  } else {
-    df_post_main <- df[which(df$scan < main_peak_scan), ]
-    df_post_main <- df_post_main[order(df_post_main$scan, decreasing = TRUE), ]
-    peak_scan_period <- peak_scan_period * -1
-  }
-
-  called_peaks <- numeric()
-  current_scan_position <- main_peak_scan + peak_scan_period
-  while (TRUE) {
-    window_range <- (current_scan_position - window):(current_scan_position + window)
-    window_df <- df_post_main[df_post_main$scan %in% window_range, ]
-
-    if (nrow(window_df) > 0) {
-      tallest_in_window <- window_df[which.max(window_df$signal), "scan"]
-      called_peaks <- c(called_peaks, tallest_in_window)
-
-      # Update current scan position
-      current_scan_position <- tallest_in_window + peak_scan_period
+size_period_repeat_caller <- function(
+  fragments_repeat,
+  repeat_size,
+  size_period,
+  scan_peak_window) {
+  
+  find_peaks_by_scan_period <- function(df,
+                                        main_peak_scan,
+                                        peak_scan_period,
+                                        direction,
+                                        window) {
+    if (direction == 1) {
+      df_post_main <- df[which(df$scan > main_peak_scan), ]
     } else {
-      # If no more data points, terminate
-      break
+      df_post_main <- df[which(df$scan < main_peak_scan), ]
+      df_post_main <- df_post_main[order(df_post_main$scan, decreasing = TRUE), ]
+      peak_scan_period <- peak_scan_period * -1
     }
+
+    called_peaks <- numeric()
+    current_scan_position <- main_peak_scan + peak_scan_period
+    while (TRUE) {
+      window_range <- (current_scan_position - window):(current_scan_position + window)
+      window_df <- df_post_main[df_post_main$scan %in% window_range, ]
+
+      if (nrow(window_df) > 0) {
+        tallest_in_window <- window_df[which.max(window_df$signal), "scan"]
+        called_peaks <- c(called_peaks, tallest_in_window)
+
+        # Update current scan position
+        current_scan_position <- tallest_in_window + peak_scan_period
+      } else {
+        # If no more data points, terminate
+        break
+      }
+    }
+
+    return(called_peaks)
   }
-
-  return(called_peaks)
-}
-
-
-fft_repeat_caller <- function(fragments_repeat,
-                              scan_peak_window = 3,
-                              fragment_window = 3 * 5) {
+  
+  
   if (is.na(fragments_repeat$get_allele_peak()$allele_size)) {
     df <- data.frame(
       "unique_id" = character(),
@@ -195,61 +150,10 @@ fft_repeat_caller <- function(fragments_repeat,
     return(df)
   }
 
-  fragment_window_positions <- which(fragments_repeat$trace_bp_df$size > fragments_repeat$get_allele_peak()$allele_size - fragment_window & fragments_repeat$trace_bp_df$size < fragments_repeat$get_allele_peak()$allele_size + fragment_window)
+  # determine how many scans are in size period
+  fragment_window_positions <- which(fragments_repeat$trace_bp_df$size > fragments_repeat$get_allele_peak()$allele_size - repeat_size * 5 & fragments_repeat$trace_bp_df$size < fragments_repeat$get_allele_peak()$allele_size + repeat_size * 5)
   window_df <- fragments_repeat$trace_bp_df[fragment_window_positions, ]
   main_peak_scan <- window_df[which(window_df$size == fragments_repeat$get_allele_peak()$allele_size), "scan"]
-
-  peak_scan_period <- find_scan_period(window_df, main_peak_scan)
-
-  pos_peaks <- find_peaks_by_scan_period(fragments_repeat$trace_bp_df,
-    main_peak_scan,
-    peak_scan_period,
-    direction = 1,
-    window = scan_peak_window
-  )
-
-  neg_peaks <- find_peaks_by_scan_period(fragments_repeat$trace_bp_df,
-    main_peak_scan,
-    peak_scan_period,
-    direction = -1,
-    window = scan_peak_window
-  )
-
-  peak_table <- fragments_repeat$trace_bp_df
-  peak_table <- peak_table[which(peak_table$scan %in% c(neg_peaks, main_peak_scan, pos_peaks)), ]
-  peak_table <- peak_table[which(peak_table$size > fragments_repeat$.__enclos_env__$private$min_bp_size & peak_table$size < fragments_repeat$.__enclos_env__$private$max_bp_size), ]
-
-
-  return(peak_table)
-}
-
-
-
-
-
-
-size_period_repeat_caller <- function(fragments_repeat,
-                                      size_period,
-                                      scan_peak_window = 3,
-                                      fragment_window = 3 * 5) {
-  if (is.na(fragments_repeat$get_allele_peak()$allele_size)) {
-    df <- data.frame(
-      "unique_id" = character(),
-      "scan" = numeric(),
-      "size" = numeric(),
-      "signal" = numeric()
-    )
-
-    return(df)
-  }
-
-  fragment_window_positions <- which(fragments_repeat$trace_bp_df$size > fragments_repeat$get_allele_peak()$allele_size - fragment_window & fragments_repeat$trace_bp_df$size < fragments_repeat$get_allele_peak()$allele_size + fragment_window)
-  window_df <- fragments_repeat$trace_bp_df[fragment_window_positions, ]
-  main_peak_scan <- window_df[which(window_df$size == fragments_repeat$get_allele_peak()$allele_size), "scan"]
-
-
-  # determine period
-
   peak_scan_period <- round(size_period / median(diff(window_df$size)))
 
   pos_peaks <- find_peaks_by_scan_period(fragments_repeat$trace_bp_df,
@@ -434,8 +338,8 @@ model_repeat_length <- function(
   all_batch_run_ids <- lapply(fragments_list, function(x) x$batch_run_id)
   control_batch_run_ids <- unique(controls_repeats_df$batch_run_id)
   if (length(unique(control_batch_run_ids)) != length(unique(all_batch_run_ids))) {
-    plates_missing_controls <- paste0(all_batch_run_ids[which(!all_batch_run_ids %in% control_batch_run_ids)], collapse = ", ")
-    stop(paste("Plate(s)", plates_missing_controls, "have no repeat-length control samples"),
+    plates_missing_controls <- paste0(unique(all_batch_run_ids[which(!all_batch_run_ids %in% control_batch_run_ids)]), collapse = ", ")
+    stop(paste("Plate(s)", plates_missing_controls, "have no samples with 'batch_sample_modal_repeat'"),
       call. = FALSE
     )
   }
@@ -525,22 +429,16 @@ model_repeat_length <- function(
 #' @param fragments_list A list of fragments_repeats objects containing fragment data.
 #' @param assay_size_without_repeat An integer specifying the assay size without repeat for repeat calling. This is the length of the sequence flanking the repeat in the PCR product.
 #' @param repeat_size An integer specifying the repeat size for repeat calling. Default is 3.
-#' @param force_whole_repeat_units A logical value specifying if the peaks should be forced to be whole repeat units apart. Usually the peaks are slightly under the whole repeat unit if left unchanged.
 #' @param correction A character vector of either "batch" to carry out a batch correction from common samples across runs (known repeat length not required), or "repeat" to use samples with validated modal repeat lengths to correct the repeat length. Requires metadata to be added (see [add_metadata()]) with both "batch" and "repeat" requiring \code{"batch_run_id"}, "batch" requiring (\code{"batch_sample_id"}) and "repeat" requiring \code{"batch_sample_modal_repeat"} (but also benefits from having \code{"batch_sample_id"}).
-#' @param batch_correction A logical specifying if the size should be adjusted across fragment analysis runs. Requires metadata to be added to specify samples (\code{"batch_sample_id"}) common across runs (\code{"batch_run_id"})(see [add_metadata()]).
-#' @param repeat_calling_algorithm A character specifying the repeat calling algorithm. Options: \code{"none"}, \code{"fft"}, or \code{"size_period"} (see details section for more information on these).
-#' @param repeat_calling_algorithm_size_window_around_allele A numeric value for how big of a window around the tallest peak should be used to find the peak periodicity. Used for both \code{"fft"} and \code{"size_period"}. For \code{"fft"}, you want to make sure that this window is limited to where there are clear peaks. For \code{"size_period"}, it will not make a big difference.
-#' @param repeat_calling_algorithm_peak_assignment_scan_window A numeric value for the scan window when assigning the peak. This is used for both \code{"fft"} and \code{"size_period"}. When the scan period is determined, the algorithm jumps to the predicted scan for the next peak. This value opens a window of the neighboring scans to pick the tallest in.
-#' @param repeat_calling_algorithm_size_period A numeric value \code{"size_period"} algorithm to set the peak periodicity by bp size. This is the key variable to change for \code{"size_period"}. In fragment analysis, the peaks are usually slightly below the actual repeat unit size.
+#' @param force_whole_repeat_units A logical value specifying if the peaks should be forced to be whole repeat units apart. Usually the peaks are slightly under the whole repeat unit if left unchanged.
+#' @param force_repeat_pattern A logical value specifying if the peaks should be re called to fit the specific repeat unit pattern. This requires trace information so you must have started with fsa files.
+#' @param force_repeat_pattern_size_period A numeric value to set the peak periodicity bp size. In fragment analysis, the peaks are usually slightly below the actual repeat unit size, so you can use this value to fine tune what the periodicity should be.
+#' @param force_repeat_pattern_scan_window A numeric value for the scan window when assigning the peak. When the scan period is determined, the algorithm jumps to the predicted scan for the next peak. This value opens a window of the neighboring scans to pick the tallest in.
 #'
 #' @return This function modifies list of fragments objects in place with repeats added.
 #'
 #' @details
 #' This function has a lot of different options features for determining the repeat length of your samples. This includes i) an option to force the peaks to be whole repeat units apart, ii) corrections to correct batch effects or accurately call repeat length by comparing to samples of known length, and iii) algorithms or re-calling the peaks to remove any contaminating peaks or shoulder-peaks.
-#'
-#' --- force_whole_repeat_units ---
-#' 
-#' The `force_whole_repeat_units` option aims to correct for the systematic underestimation in fragment sizes that occurs in capillary electrophoresis. It is independent to the algorithms described above and can be used in conjunction. It modifies repeat lengths in a way that helps align peaks with the underlying repeat pattern, making the repeat lengths whole units (rather than ~0.9 repeats). The calculated repeat lengths start from the main peak's repeat length and increases in increments of the specified `repeat_size` in either direction. This option basically enables you to get exactly the same result as expansion_index values calculated from data from Genemapper.
 #' 
 #' --- correction ---
 #'
@@ -548,11 +446,16 @@ model_repeat_length <- function(
 #' 
 #' Batch correction uses common sample(s) across fragment analysis runs to correct systematic batch effects that occur with repeat-containing amplicons in capillary electrophoresis. There are slight fluctuations of size across runs for amplicons containing repeats that result in systematic differences around 1-3 base pairs. So, if samples are to be analyzed for different runs, the absolute bp size is not comparable unless this batch effect is corrected. This is only relevant when the absolute size of a amplicons are compared for grouping metrics as described above (otherwise instability metrics are all relative and it doesn’t matter that there’s systematic batch effects across runs) or when plotting traces from different runs. This correction can be achieved by running a couple of samples in every fragment analysis run, or having a single run that takes a couple of samples from every run together, thereby linking them. These samples are then indicated in the metadata with batch_run_id (to group samples by fragment analysis run) and batch_sample_id (to enable linking samples across batches) (see [add_metadata()]).
 #' 
-#' Samples with known and validated repeat size can be used to accurately call the repeat length (and therefore also correct batch effects). Similar to batch correction, batch_run_id (to group samples by fragment analysis run) and batch_sample_id (to enable linking samples across batches) are used, but importantly batch_sample_modal_repeat is also set (see [add_metadata()]). The batch_sample_modal_repeat is the validated repeat length of the modal repeat of the sample. This validated repeat length is then used to call the repeat length of the modal repeat for each sample (by each batch_run_id). Importantly, this correction requires you to know with confidence the repeat length of the modal peak of the sample. Therefore it's important that the sample used for repeat correction has a clear and prominent modal peak. If the repeat length is very long, it's common for the modal peak of a sample to change so if you use this feature you're going to have to understand the shape of the distribution of your sample and double check that the correct peak has been called as the modal peak after you have used [find_alleles()]. If a different peak is selected as the modal peak than usual, you need to go back to the metadata and adjust the repeat size of the size standard (For example, your size standard sample has been validated to have 120 repeats. You run [find_alelles()] and look at the distribution of peaks and notice that the peak one repeat unit higher is the modal peak this time. Therefore, you're going to need to set the batch_sample_modal_repeat as 121 in the metadata just for that batch_run_id. In the other runs you would keep the batch_sample_modal_repeat as 120.).
+#' Samples with known and validated repeat size can be used to accurately call the repeat length (and therefore also correct batch effects). Similar to batch correction, batch_run_id (to group samples by fragment analysis run) and batch_sample_id (to enable linking samples across batches) are used, but importantly batch_sample_modal_repeat is also set (see [add_metadata()]). The batch_sample_modal_repeat is the validated repeat length of the modal repeat of the sample. This validated repeat length is then used to call the repeat length of the modal repeat for each sample (by each batch_run_id). Importantly, this correction requires you to know with confidence the repeat length of the modal peak of the sample. Therefore it's important that the sample used for repeat correction has a clear and prominent modal peak. If the repeat length is very long, it's common for the modal peak of a sample to change so if you use this feature you're going to have to understand the shape of the distribution of your sample and double check that the correct peak has been called as the modal peak after you have used [find_alleles()]. If a different peak is selected as the modal peak than usual, you need to go back to the metadata and adjust the repeat size of the size standard (For example, your size standard sample has been validated to have 120 repeats. You run [find_alleles()] and look at the distribution of peaks and notice that the peak one repeat unit higher is the modal peak this time. Therefore, you're going to need to set the batch_sample_modal_repeat as 121 in the metadata just for that batch_run_id. In the other runs you would keep the batch_sample_modal_repeat as 120.).
+#'
+#' --- force_whole_repeat_units ---
 #' 
-#' --- repeat_calling_algorithm ---
+#' The `force_whole_repeat_units` option aims to correct for the systematic underestimation in fragment sizes that occurs in capillary electrophoresis. It is independent to the algorithms described above and can be used in conjunction. It modifies repeat lengths in a way that helps align peaks with the underlying repeat pattern, making the repeat lengths whole units (rather than ~0.9 repeats). The calculated repeat lengths start from the main peak's repeat length and increases in increments of the specified `repeat_size` in either direction. This option basically enables you to get exactly the same result as expansion_index values calculated from data from Genemapper.
 #' 
-#' The `fft` or `size_period` algorithms both re-call the peaks based on empirically determined (`fft`) or specified (`size_period`) periodicity of the peaks. The main application of these algorithms is to solve the issue of contaminating peaks in the expected regular pattern of peaks. The `fft` approach applies a fourier transform to the peak signal to determine the underlying periodicity of the signal. `size_period` is similar and simpler, where instead of automatically figuring out the periodicity, we as users specify the periodicity (since we usually know the size distance between repeat units). We can use the periodicity to jump between peaks.
+#' --- force_repeat_pattern ---
+#' 
+#' This parameter re-calls the peaks based on specified (`force_repeat_pattern_size_period`) periodicity of the peaks. The main application of this algorithm is to solve the issue of contaminating peaks in the expected regular pattern of peaks. We can use the periodicity to jump between peaks and crack open a window (`force_repeat_pattern_scan_window`) to then pick out the tallest scan in the window.
+#' 
 #' @seealso [find_alleles()], [add_metadata()]
 #'
 #' @export
@@ -573,7 +476,9 @@ model_repeat_length <- function(
 #'
 #' find_alleles(fragments_list)
 #' 
-#' add_metadata(fragments_list)
+#' add_metadata(fragments_list,
+#'    metadata[c(90:94), ]
+#' )
 #'
 #' # Simple conversion from bp size to repeat size
 #' call_repeats(
@@ -617,23 +522,11 @@ model_repeat_length <- function(
 #' 
 #' plot_traces(fragments_list[1], xlim = c(120, 170))
 #'
-#' # use different algorithms to call the repeats to ensure only periodic peaks are called
-#'
-#' # fft to automatically find peak period
+#' #ensure only periodic peaks are called
 #' call_repeats(
 #'   fragments_list,
-#'   repeat_calling_algorithm = "fft",
-#'   assay_size_without_repeat = 87,
-#'   repeat_size = 3
-#' )
-#'
-#' plot_traces(fragments_list[1], xlim = c(120, 170))
-#'
-#' # size_period to manually supply the peak period
-#' call_repeats(
-#'   fragments_list,
-#'   repeat_calling_algorithm = "size_period",
-#'   repeat_calling_algorithm_size_period = 2.75,
+#'   force_repeat_pattern = TRUE,
+#'   force_repeat_pattern_size_period = 2.75,
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
@@ -644,15 +537,14 @@ call_repeats <- function(
     fragments_list,
     assay_size_without_repeat = 87,
     repeat_size = 3,
+    correction = "none",    
     force_whole_repeat_units = FALSE,
-    correction = "none",
-    repeat_calling_algorithm = "none",
-    repeat_calling_algorithm_size_window_around_allele = repeat_size * 5,
-    repeat_calling_algorithm_peak_assignment_scan_window = 3,
-    repeat_calling_algorithm_size_period = repeat_size * 0.93) {
+    force_repeat_pattern = FALSE,
+    force_repeat_pattern_size_period = repeat_size * 0.93,
+    force_repeat_pattern_scan_window = 3) {
  
   ### in this function, we are doing three key things
-      #### 1) use repeat_calling_algorithm to find repeats and generate a new repeat table dataframe
+      #### 1) use force_repeat_pattern to find repeats and generate a new repeat table dataframe
       #### 2) apply batch correction or repeat correction
       #### 3) call repeats with or without force whole repeat units
   
@@ -663,7 +555,7 @@ call_repeats <- function(
     )
   }
   
-  # first use repeat_calling_algorithm to find repeats and generate a new repeat table dataframe
+  # first use force_repeat_pattern to find repeats and generate a new repeat table dataframe
   fragments_list <- lapply(fragments_list, function(fragment){
 
       # only continue from here if main peaks were successfully found, otherwise, don't return repeat data (ie it can be an empty df)
@@ -681,9 +573,13 @@ call_repeats <- function(
         # exit lapply early 
         return(fragment)
       } 
-      # repeat calling algorithm
-      if (repeat_calling_algorithm == "none") {
-
+      # re call peaks or stick with current table
+      if(!is.logical(force_repeat_pattern)){
+        stop(
+          call. = FALSE,
+          "force_repeat_pattern must be logical"
+        )
+      } else if (!force_repeat_pattern) {
         repeat_table_df <- data.frame(
           unique_id = fragment$peak_table_df$unique_id,
           size = fragment$peak_table_df$size, 
@@ -694,52 +590,26 @@ call_repeats <- function(
             rep(FALSE, nrow(fragment$peak_table_df))
           )
         )
-      } else if (repeat_calling_algorithm == "fft") {
+      } else if (force_repeat_pattern) {
         # check to see that fragments repeats has trace data since that is required.
         if (is.null(fragment$trace_bp_df)) {
-          stop("fft algorithm requires trace data. Use fsa samples rather than peak table is inputs into the pipeline.",
-            call. = FALSE
-          )
-        }
-
-        # this function generates a new peak table
-        fft_peak_df <- fft_repeat_caller(fragment,
-          fragment_window = repeat_calling_algorithm_size_window_around_allele,
-          scan_peak_window = repeat_calling_algorithm_peak_assignment_scan_window
-        )
-
-        repeat_table_df <- data.frame(
-          unique_id = fft_peak_df$unique_id,
-          size = fft_peak_df$size, 
-          height = fft_peak_df$signal,
-          calculated_repeats = (fft_peak_df$size - assay_size_without_repeat) / repeat_size,
-          off_scale = fft_peak_df$off_scale
-        )
-      } else if (repeat_calling_algorithm == "size_period") {
-        # check to see that fragments repeats has trace data since that is required.
-        if (is.null(fragment$trace_bp_df)) {
-          stop("size_period algorithm requires trace data. Use fsa samples rather than peak table is inputs into the pipeline.",
+          stop("force_repeat_pattern requires trace data. Use fsa samples rather than peak table for input into the pipeline.",
             call. = FALSE
           )
         }
         size_period_df <- size_period_repeat_caller(fragment,
-          size_period = repeat_calling_algorithm_size_period,
-          fragment_window = repeat_calling_algorithm_size_window_around_allele,
-          scan_peak_window = repeat_calling_algorithm_peak_assignment_scan_window
+          repeat_size = repeat_size,
+          size_period = force_repeat_pattern_size_period,
+          scan_peak_window = force_repeat_pattern_scan_window
         )
         repeat_table_df <- data.frame(
           unique_id = size_period_df$unique_id,
-          size = size_period_df$size, #use the original size so that the correction in the repeat table is only applied to repeats rather than size
+          size = size_period_df$size,
           height = size_period_df$signal,
           calculated_repeats = (size_period_df$size - assay_size_without_repeat) / repeat_size,
           off_scale = size_period_df$off_scale
         )
-      } else {
-        stop(
-          call. = FALSE,
-          "Invalid repeat calling algorithm selected"
-        )
-      }
+      } 
       fragment$repeat_table_df <- repeat_table_df
       return(fragment)
   })
