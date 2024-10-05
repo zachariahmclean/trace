@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,9 +35,9 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="main-functions">Main functions<a class="anchor" aria-label="anchor" href="#main-functions"></a></h2>
 
-
+      <div class="section-desc"><p>Process fsa files to generate instability metrics</p></div>
 
 
     </div><div class="section level2">
@@ -47,10 +47,40 @@
 
       <dl><dt>
 
+          <code><a href="read_fsa.html">read_fsa()</a></code>
+
+        </dt>
+        <dd>Read fsa file</dd>
+      </dl><dl><dt>
+
           <code><a href="add_metadata.html">add_metadata()</a></code>
 
         </dt>
         <dd>Add Metadata to Fragments List</dd>
+      </dl><dl><dt>
+
+          <code><a href="find_ladders.html">find_ladders()</a></code>
+
+        </dt>
+        <dd>Ladder and bp sizing</dd>
+      </dl><dl><dt>
+
+          <code><a href="find_fragments.html">find_fragments()</a></code>
+
+        </dt>
+        <dd>Find fragment peaks</dd>
+      </dl><dl><dt>
+
+          <code><a href="find_alleles.html">find_alleles()</a></code>
+
+        </dt>
+        <dd>Find Alleles</dd>
+      </dl><dl><dt>
+
+          <code><a href="call_repeats.html">call_repeats()</a></code>
+
+        </dt>
+        <dd>Call Repeats for Fragments</dd>
       </dl><dl><dt>
 
           <code><a href="assign_index_peaks.html">assign_index_peaks()</a></code>
@@ -63,127 +93,18 @@
 
         </dt>
         <dd>Calculate Repeat Instability Metrics</dd>
-      </dl><dl><dt>
+      </dl></div><div class="section level2">
+      <h2 id="plotting-functions">Plotting functions<a class="anchor" aria-label="anchor" href="#plotting-functions"></a></h2>
 
-          <code><a href="call_repeats.html">call_repeats()</a></code>
+      <div class="section-desc"><p>Explore data through plots</p></div>
 
-        </dt>
-        <dd>Call Repeats for Fragments</dd>
-      </dl><dl><dt>
 
-          <code><a href="cell_line_fsa_list.html">cell_line_fsa_list</a></code>
+    </div><div class="section level2">
 
-        </dt>
-        <dd>A list of fsa files</dd>
-      </dl><dl><dt>
 
-          <code><a href="example_data.html">example_data</a></code>
 
-        </dt>
-        <dd>example_data</dd>
-      </dl><dl><dt>
 
-          <code><a href="example_data_genemapper_alleles.html">example_data_genemapper_alleles</a></code>
-
-        </dt>
-        <dd>example_data_genemapper_alleles</dd>
-      </dl><dl><dt>
-
-          <code><a href="example_data_repeat_table.html">example_data_repeat_table</a></code>
-
-        </dt>
-        <dd>example_data_repeat_table</dd>
-      </dl><dl><dt>
-
-          <code><a href="extract_alleles.html">extract_alleles()</a></code>
-
-        </dt>
-        <dd>Extract Modal Peaks</dd>
-      </dl><dl><dt>
-
-          <code><a href="extract_fragments.html">extract_fragments()</a></code>
-
-        </dt>
-        <dd>Extract All Fragments</dd>
-      </dl><dl><dt>
-
-          <code><a href="extract_ladder_summary.html">extract_ladder_summary()</a></code>
-
-        </dt>
-        <dd>Extract ladder summary</dd>
-      </dl><dl><dt>
-
-          <code><a href="extract_trace_table.html">extract_trace_table()</a></code>
-
-        </dt>
-        <dd>Extract traces</dd>
-      </dl><dl><dt>
-
-          <code><a href="find_alleles.html">find_alleles()</a></code>
-
-        </dt>
-        <dd>Find Alleles</dd>
-      </dl><dl><dt>
-
-          <code><a href="find_fragments.html">find_fragments()</a></code>
-
-        </dt>
-        <dd>Find fragment peaks</dd>
-      </dl><dl><dt>
-
-          <code><a href="find_ladders.html">find_ladders()</a></code>
-
-        </dt>
-        <dd>Ladder and bp sizing</dd>
-      </dl><dl><dt>
-
-          <code><a href="fix_ladders_interactive.html">fix_ladders_interactive()</a></code>
-
-        </dt>
-        <dd>Fix ladders interactively</dd>
-      </dl><dl><dt>
-
-          <code><a href="fix_ladders_manual.html">fix_ladders_manual()</a></code>
-
-        </dt>
-        <dd>Fix ladders manually</dd>
-      </dl><dl><dt>
-
-          <code><a href="fragments.html">fragments</a></code>
-
-        </dt>
-        <dd>fragments object</dd>
-      </dl><dl><dt>
-
-          <code><a href="fragments_repeats.html">fragments_repeats</a></code>
-
-        </dt>
-        <dd>fragments_repeats object</dd>
-      </dl><dl><dt>
-
-          <code><a href="fragments_trace.html">fragments_trace</a></code>
-
-        </dt>
-        <dd>fragments_trace object</dd>
-      </dl><dl><dt>
-
-          <code><a href="generate_trace_template.html">generate_trace_template()</a></code>
-
-        </dt>
-        <dd>Generate a Quarto file that has the instability pipeline preset</dd>
-      </dl><dl><dt>
-
-          <code><a href="metadata.html">metadata</a></code>
-
-        </dt>
-        <dd>metadata</dd>
-      </dl><dl><dt>
-
-          <code><a href="peak_table_to_fragments.html">peak_table_to_fragments()</a></code>
-
-        </dt>
-        <dd>Convert Peak Table to Fragments_repeats class</dd>
-      </dl><dl><dt>
+      <dl><dt>
 
           <code><a href="plot_batch_correction_samples.html">plot_batch_correction_samples()</a></code>
 
@@ -209,30 +130,193 @@
         <dd>Plot ladder</dd>
       </dl><dl><dt>
 
+          <code><a href="plot_repeat_correction_model.html">plot_repeat_correction_model()</a></code>
+
+        </dt>
+        <dd>Plot Repeat Correction Model</dd>
+      </dl><dl><dt>
+
           <code><a href="plot_traces.html">plot_traces()</a></code>
 
         </dt>
         <dd>Plot sample traces</dd>
-      </dl><dl><dt>
+      </dl></div><div class="section level2">
+      <h2 id="ladder-fixing">Ladder fixing<a class="anchor" aria-label="anchor" href="#ladder-fixing"></a></h2>
 
-          <code><a href="read_fsa.html">read_fsa()</a></code>
+      <div class="section-desc"><p>Functions for fixing ladders</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="fix_ladders_interactive.html">fix_ladders_interactive()</a></code>
 
         </dt>
-        <dd>Read fsa file</dd>
+        <dd>Fix ladders interactively</dd>
+      </dl><dl><dt>
+
+          <code><a href="fix_ladders_manual.html">fix_ladders_manual()</a></code>
+
+        </dt>
+        <dd>Fix ladders manually</dd>
+      </dl></div><div class="section level2">
+      <h2 id="helper-functions">Helper functions<a class="anchor" aria-label="anchor" href="#helper-functions"></a></h2>
+
+      <div class="section-desc"><p>Useful functions for extracting information samples or modifying lists of objects</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="extract_alleles.html">extract_alleles()</a></code>
+
+        </dt>
+        <dd>Extract Modal Peaks</dd>
+      </dl><dl><dt>
+
+          <code><a href="extract_fragments.html">extract_fragments()</a></code>
+
+        </dt>
+        <dd>Extract All Fragments</dd>
+      </dl><dl><dt>
+
+          <code><a href="extract_ladder_summary.html">extract_ladder_summary()</a></code>
+
+        </dt>
+        <dd>Extract ladder summary</dd>
+      </dl><dl><dt>
+
+          <code><a href="extract_trace_table.html">extract_trace_table()</a></code>
+
+        </dt>
+        <dd>Extract traces</dd>
       </dl><dl><dt>
 
           <code><a href="remove_fragments.html">remove_fragments()</a></code>
 
         </dt>
         <dd>Remove Samples from List</dd>
+      </dl></div><div class="section level2">
+      <h2 id="generate-template">Generate template<a class="anchor" aria-label="anchor" href="#generate-template"></a></h2>
+
+      <div class="section-desc"><p>Functions that generate templates</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="generate_trace_template.html">generate_trace_template()</a></code>
+
+        </dt>
+        <dd>Generate a Quarto file that has the instability pipeline preset</dd>
+      </dl></div><div class="section level2">
+      <h2 id="import-data">Import data<a class="anchor" aria-label="anchor" href="#import-data"></a></h2>
+
+      <div class="section-desc"><p>Import data from non-fsa formats as a peak table or repeat table</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="peak_table_to_fragments.html">peak_table_to_fragments()</a></code>
+
+        </dt>
+        <dd>Convert Peak Table to Fragments_repeats class</dd>
       </dl><dl><dt>
 
           <code><a href="repeat_table_to_repeats.html">repeat_table_to_repeats()</a></code>
 
         </dt>
         <dd>Convert Repeat Table to Repeats Fragments</dd>
+      </dl></div><div class="section level2">
+      <h2 id="package-r-objects">Package R6 objects<a class="anchor" aria-label="anchor" href="#package-r-objects"></a></h2>
+
+      <div class="section-desc"><p>documentation for objects used in this package</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="fragments.html">fragments</a></code>
+
+        </dt>
+        <dd>fragments object</dd>
+      </dl><dl><dt>
+
+          <code><a href="fragments_trace.html">fragments_trace</a></code>
+
+        </dt>
+        <dd>fragments_trace object</dd>
+      </dl><dl><dt>
+
+          <code><a href="fragments_repeats.html">fragments_repeats</a></code>
+
+        </dt>
+        <dd>fragments_repeats object</dd>
+      </dl></div><div class="section level2">
+      <h2 id="example-data">Example data<a class="anchor" aria-label="anchor" href="#example-data"></a></h2>
+
+      <div class="section-desc"><p>A collection of data that can be used for example analyses</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="cell_line_fsa_list.html">cell_line_fsa_list</a></code>
+
+        </dt>
+        <dd>A list of fsa files</dd>
+      </dl><dl><dt>
+
+          <code><a href="metadata.html">metadata</a></code>
+
+        </dt>
+        <dd>metadata</dd>
+      </dl><dl><dt>
+
+          <code><a href="example_data.html">example_data</a></code>
+
+        </dt>
+        <dd>example_data</dd>
+      </dl><dl><dt>
+
+          <code><a href="example_data_genemapper_alleles.html">example_data_genemapper_alleles</a></code>
+
+        </dt>
+        <dd>example_data_genemapper_alleles</dd>
+      </dl><dl><dt>
+
+          <code><a href="example_data_repeat_table.html">example_data_repeat_table</a></code>
+
+        </dt>
+        <dd>example_data_repeat_table</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
