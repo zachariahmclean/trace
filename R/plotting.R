@@ -677,13 +677,16 @@ plot_data_channels <- function(
 #'
 #' Plots the results of the repeat correction model for a list of fragments.
 #'
-#' @param fragments_list A list of fragments_repeats class objects obtained from the 'call_repeats' function when the 'repeat_length_correction' was either 'from_metadata' or 'from_genemapper'.
-#'
-#' @return A base R graphic object displaying the repeat correction model results.
+#' @param fragments_list A list of fragments_repeats class objects obtained from the [call_repeats()] function when the `correction = "repeat"` parameter is used.
 #' @param batch_run_id_subset A character vector for a subset of batch_sample_id to plot. Or alternatively supply a number to select batch sample by position in alphabetical order.
 #' @param n_facet_col A numeric value indicating the number of columns for faceting in the plot.
+#' 
 #' @export
-#'
+#' @return A base R graphic object displaying the repeat correction model results.
+#' 
+#' @details
+#' This function makes plots for the model used to correct samples for each `batch_run_id`. The repeat correction algorithm assigns the user supplied repeat length to the modal peak of the sample, then pulls out a set of robust neighboring peaks to help get enough data to build an accurate linear model for the relationship between base-pair size and repeat length. So on this plot, each dot is an individual peak, with the colour indicating each sample, with the y-axis is the repeat length called from the user-supplied value in the metadata and the value assigned to each peak, with the x-axis showing the corresponding base-pair size.
+#' 
 #' @examples
 #'
 #'

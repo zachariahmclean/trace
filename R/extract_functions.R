@@ -193,3 +193,90 @@ extract_fragments <- function(fragments_list) {
 
   return(extracted_df)
 }
+
+
+
+#' Extract repeat correction summary
+#'
+#' Extracts a table summarizing the model used to correct repeat length
+#'
+#' @param fragments_list A list of fragments_repeats class objects obtained from the [call_repeats()] function when the `correction = "repeat"` parameter is used.
+#' @export
+#' @return A data.frame
+#' @details
+#' For each of the samples used for repeat correction, this table pulls out the modal repeat length called by the model (`allele_repeat`), how far that sample is on average from the linear model in repeat units by finding the average residuals (`avg_residual`), and the absolute value of the `avg_residual` (`abs_avg_residual`)
+#' 
+#' @examples
+#'
+#'
+#' fsa_list <- lapply(cell_line_fsa_list[91:94], function(x) x$clone())
+#'
+#' find_ladders(fsa_list, show_progress_bar = FALSE)
+#'
+#' fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
+#'
+#' test_alleles <- find_alleles(
+#'   fragments_list 
+#' )
+#' 
+#' add_metadata(
+#'   fragments_list,
+#'   metadata
+#' )
+#'
+#'
+#' call_repeats(
+#'   fragments_list = fragments_list,
+#'   correction = "repeat"
+#' )
+#'
+#' # finally extract repeat correction summary
+#' extract_repeat_correction_summary(fragments_list)
+#'
+#'
+extract_repeat_correction_summary <- function(
+  fragments_list
+){
+  # first do some validation to check if it's valid that they are trying to use this function
+  if(is.null(fragments_list[[1]]$.__enclos_env__$private$repeat_correction_mod)){
+    stop(call. = FALSE, "No repeat correction model detected in the first sample. You must have used correction = 'repeat' in call_repeats() to use this function.")
+  }
+  first_model_df <- fragments_list[[1]]$.__enclos_env__$private$repeat_correction_mod
+  identical_model_test <- logical(length(fragments_list))
+  for (i in seq_along(fragments_list)) {
+    identical_model_test[i] <- identical(first_model_df, fragments_list[[i]]$.__enclos_env__$private$repeat_correction_mod)
+  }
+  if (!all(identical_model_test)) {
+    stop("The supplied fragments list must come from the same 'call_repeats' function output", call. = FALSE)
+  }
+
+  #generate table of average residual and allele
+  controls_repeats_df <- fragments_list[[1]]$.__enclos_env__$private$repeat_correction_mod$model
+  controls_repeats_df$unique_id <- sub("\\.[0-9]+$", "", row.names(controls_repeats_df))
+  controls_repeats_df$residuals <- fragments_list[[1]]$.__enclos_env__$private$repeat_correction_mod$residuals
+  
+  controls_repeats_df_split <- split(controls_repeats_df, controls_repeats_df$unique_id)
+  controls_repeats_df_split_summarized <- lapply(controls_repeats_df_split, function(x){
+    data.frame(
+      unique_id = unique(x$unique_id),
+      avg_residual = mean(x$residuals)
+    )
+  })
+  
+  controls_repeats_summarized <- do.call(rbind, controls_repeats_df_split_summarized)
+  controls_repeats_summarized$batch_run_id <- sapply(fragments_list[controls_repeats_summarized$unique_id], function(x) x$batch_run_id)
+  controls_repeats_summarized$batch_sample_id <- sapply(fragments_list[controls_repeats_summarized$unique_id], function(x) x$batch_sample_id)
+  controls_repeats_summarized$batch_sample_modal_repeat <- sapply(fragments_list[controls_repeats_summarized$unique_id], function(x) x$batch_sample_modal_repeat)
+  controls_repeats_summarized$allele_repeat <- sapply(fragments_list[controls_repeats_summarized$unique_id], function(x) x$get_allele_peak()$allele_repeat)
+  controls_repeats_summarized$abs_avg_residual <- abs(controls_repeats_summarized$avg_residual)
+  # reorder cols
+  controls_repeats_summarized <- controls_repeats_summarized[ ,names(controls_repeats_summarized)[c(1,3:6,2,7)]]
+
+  return(controls_repeats_summarized)
+}
+
+
+
+
+
+

@@ -397,6 +397,11 @@ testthat::test_that("repeat correction", {
   testthat::expect_true(all.equal(c(10.56710, 10.65743, 11.16389, 11.23808), round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$repeat_correction_factor)), 5)))
 
 
+  # extract model summary
+  correction_summary <- extract_repeat_correction_summary(fragments_list)
+
+  testthat::expect_true(is.data.frame(correction_summary))
+  testthat::expect_true(all.equal(round(correction_summary$abs_avg_residual, 5), c(0.01715, 0.01715, 0.02232, 0.01913)))
 
 })
 
