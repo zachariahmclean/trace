@@ -151,8 +151,8 @@ remove_fragments <- function(
 #' Generate a Quarto file that has the instability pipeline preset
 #'
 #' @param file_name Name of file to create
-#' @param batch_correction Indicates if the functionality for correcting repeat size using size standards across batches be included in the pipeline. See \code{\link{add_metadata}} & \code{\link{call_repeats}} for more info.
-#' @param samples_grouped Indicates if the functionality for grouping samples for metrics calculations should be included in the pipeline. See \code{\link{add_metadata}} & \code{\link{assign_index_peaks}} for more info.
+#' @param correction select either "none", "batch" or "repeat" to indicate if the functionality for correcting repeat size using size standards across batches be included in the pipeline. See [add_metadata()] & [call_repeats()] for more info.
+#' @param samples_grouped Indicates if the functionality for grouping samples for metrics calculations should be included in the pipeline. See [add_metadata()] & [assign_index_peaks()] for more info.
 #'
 #' @return A Quarto template file for repeat instability analysis
 #' @export
@@ -168,22 +168,8 @@ remove_fragments <- function(
 #'
 generate_trace_template <- function(
   file_name = NULL,
-  batch_correction = TRUE,
+  correction = "batch",
   samples_grouped = TRUE) {
-
-comment_out_lines <- function(content, start_pattern, end_pattern, comment_message = NULL) {
-  start_idx <- grep(start_pattern, content)
-  end_idx <- grep(end_pattern, content)[grep(end_pattern, content) > start_idx][1]
-
-  if (length(start_idx) > 0 && length(end_idx) > 0) {
-    content[(start_idx + 1):(end_idx - 1)] <- paste("#", content[(start_idx + 1):(end_idx - 1)])
-    if (!is.null(comment_message)) {
-      content <- append(content, comment_message, after = start_idx - 1)
-    }
-  }
-
-  return(content)
-}
 
 if (is.null(file_name)) {
   stop("You must provide a valid file_name")
@@ -197,28 +183,22 @@ if (!file.exists(source_file)) {
 
 template_content <- readLines(source_file)
 
-if (!batch_correction) {
-  template_content <- gsub('metadata\\$batch_run_id <- metadata\\$batch_run_id', '# metadata$batch_run_id <- metadata$batch_run_id', template_content)
-  template_content <- gsub('metadata\\$batch_sample_id <- metadata\\$batch_sample_id', '# metadata$batch_sample_id <- metadata$batch_sample_id', template_content)
-  template_content <- gsub('batch_correction = TRUE', 'batch_correction = FALSE', template_content)
+if (correction == "none") {
+  template_content <- gsub('correction = "batch"', 'correction = "none"', template_content)
   template_content <- gsub('batch_run_id = "batch_run_id"', 'batch_run_id = NA', template_content)
   template_content <- gsub('batch_sample_id = "batch_sample_id"', 'batch_sample_id = NA', template_content)
+} else if(correction == "repeat"){
+  template_content <- gsub('correction = "batch"', 'correction = "repeat"', template_content)
+  template_content <- gsub('batch_sample_modal_repeat = NA', 'batch_sample_modal_repeat = "batch_sample_modal_repeat"', template_content)
+} else if (correction != "batch"){
+  stop(call. = FALSE,
+    "Invalid 'correction' option")
 }
 
 if (!samples_grouped) {
-  template_content <- gsub('metadata\\$metrics_group_id <- metadata\\$metrics_group_id', '# metadata$metrics_group_id <- metadata$metrics_group_id', template_content)
-  template_content <- gsub('metadata\\$metrics_baseline_control <- metadata\\$metrics_baseline_control', '# metadata$metrics_baseline_control <- metadata$metrics_baseline_control', template_content)
   template_content <- gsub('grouped = TRUE', 'grouped = FALSE', template_content)
   template_content <- gsub('metrics_group_id = "metrics_group_id"', 'metrics_group_id = NA', template_content)
   template_content <- gsub('metrics_baseline_control = "metrics_baseline_control"', 'metrics_baseline_control = NA', template_content)
-}
-
-if (!batch_correction & !samples_grouped) {
-  template_content <- gsub('metadata <- read.csv\\("")', '# metadata <- read.csv("")', template_content)
-  template_content <- gsub('metadata\\$unique_id <- metadata\\$unique_id', '# metadata$unique_id <- metadata$unique_id', template_content)
-
-  # Comment out the Add metadata section
-  template_content <- comment_out_lines(template_content, "\\`\\`\\`\\{r Add metadata\\}", "\\`\\`\\`", "metadata not used")
 }
 
 writeLines(template_content, paste0(file_name, ".qmd"))
