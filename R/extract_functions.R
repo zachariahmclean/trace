@@ -40,9 +40,7 @@ extract_trace_table <- function(fragments_trace_list) {
 #' @export
 #'
 #' @details
-#' The ladder peaks are assigned using a custom algorithm that maximizes the fit of detected ladder peaks and given base-pair sizes. The base pair is assigned using the local Southern method. Basically, for each data point, linear models are made for the lower and upper 3 size standard and the predicted sizes are averaged.
-#'
-#' This function summarizes the R-squared values of these individual linear models.
+#' The ladder peaks are assigned using a custom algorithm that maximizes the fit of detected ladder peaks and given base-pair sizes. This function summarizes the R-squared values of these individual correlations.
 #'
 #'
 #' @examples
@@ -61,11 +59,12 @@ extract_ladder_summary <- function(
     stop(call. = FALSE, "Wrong objects supplied. Please supply a list of 'fragments_trace' objects")
   }
   
-  summary_list <- lapply(fragments_trace_list, function(x){
-    rsq <- sapply(x$local_southern_mod, function(mod_list) suppressWarnings(summary(mod_list$mod)$r.squared))
+  summary_list <- lapply(fragments_trace_list, function(fragment){
+    cor_list <- ladder_fit_cor(fragment)
+    rsq <- sapply(cor_list, function(x) x$rsq)
 
     data.frame(
-      unique_id = x$unique_id,
+      unique_id = fragment$unique_id,
       avg_rsq = mean(rsq),
       min_rsq = min(rsq)
     )

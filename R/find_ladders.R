@@ -17,7 +17,6 @@ process_ladder_signal <- function(ladder,
                                   scans,
                                   ladder_start_scan,
                                   smoothing_window) {
-
   ladder_df <- data.frame(signal = ladder, scan = scans)
   ladder_df <- ladder_df[which(ladder_df$scan >= ladder_start_scan), ]
   ladder_df$detrended_signal <- detrend_signal(ladder_df$signal)
@@ -188,12 +187,58 @@ ladder_iteration <- function(reference_sizes,
 }
 
 
+
+# predict bp size
+
+predict_bp_size <- function(
+    ladder_df,
+    scans) {
+  ladder_df <- ladder_df[which(!is.na(ladder_df$size)), ]
+  ladder_df <- ladder_df[which(!is.na(ladder_df$scan)), ]
+
+  n_knots <- ifelse(
+    nrow(ladder_df) > 10, 
+    -1, #the default setting
+    floor(nrow(ladder_df) / 2)
+)
+
+  p_spline_model <- mgcv::gam(size ~ s(scan, bs = "cr", k = n_knots), data = ladder_df)
+  predicted_size <- predict(p_spline_model, newdata = data.frame(scan = scans))
+  
+  return(predicted_size)
+}
+
+
+
+ladder_fit_cor <- function(fragments_trace){
+  ladder_df <- fragments_trace$ladder_df[order(fragments_trace$ladder_df$size),]
+  ladder_df <- ladder_df[which(!is.na(ladder_df$size)), ]
+
+  # Function to calculate the fitting constants for each group of three neighboring points
+  cor_list <- vector("list", length = nrow(ladder_df) - 2)
+
+  for (i in seq_along(cor_list)) {
+    xi <- ladder_df$scan[i:(i + 2)]
+    yi <- ladder_df$size[i:(i + 2)]
+    cor_list[[i]] <- list(
+      rsq = stats::cor(yi, xi)^2,
+      size_ranges = yi
+    )
+  }
+
+  return(cor_list)
+}
+
+
 ladder_rsq_warning_helper <- function(
     fragments_trace,
     rsq_threshold) {
-  rsq <- sapply(fragments_trace$local_southern_mod, function(x) suppressWarnings(summary(x$mod)$r.squared))
+  
+  cor_list <- ladder_fit_cor(fragments_trace)
+  rsq <- sapply(cor_list, function(x) x$rsq)
+
   if (any(rsq < rsq_threshold)) {
-    size_ranges <- sapply(fragments_trace$local_southern_mod, function(x) x$mod$model$yi)
+    size_ranges <- sapply(cor_list, function(x) x$size_ranges)
     size_ranges <- size_ranges[, which(rsq < rsq_threshold), drop = FALSE]
     size_ranges_vector <- vector("numeric", ncol(size_ranges))
     for (j in seq_along(size_ranges_vector)) {
@@ -208,203 +253,6 @@ ladder_rsq_warning_helper <- function(
     )
   }
 }
-
-
-# bp sizing ---------------------------------------------------------------
-
-
-local_southern <- function(x, y) {
-  # do some quality control. There should be no missing values and vectors should be same length
-  if (length(x) != length(y)) {
-    stop(
-      call. = FALSE,
-      "local_southern error: ladder scan and size vectors different lengths"
-    )
-  } else if (any(is.na(x)) | any(is.na(y))) {
-    stop(
-      call. = FALSE,
-      "local_southern error: missing values in ladder scan or size"
-    )
-  }
-
-
-  # Sort the data points by x values
-  sorted_indices <- order(x)
-  x_sorted <- x[sorted_indices]
-  y_sorted <- y[sorted_indices]
-
-  # Function to calculate the fitting constants for each group of three neighboring points
-  mod_list <- vector("list", length = length(x_sorted) - 2)
-
-  for (i in 1:(length(x_sorted) - 2)) {
-    xi <- x_sorted[i:(i + 2)]
-    yi <- y_sorted[i:(i + 2)]
-    mod_list[[i]] <- list(
-      mod = lm(yi ~ xi),
-      first = xi[1],
-      last = xi[3]
-    )
-  }
-
-  return(mod_list)
-}
-
-local_southern_predict <- function(local_southern_output, scans) {
-  # total number of groups to brake the scans into:
-  ladder_scan_pos <- sapply(local_southern_output, function(fit) fit$first)
-
-  # Find the nearest ladder position for each scan position
-  nearest_ladder_index <- sapply(scans, function(scan) which.min(abs(scan - ladder_scan_pos)))
-
-  # Assign the scan positions to corresponding groups based on nearest ladder position
-  scan_split <- split(scans, nearest_ladder_index)
-  size_split <- vector("list", length = length(scan_split))
-  for (i in seq_along(scan_split)) {
-    if (i == 1 | i == length(scan_split)) {
-      size_split[[i]] <- stats::predict(local_southern_output[[i]]$mod, data.frame(xi = scan_split[[i]]))
-    } else {
-      lower_prediction <- stats::predict(local_southern_output[[i - 1]]$mod, data.frame(xi = scan_split[[i]]))
-      upper_prediction <- stats::predict(local_southern_output[[i]]$mod, data.frame(xi = scan_split[[i]]))
-      size_split[[i]] <- (lower_prediction + upper_prediction) / 2
-    }
-  }
-
-  size <- unlist(size_split)
-
-  return(size)
-}
-
-
-# ladder fixing -----------------------------------------------------------
-
-
-ladder_fix_helper <- function(fragments_trace,
-                              replacement_ladder_df) {
-
-  fragments_trace$ladder_df <- replacement_ladder_df
-  ladder_df <- fragments_trace$ladder_df[which(!is.na(fragments_trace$ladder_df$size)), ]
-  ladder_df <- ladder_df[which(!is.na(ladder_df$scan)), ]
-  fragments_trace$local_southern_mod <- local_southern(ladder_df$scan, ladder_df$size)
-
-  predicted_size <- local_southern_predict(local_southern_output = fragments_trace$local_southern_mod, scans = fragments_trace$scan)
-
-  fragments_trace$trace_bp_df <- data.frame(
-    unique_id = rep(fragments_trace$unique_id, length(fragments_trace$scan)),
-    scan = fragments_trace$scan,
-    size = predicted_size,
-    signal = fragments_trace$raw_data,
-    ladder_signal = fragments_trace$raw_ladder,
-    off_scale = fragments_trace$scan %in% fragments_trace$off_scale_scans
-  )
-
-  # make a warning if one of the ladder modes is bad
-  ladder_rsq_warning_helper(fragments_trace,
-    rsq_threshold = 0.998
-  )
-
-  return(fragments_trace)
-}
-
-
-ladder_self_mod_predict <- function(fragments_trace,
-                                    size_threshold,
-                                    size_tolerance,
-                                    rsq_threshold) {
-
-  ladder_sizes <- fragments_trace$ladder_df[which(!is.na(fragments_trace$ladder_df$size)), "size"]
-  ladder_peaks <- fragments_trace$ladder_df$scan
-
-  mod_validations <- vector("list", length(fragments_trace$local_southern_mod))
-  for (i in seq_along(fragments_trace$local_southern_mod)) {
-    predictions <- stats::predict(fragments_trace$local_southern_mod[[i]]$mod, newdata = data.frame(xi = ladder_peaks))
-    low_size_threshold <- fragments_trace$local_southern_mod[[i]]$mod$model$yi[1] - size_threshold
-    high_size_threshold <- fragments_trace$local_southern_mod[[i]]$mod$model$yi[3] + size_threshold
-
-    predictions_close <- predictions[which(predictions > low_size_threshold & predictions < high_size_threshold)]
-    mod_sizes <- fragments_trace$local_southern_mod[[i]]$mod$model$yi
-
-    ladder_hits <- sapply(predictions_close, function(x) {
-      diff <- ladder_sizes - x
-      ladder_hit <- ladder_sizes[which(diff > -size_tolerance & diff < size_tolerance)]
-      if (length(ladder_hit) == 0) {
-        return(NA_real_)
-      } else {
-        return(ladder_hit)
-      }
-    })
-
-
-    ladder_hits <- ladder_hits[!ladder_hits %in% mod_sizes & !is.na(ladder_hits)]
-
-    mod_validations[[i]]$predictions <- predictions
-    mod_validations[[i]]$predictions_close <- predictions_close
-    mod_validations[[i]]$mod_sizes <- mod_sizes
-    mod_validations[[i]]$rsq <- summary(fragments_trace$local_southern_mod[[i]]$mod)$r.squared
-    mod_validations[[i]]$ladder_hits <- ladder_hits
-    mod_validations[[i]]$mod <- fragments_trace$local_southern_mod[[i]]$mod
-  }
-
-  # predicted to be a good model if it has some ladder hits and good rsq
-  # use the good models to predict the rest of the peaks
-  valid_models_tf <- sapply(mod_validations, function(x) ifelse(length(x$ladder_hits) > 0 & x$rsq > rsq_threshold, TRUE, FALSE))
-  valid_models <- mod_validations[which(valid_models_tf)]
-  predicted_sizes_list <- lapply(valid_models, function(x) {
-    sizes <- vector("numeric", length(x$predictions))
-    for (i in seq_along(x$predictions)) {
-      if (x$predictions[i] %in% x$predictions_close) {
-        sizes[i] <- x$predictions[i]
-      } else {
-        sizes[i] <- NA_real_
-      }
-    }
-
-    return(sizes)
-  })
-
-
-  predicted_sizes_matrix <- do.call(cbind, predicted_sizes_list)
-  predicted_sizes_avg <- numeric(nrow(predicted_sizes_matrix))
-  for (i in seq_along(predicted_sizes_avg)) {
-    predicted_sizes_avg[i] <- median(predicted_sizes_matrix[i, ],
-      na.rm = TRUE
-    )
-  }
-
-  confirmed_sizes <- unique(unlist(lapply(valid_models, function(x) x$mod_sizes)))
-  unconfirmed_sizes <- ladder_sizes[which(!ladder_sizes %in% confirmed_sizes)]
-
-  assigned_size <- sapply(predicted_sizes_avg, function(x) {
-    diff <- ladder_sizes - x
-    ladder_hit <- ladder_sizes[which(diff > -size_tolerance * 2 & diff < size_tolerance * 2)]
-    if (length(ladder_hit) == 0) {
-      return(NA_real_)
-    } else {
-      return(ladder_hit)
-    }
-  })
-
-  assigned_df <- data.frame(
-    scan = ladder_peaks[which(assigned_size %in% unconfirmed_sizes)],
-    size = assigned_size[which(assigned_size %in% unconfirmed_sizes)]
-  )
-
-  # bind rows back with the sizes that were inferred to be correct
-
-  ladder_df <- rbind(
-    assigned_df,
-    fragments_trace$ladder_df[which(fragments_trace$ladder_df$size %in% confirmed_sizes), ]
-  )
-
-  # now just rerun the bp sizing
-  fixed_fragment_trace <- ladder_fix_helper(
-    fragments_trace,
-    ladder_df
-  )
-
-  return(fixed_fragment_trace)
-}
-
-
 
 # ladder ------------------------------------------------------------------
 
@@ -426,9 +274,6 @@ ladder_self_mod_predict <- function(fragments_trace,
 #'        are taller than the big spike, you will need to set this starting scan
 #'        number manually.
 #' @param minimum_peak_signal numeric: minimum height of peak from smoothed signal.
-#' @param zero_floor logical: if set to TRUE, all negative values will be set to zero.
-#'        This can help deal with cases where there are peaks in the negative direction
-#'        that interfere with peak detection.
 #' @param scan_subset numeric vector (length 2): filter the ladder and data signal
 #'        between the selected scans (eg scan_subset = c(3000, 5000)).
 #'        to pracma::savgol().
@@ -437,7 +282,6 @@ ladder_self_mod_predict <- function(fragments_trace,
 #' @param ladder_selection_window numeric: in the ladder assigning algorithm,
 #'        the we iterate through the scans in blocks and test their linear fit ( We can assume that the ladder is linear over a short distance)
 #'        This value defines how large that block of peaks should be.
-#' @param smoothing_window numeric: ladder signal smoothing window size passed
 #' @param warning_rsq_threshold The value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold.
 #' @param show_progress_bar show progress bar
 #'
@@ -447,22 +291,22 @@ ladder_self_mod_predict <- function(fragments_trace,
 #' @details
 #' This function takes a list of fragments_trace files (the output from read_fsa) and identifies
 #' the ladders in the ladder channel which is used to call the bp size. The output
-#' is a list of fragments_traces. bp sizes are assigned using the local Southern
-#' method. Basically, for each data point, linear models are made for the lower
-#' and upper 3 size standard and the predicted sizes are averaged.
+#' is a list of fragments_traces. 
+#' 
+#' In this package, base pair (bp) sizes are assigned using a generalized additive model (GAM) with cubic regression splines. The model is fit to known ladder fragment sizes and their corresponding scan positions, capturing the relationship between scan number and bp size. Once trained, the model predicts bp sizes for all scans by interpolating between the known ladder points. This approach provides a flexible and accurate assignment of bp sizes, accommodating the slightly non-linear relationship.
 #'
 #' Use [plot_data_channels()] to plot the raw data on the fsa file to identify which channel the ladder and data are in.
 #'
 #' The ladder peaks are assigned from largest to smallest. I would recommend excluding
 #' size standard peaks less than 50 bp (eg size standard 35 bp).
 #'
-#' Each ladder should be manually inspected to make sure that is has been correctly
-#' assigned.
+#' Each ladder should be manually inspected to make sure that is has been correctly assigned.
 #'
 #' @seealso [plot_data_channels()] to plot the raw data in all channels. [plot_ladders()] to plot the assigned ladder
 #' peaks onto the raw ladder signal. [fix_ladders_interactive()] to fix ladders with
 #' incorrectly assigned peaks.
-#'
+#' 
+#' @importFrom mgcv gam
 #'
 #' @examples
 #'
@@ -480,11 +324,9 @@ find_ladders <- function(
     ladder_sizes = c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
     ladder_start_scan = NULL,
     minimum_peak_signal = NULL,
-    zero_floor = FALSE,
     scan_subset = NULL,
     ladder_selection_window = 5,
     max_combinations = 2500000,
-    smoothing_window = 21,
     warning_rsq_threshold = 0.998,
     show_progress_bar = TRUE) {
 
@@ -496,16 +338,12 @@ find_ladders <- function(
       ladder_start_scan <- which.max(ladder) + 50
     }
 
-    if (zero_floor) {
-      ladder <- pmax(ladder, 0)
-    }
-
     ladder_df <- data.frame(signal = ladder, scan = scans)
     ladder_df <- ladder_df[which(ladder_df$scan >= ladder_start_scan), ]
     ladder_df$detrended_signal <- detrend_signal(ladder_df$signal)
     ladder_df$smoothed_signal <- pracma::savgol(
       ladder_df$detrended_signal,
-      smoothing_window
+      21
     )
 
     ladder_peaks <- find_ladder_peaks(
@@ -572,12 +410,16 @@ find_ladders <- function(
 
     fragments_trace[[i]]$ladder_df <- ladder_df
 
-    # predict bp size
-    ladder_df <- ladder_df[which(!is.na(ladder_df$size)), ]
-    ladder_df <- ladder_df[which(!is.na(ladder_df$scan)), ]
-    fragments_trace[[i]]$local_southern_mod <- local_southern(ladder_df$scan, ladder_df$size)
+    # ladder correlation stats
+    # make a warning if one of the ladder modes is bad
+    ladder_rsq_warning_helper(fragments_trace[[i]],
+      rsq_threshold = warning_rsq_threshold
+    )
 
-    predicted_size <- local_southern_predict(local_southern_output = fragments_trace[[i]]$local_southern_mod, scans = fragments_trace[[i]]$scan)
+    predicted_size <- predict_bp_size(
+      ladder_df = ladder_df,
+      scans = fragments_trace[[i]]$scan
+    )
 
     fragments_trace[[i]]$trace_bp_df <- data.frame(
       unique_id = rep(fragments_trace[[i]]$unique_id, length(fragments_trace[[i]]$scan)),
@@ -586,11 +428,6 @@ find_ladders <- function(
       signal = fragments_trace[[i]]$raw_data,
       ladder_signal = fragments_trace[[i]]$raw_ladder,
       off_scale = fragments_trace[[i]]$scan %in% fragments_trace[[i]]$off_scale_scans
-    )
-
-    # make a warning if one of the ladder modes is bad
-    ladder_rsq_warning_helper(fragments_trace[[i]],
-      rsq_threshold = warning_rsq_threshold
     )
 
     if (show_progress_bar) {
@@ -612,6 +449,7 @@ find_ladders <- function(
 #' and the value being a dataframe. The dataframe has two columns, size (indicating
 #' the bp of the standard) and scan (the scan value of the ladder peak). It's
 #' critical that the element name in the list is the unique id of the sample.
+#' @param warning_rsq_threshold The value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold.
 #'
 #' @return This function modifies list of fragments_trace objects in place with the selected ladders fixed.
 #' @export
@@ -657,7 +495,8 @@ find_ladders <- function(
 #' )
 #'
 fix_ladders_manual <- function(fragments_trace_list,
-                               ladder_df_list) {
+                               ladder_df_list,
+                               warning_rsq_threshold = 0.998) {
   samples_to_fix <- names(ladder_df_list)
   for (i in seq_along(fragments_trace_list)) {
     if (fragments_trace_list[[i]]$unique_id %in% samples_to_fix) {
@@ -673,19 +512,27 @@ fix_ladders_manual <- function(fragments_trace_list,
         )
       }
 
-      fragments_trace_list[[i]] <-  ladder_fix_helper(
-        fragments_trace_list[[i]],
-        replacement_ladder_df = tmp_ladder_df
-        )
-
+      fragments_trace_list[[i]]$ladder_df <- tmp_ladder_df
+      predicted_size <- predict_bp_size(
+        fragments_trace_list[[i]]$ladder_df,
+        fragments_trace_list[[i]]$scan
+      )
+    
+      fragments_trace_list[[i]]$trace_bp_df <- data.frame(
+        unique_id = rep(fragments_trace_list[[i]]$unique_id, length(fragments_trace_list[[i]]$scan)),
+        scan = fragments_trace_list[[i]]$scan,
+        size = predicted_size,
+        signal = fragments_trace_list[[i]]$raw_data,
+        ladder_signal = fragments_trace_list[[i]]$raw_ladder,
+        off_scale = fragments_trace_list[[i]]$scan %in% fragments_trace_list[[i]]$off_scale_scans
+      )
+    
+      # make a warning if one of the ladder modes is bad
+      ladder_rsq_warning_helper(fragments_trace_list[[i]],
+        rsq_threshold = warning_rsq_threshold
+      )
     }
   }
 
   invisible()
 }
-
-
-
-
-
-

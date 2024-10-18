@@ -119,6 +119,6 @@ find_alleles(
 
   medians <- aggregate(rel_gain ~ treatment + genotype, plot_data, median, na.rm = TRUE)
 
-  expect_true(all(round(medians$rel_gain, 5) == c(1.00000, 0.85831, 0.70219, 0.57056, 1.00000, 1.17666, 1.10977, 1.00459)))
+  expect_true(all(round(medians$rel_gain, 5) == c(1.00000, 0.85790, 0.70092, 0.56975, 1.00000, 1.17656, 1.10732, 1.00684)))
 })
 

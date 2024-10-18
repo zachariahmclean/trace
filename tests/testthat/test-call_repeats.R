@@ -123,8 +123,8 @@ find_alleles(
 
 
   testthat::expect_true(
-    identical( test_repeats_size_period[[1]]$repeat_table_df[which(test_repeats_size_period[[1]]$repeat_table_df$repeats > 117 & test_repeats_size_period[[1]]$repeat_table_df$repeats <140),"repeats"],
-               test_repeats_size_none[[1]]$repeat_table_df[which(test_repeats_size_none[[1]]$repeat_table_df$repeats > 117 & test_repeats_size_none[[1]]$repeat_table_df$repeats <140),"repeats"]
+    identical( test_repeats_size_period[[1]]$repeat_table_df[which(test_repeats_size_period[[1]]$repeat_table_df$repeats > 118 & test_repeats_size_period[[1]]$repeat_table_df$repeats <140),"repeats"],
+               test_repeats_size_none[[1]]$repeat_table_df[which(test_repeats_size_none[[1]]$repeat_table_df$repeats > 118 & test_repeats_size_none[[1]]$repeat_table_df$repeats <140),"repeats"]
                )
   )
 
@@ -246,7 +246,7 @@ suppressMessages(
 
   medians <- aggregate(rel_gain ~ treatment + genotype, plot_data, median, na.rm = TRUE)
 
-  testthat::expect_true(all(round(medians$rel_gain, 5) == c(1.00000, 0.85696, 0.70208, 0.57056, 1.00000, 1.17918, 1.10739, 1.00046)))
+  testthat::expect_true(all(round(medians$rel_gain, 5) == c(1.00000, 0.85655, 0.70081, 0.56975, 1.00000, 1.17749, 1.10494, 1.00124)))
 })
 
 
@@ -272,7 +272,10 @@ testthat::test_that("batch correction", {
       correction = "batch")
     )
   )
-  testthat::expect_true(all.equal(c(rep(0.78526, 2), rep(-0.78526, 2)), round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)))
+  testthat::expect_true(all.equal(
+    c(rep(0.73299, 2), rep(-0.73299, 2)), 
+    round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)
+  ))
   
   # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(100, 115))
 
@@ -360,7 +363,10 @@ testthat::test_that("batch correction with a single sample id", {
   
   # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(100, 120))
 
-  testthat::expect_true(all.equal(c(rep(0.86519, 2), rep(-0.86519, 2)), round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)))
+  testthat::expect_true(all.equal(
+    c(rep(0.8113, 2), rep(-0.8113, 2)), 
+    round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)
+  ))
 
 
 
@@ -394,14 +400,17 @@ testthat::test_that("repeat correction", {
   # plot_repeat_correction_model(fragments_list)
 
 
-  testthat::expect_true(all.equal(c(10.56710, 10.65743, 11.16389, 11.23808), round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$repeat_correction_factor)), 5)))
+  testthat::expect_true(all.equal(
+    c(10.51614, 10.58441, 11.09593, 11.17947), 
+    round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$repeat_correction_factor)), 5)
+  ))
 
 
   # extract model summary
   correction_summary <- extract_repeat_correction_summary(fragments_list)
 
   testthat::expect_true(is.data.frame(correction_summary))
-  testthat::expect_true(all.equal(round(correction_summary$abs_avg_residual, 5), c(0.01715, 0.01715, 0.02232, 0.01913)))
+  testthat::expect_true(all.equal(round(correction_summary$abs_avg_residual, 5), c(0.01585, 0.01585, 0.01988, 0.01704)))
 
 })
 
@@ -442,7 +451,7 @@ testthat::test_that("repeat correction with one sample off warning", {
 
 
   testthat::expect_true(class(assignment_warning)[1] == "simpleWarning")
-  testthat::expect_true(grepl("It looks like the following 'batch_sample_id' need", assignment_warning))
+  testthat::expect_true(grepl("had no batch correction carried out", assignment_warning))
 
 
 

@@ -111,9 +111,6 @@ fragments_trace <- R6::R6Class(
     #' @field trace_bp_df A dataframe of bp size for every scan from `find_ladders()`.
     trace_bp_df = NULL,
 
-    #' @field local_southern_mod Output from `local_southern()` function (not exported). It is basically just a list of lm() after breaking up the ladder into chunks of three.
-    local_southern_mod = NULL,
-
     #' @description
     #' Create a new fragments_trace.
     #' @param unique_id usually the file name

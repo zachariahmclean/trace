@@ -6,16 +6,16 @@
 \usage{
 generate_trace_template(
   file_name = NULL,
-  batch_correction = TRUE,
+  correction = "batch",
   samples_grouped = TRUE
 )
 }
 \arguments{
 \item{file_name}{Name of file to create}
 
-\item{batch_correction}{Indicates if the functionality for correcting repeat size using size standards across batches be included in the pipeline. See \code{\link{add_metadata}} & \code{\link{call_repeats}} for more info.}
+\item{correction}{select either "none", "batch" or "repeat" to indicate if the functionality for correcting repeat size using size standards across batches be included in the pipeline. See \code{\link[=add_metadata]{add_metadata()}} & \code{\link[=call_repeats]{call_repeats()}} for more info.}
 
-\item{samples_grouped}{Indicates if the functionality for grouping samples for metrics calculations should be included in the pipeline. See \code{\link{add_metadata}} & \code{\link{assign_index_peaks}} for more info.}
+\item{samples_grouped}{Indicates if the functionality for grouping samples for metrics calculations should be included in the pipeline. See \code{\link[=add_metadata]{add_metadata()}} & \code{\link[=assign_index_peaks]{assign_index_peaks()}} for more info.}
 }
 \value{
 A Quarto template file for repeat instability analysis

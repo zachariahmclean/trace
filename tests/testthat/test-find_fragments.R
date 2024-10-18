@@ -32,7 +32,7 @@ testthat::test_that("find_fragments", {
   tall_peaks <- extracted_fragments[which(extracted_fragments$size > 500 & extracted_fragments$height > 700), ]
 
 
-  testthat::expect_true(all(round(tall_peaks$size, 4) == c(547.5879, 550.0142, 552.4404, 554.8666, 557.2929)))
+  testthat::expect_true(all(round(tall_peaks$size, 4) == c(547.0225, 549.4371, 551.8517, 554.2662, 556.6808)))
 })
 
 

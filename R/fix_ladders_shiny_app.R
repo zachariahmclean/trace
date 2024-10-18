@@ -196,8 +196,9 @@ rsq_table_server <- function(id, fragment_ladder, fragment_ladder_trigger) {
     rsq_table <- shiny::reactive({
       fragment_ladder_trigger()  # Trigger reactivity with fragment_ladder_trigger
 
-      rsq <- sapply(fragment_ladder()$local_southern_mod, function(y) suppressWarnings(summary(y$mod)$r.squared))
-      size_ranges <- sapply(fragment_ladder()$local_southern_mod, function(y) y$mod$model$yi)
+      cor_list <- ladder_fit_cor(fragment_ladder())
+      rsq <- sapply(cor_list, function(x) x$rsq)
+      size_ranges <- sapply(cor_list, function(x) x$size_ranges)
       size_ranges_vector <- vector("numeric", ncol(size_ranges))
       for (j in seq_along(size_ranges_vector)) {
         size_ranges_vector[j] <- paste0(size_ranges[1, j], ", ", size_ranges[2, j], ", ", size_ranges[3, j])

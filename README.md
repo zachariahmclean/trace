@@ -126,10 +126,8 @@ fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 
 # Find ladders
 
-First we find the ladders and call bp size in the fsa file. The bp is
-assigned using the local Southern method. Basically, for each data
-point, linear models are made for the lower and upper 3 size standard
-and the predicted sizes are averaged.
+The known ladder sizes are assigned to peaks in the ladder channel and
+bp are predicted for each scan.
 
 ``` r
 find_ladders(

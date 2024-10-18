@@ -16,8 +16,6 @@ test_that("{shinytest2} recording: fix_ladder-checkbox", {
     show_progress_bar = FALSE
   )
 
-  # sapply(fsa_list[[2]]$local_southern_mod, function(x)  summary(x$mod)$r.squared)
-
   example_list <- list(
     "20230413_B03.fsa" = data.frame(
       size = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
@@ -33,8 +31,6 @@ test_that("{shinytest2} recording: fix_ladder-checkbox", {
       )
     )
   )
-
-  # sapply(fsa_list[[2]]$local_southern_mod, function(x)  summary(x$mod)$r.squared)
 
 
   # to generate the values below I ran a test like below and copied the values
