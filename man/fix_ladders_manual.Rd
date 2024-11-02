@@ -4,7 +4,11 @@
 \alias{fix_ladders_manual}
 \title{Fix ladders manually}
 \usage{
-fix_ladders_manual(fragments_trace_list, ladder_df_list)
+fix_ladders_manual(
+  fragments_trace_list,
+  ladder_df_list,
+  warning_rsq_threshold = 0.998
+)
 }
 \arguments{
 \item{fragments_trace_list}{list of fragments_trace objects}
@@ -13,6 +17,8 @@ fix_ladders_manual(fragments_trace_list, ladder_df_list)
 and the value being a dataframe. The dataframe has two columns, size (indicating
 the bp of the standard) and scan (the scan value of the ladder peak). It's
 critical that the element name in the list is the unique id of the sample.}
+
+\item{warning_rsq_threshold}{The value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold.}
 }
 \value{
 This function modifies list of fragments_trace objects in place with the selected ladders fixed.

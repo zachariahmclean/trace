@@ -18,9 +18,7 @@ a dataframe of ladder quality information
 Extract a table summarizing the ladder models
 }
 \details{
-The ladder peaks are assigned using a custom algorithm that maximizes the fit of detected ladder peaks and given base-pair sizes. The base pair is assigned using the local Southern method. Basically, for each data point, linear models are made for the lower and upper 3 size standard and the predicted sizes are averaged.
-
-This function summarizes the R-squared values of these individual linear models.
+The ladder peaks are assigned using a custom algorithm that maximizes the fit of detected ladder peaks and given base-pair sizes. This function summarizes the R-squared values of these individual correlations.
 }
 \examples{
 
