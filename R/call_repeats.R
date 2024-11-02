@@ -103,32 +103,31 @@ size_period_repeat_caller <- function(
   repeat_size,
   size_period,
   scan_peak_window) {
-  
-  find_peaks_by_scan_period <- function(df,
-                                        main_peak_scan,
-                                        peak_scan_period,
+
+  find_peaks_by_size_period <- function(df,
+                                        main_peak_size,
+                                        size_period,
                                         direction,
                                         window) {
     if (direction == 1) {
-      df_post_main <- df[which(df$scan > main_peak_scan), ]
+      df_post_main <- df[which(df$size > main_peak_size), ]
     } else {
-      df_post_main <- df[which(df$scan < main_peak_scan), ]
-      df_post_main <- df_post_main[order(df_post_main$scan, decreasing = TRUE), ]
-      peak_scan_period <- peak_scan_period * -1
+      df_post_main <- df[which(df$size < main_peak_size), ]
+      df_post_main <- df_post_main[order(df_post_main$size, decreasing = TRUE), ]
+      size_period <- size_period * -1
     }
 
     called_peaks <- numeric()
-    current_scan_position <- main_peak_scan + peak_scan_period
+    current_size_position <- main_peak_size + size_period
     while (TRUE) {
-      window_range <- (current_scan_position - window):(current_scan_position + window)
-      window_df <- df_post_main[df_post_main$scan %in% window_range, ]
+      window_df <- df_post_main[which(df_post_main$size > (current_size_position - window) & df_post_main$size < (current_size_position + window)), ]
 
       if (nrow(window_df) > 0) {
-        tallest_in_window <- window_df[which.max(window_df$signal), "scan"]
-        called_peaks <- c(called_peaks, tallest_in_window)
+        tallest_in_window_df <- window_df[which.max(window_df$signal), ]
+        called_peaks <- c(called_peaks, tallest_in_window_df$scan[1]) #make sure only 1 is picked just in case
 
-        # Update current scan position
-        current_scan_position <- tallest_in_window + peak_scan_period
+        # Update current size position
+        current_size_position <- tallest_in_window_df$size[1] + size_period
       } else {
         # If no more data points, terminate
         break
@@ -137,8 +136,7 @@ size_period_repeat_caller <- function(
 
     return(called_peaks)
   }
-  
-  
+
   if (is.na(fragments_repeat$get_allele_peak()$allele_size)) {
     df <- data.frame(
       "unique_id" = character(),
@@ -146,34 +144,26 @@ size_period_repeat_caller <- function(
       "size" = numeric(),
       "signal" = numeric()
     )
-
     return(df)
   }
 
-  # determine how many scans are in size period
-  fragment_window_positions <- which(fragments_repeat$trace_bp_df$size > fragments_repeat$get_allele_peak()$allele_size - repeat_size * 5 & fragments_repeat$trace_bp_df$size < fragments_repeat$get_allele_peak()$allele_size + repeat_size * 5)
-  window_df <- fragments_repeat$trace_bp_df[fragment_window_positions, ]
-  main_peak_scan <- window_df[which(window_df$size == fragments_repeat$get_allele_peak()$allele_size), "scan"]
-  peak_scan_period <- round(size_period / median(diff(window_df$size)))
-
-  pos_peaks <- find_peaks_by_scan_period(fragments_repeat$trace_bp_df,
-    main_peak_scan,
-    peak_scan_period,
+  pos_peaks <- find_peaks_by_size_period(fragments_repeat$trace_bp_df,
+    fragments_repeat$get_allele_peak()$allele_size,
+    size_period,
     direction = 1,
-    window = scan_peak_window
-  )
+    window = scan_peak_window)
 
-  neg_peaks <- find_peaks_by_scan_period(fragments_repeat$trace_bp_df,
-    main_peak_scan,
-    peak_scan_period,
+  neg_peaks <- find_peaks_by_size_period(fragments_repeat$trace_bp_df,
+    fragments_repeat$get_allele_peak()$allele_size,
+    size_period,
     direction = -1,
-    window = scan_peak_window
-  )
+    window = scan_peak_window)
 
   peak_table <- fragments_repeat$trace_bp_df
-  peak_table <- peak_table[which(peak_table$scan %in% c(neg_peaks, main_peak_scan, pos_peaks)), ]
-  peak_table <- peak_table[which(peak_table$size > fragments_repeat$.__enclos_env__$private$min_bp_size & peak_table$size < fragments_repeat$.__enclos_env__$private$max_bp_size), ]
-
+  allele_scan <- peak_table[which(peak_table$size == fragments_repeat$get_allele_peak()$allele_size), "scan"]
+  peak_table <- peak_table[which(peak_table$scan %in% c(neg_peaks, allele_scan, pos_peaks)), ]
+  peak_table <- peak_table[which(peak_table$size > fragments_repeat$.__enclos_env__$private$min_bp_size & 
+                                 peak_table$size < fragments_repeat$.__enclos_env__$private$max_bp_size), ]
 
   return(peak_table)
 }
@@ -433,7 +423,7 @@ model_repeat_length <- function(
 #' @param force_whole_repeat_units A logical value specifying if the peaks should be forced to be whole repeat units apart. Usually the peaks are slightly under the whole repeat unit if left unchanged.
 #' @param force_repeat_pattern A logical value specifying if the peaks should be re called to fit the specific repeat unit pattern. This requires trace information so you must have started with fsa files.
 #' @param force_repeat_pattern_size_period A numeric value to set the peak periodicity bp size. In fragment analysis, the peaks are usually slightly below the actual repeat unit size, so you can use this value to fine tune what the periodicity should be.
-#' @param force_repeat_pattern_scan_window A numeric value for the scan window when assigning the peak. When the scan period is determined, the algorithm jumps to the predicted scan for the next peak. This value opens a window of the neighboring scans to pick the tallest in.
+#' @param force_repeat_pattern_size_window A numeric value for the size window when assigning the peak. The algorithm jumps to the predicted scan for the next peak. This value opens a window of the given base pair size neighboring scans to pick the tallest in.
 #'
 #' @return This function modifies list of fragments objects in place with repeats added.
 #'
@@ -457,7 +447,7 @@ model_repeat_length <- function(
 #' 
 #' ------------  force_repeat_pattern ------------ 
 #' 
-#' This parameter re-calls the peaks based on specified (`force_repeat_pattern_size_period`) periodicity of the peaks. The main application of this algorithm is to solve the issue of contaminating peaks in the expected regular pattern of peaks. We can use the periodicity to jump between peaks and crack open a window (`force_repeat_pattern_scan_window`) to then pick out the tallest scan in the window.
+#' This parameter re-calls the peaks based on specified (`force_repeat_pattern_size_period`) periodicity of the peaks. The main application of this algorithm is to solve the issue of contaminating peaks in the expected regular pattern of peaks. We can use the periodicity to jump between peaks and crack open a window (`force_repeat_pattern_size_window`) to then pick out the tallest scan in the window.
 #' 
 #' @seealso [find_alleles()], [add_metadata()], [plot_batch_correction_samples()], [plot_repeat_correction_model()], [extract_repeat_correction_summary()]
 #'
@@ -544,7 +534,7 @@ call_repeats <- function(
     force_whole_repeat_units = FALSE,
     force_repeat_pattern = FALSE,
     force_repeat_pattern_size_period = repeat_size * 0.93,
-    force_repeat_pattern_scan_window = 3) {
+    force_repeat_pattern_size_window = 0.5) {
  
   ### in this function, we are doing three key things
       #### 1) use force_repeat_pattern to find repeats and generate a new repeat table dataframe
@@ -603,8 +593,9 @@ call_repeats <- function(
         size_period_df <- size_period_repeat_caller(fragment,
           repeat_size = repeat_size,
           size_period = force_repeat_pattern_size_period,
-          scan_peak_window = force_repeat_pattern_scan_window
+          scan_peak_window = force_repeat_pattern_size_window
         )
+       
         repeat_table_df <- data.frame(
           unique_id = size_period_df$unique_id,
           size = size_period_df$size,
@@ -672,6 +663,7 @@ call_repeats <- function(
       # Finally save main peak repeat length and repeats data
       fragment$repeat_table_df <- repeat_table_df
       allele_subset <- repeat_table_df$repeats[which(repeat_table_df$size == fragment$get_allele_peak()$allele_size)]
+      
       fragment$set_allele_peak(unit = "repeats", value = allele_subset)
       
       # save useful info that is used elsewhere

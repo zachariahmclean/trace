@@ -12,7 +12,7 @@ call_repeats(
   force_whole_repeat_units = FALSE,
   force_repeat_pattern = FALSE,
   force_repeat_pattern_size_period = repeat_size * 0.93,
-  force_repeat_pattern_scan_window = 3
+  force_repeat_pattern_size_window = 0.5
 )
 }
 \arguments{
@@ -30,7 +30,7 @@ call_repeats(
 
 \item{force_repeat_pattern_size_period}{A numeric value to set the peak periodicity bp size. In fragment analysis, the peaks are usually slightly below the actual repeat unit size, so you can use this value to fine tune what the periodicity should be.}
 
-\item{force_repeat_pattern_scan_window}{A numeric value for the scan window when assigning the peak. When the scan period is determined, the algorithm jumps to the predicted scan for the next peak. This value opens a window of the neighboring scans to pick the tallest in.}
+\item{force_repeat_pattern_size_window}{A numeric value for the size window when assigning the peak. The algorithm jumps to the predicted scan for the next peak. This value opens a window of the given base pair size neighboring scans to pick the tallest in.}
 }
 \value{
 This function modifies list of fragments objects in place with repeats added.
@@ -60,7 +60,7 @@ The \code{force_whole_repeat_units} option aims to correct for the systematic un
 
 ------------  force_repeat_pattern ------------
 
-This parameter re-calls the peaks based on specified (\code{force_repeat_pattern_size_period}) periodicity of the peaks. The main application of this algorithm is to solve the issue of contaminating peaks in the expected regular pattern of peaks. We can use the periodicity to jump between peaks and crack open a window (\code{force_repeat_pattern_scan_window}) to then pick out the tallest scan in the window.
+This parameter re-calls the peaks based on specified (\code{force_repeat_pattern_size_period}) periodicity of the peaks. The main application of this algorithm is to solve the issue of contaminating peaks in the expected regular pattern of peaks. We can use the periodicity to jump between peaks and crack open a window (\code{force_repeat_pattern_size_window}) to then pick out the tallest scan in the window.
 }
 \examples{
 

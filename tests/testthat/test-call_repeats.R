@@ -105,7 +105,8 @@ find_alleles(
     suppressWarnings(
        call_repeats(
         fragments_list = test_repeats_size_period,
-        force_repeat_pattern = TRUE
+        force_repeat_pattern = TRUE,
+        force_repeat_pattern_size_window = 0.5
       )
     )
   )
@@ -116,8 +117,7 @@ find_alleles(
     suppressWarnings(
      call_repeats(
         fragments_list = test_repeats_size_none,
-        force_repeat_pattern = FALSE
-      )
+        force_repeat_pattern = FALSE )
     )
   )
 
@@ -246,7 +246,7 @@ suppressMessages(
 
   medians <- aggregate(rel_gain ~ treatment + genotype, plot_data, median, na.rm = TRUE)
 
-  testthat::expect_true(all(round(medians$rel_gain, 5) == c(1.00000, 0.85655, 0.70081, 0.56975, 1.00000, 1.17749, 1.10494, 1.00124)))
+  testthat::expect_true(all(round(medians$rel_gain, 5) == c(1.00000, 0.85655, 0.70081, 0.56975, 1.00000, 1.21334, 1.07968, 1.01408)))
 })
 
 

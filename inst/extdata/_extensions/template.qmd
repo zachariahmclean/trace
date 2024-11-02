@@ -131,7 +131,7 @@ call_repeats(
   correction = "batch",
   # advanced parameters for fine tuning
   force_repeat_pattern = FALSE,
-  force_repeat_pattern_scan_window = 3,
+  force_repeat_pattern_size_window = 3,
   force_repeat_pattern_size_period = 3 * 0.93
 )
 
