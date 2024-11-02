@@ -246,14 +246,14 @@ suppressMessages(
 
   medians <- aggregate(rel_gain ~ treatment + genotype, plot_data, median, na.rm = TRUE)
 
-  testthat::expect_true(all(round(medians$rel_gain, 5) == c(1.00000, 0.85655, 0.70081, 0.56975, 1.00000, 1.21334, 1.07968, 1.01408)))
+  testthat::expect_true(all(round(medians$rel_gain, 5) == c(1.00000, 0.86154, 0.73268, 0.55720)))
 })
 
 
 
 testthat::test_that("batch correction", {
 
-  fsa_list <- lapply(cell_line_fsa_list[91:94], function(x) x$clone())
+  fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
   find_ladders(fsa_list,
           show_progress_bar = FALSE)
 
@@ -261,7 +261,7 @@ testthat::test_that("batch correction", {
 
 
   add_metadata(fragments_list,
-    metadata[91:94, ])
+    metadata[16:19, ])
 
   
   
@@ -296,9 +296,9 @@ testthat::test_that("batch correction with no data in one batch", {
   different_batch_metadata$batch_sample_id <- NA_character_
 
 
-  metadata_modification_df <- rbind(metadata[91:94, ],  different_batch_metadata)
+  metadata_modification_df <- rbind(metadata[16:19, ],  different_batch_metadata)
 
-  fsa_list <- c(lapply(cell_line_fsa_list[91:94], function(x) x$clone()), different_batch)
+  fsa_list <- c(lapply(cell_line_fsa_list[16:19], function(x) x$clone()), different_batch)
   find_ladders(fsa_list,
           show_progress_bar = FALSE)
 
@@ -337,14 +337,14 @@ testthat::test_that("batch correction with a single sample id", {
 
 
 
-  fsa_list <- lapply(cell_line_fsa_list[91:94], function(x) x$clone())
+  fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
   find_ladders(fsa_list,
           show_progress_bar = FALSE)
 
   fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
 
   add_metadata(fragments_list,
-    metadata[91:94, ])
+    metadata[16:19, ])
   
     fragments_list <- lapply(fragments_list, function(x){
     if(x$batch_sample_id %in% "S-21-211"){
@@ -375,14 +375,14 @@ testthat::test_that("batch correction with a single sample id", {
 
 testthat::test_that("repeat correction", {
 
-  fsa_list <- lapply(cell_line_fsa_list[91:94], function(x) x$clone())
+  fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
   find_ladders(fsa_list,
           show_progress_bar = FALSE)
 
   fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
 
   add_metadata(fragments_list,
-    metadata[91:94, ])
+    metadata[16:19, ])
     
   find_alleles(fragments_list)
 
@@ -417,7 +417,7 @@ testthat::test_that("repeat correction", {
 
 testthat::test_that("repeat correction with one sample off warning", {
 
-  fsa_list <- lapply(cell_line_fsa_list[91:94], function(x) x$clone())
+  fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
   find_ladders(fsa_list,
           show_progress_bar = FALSE)
   
@@ -427,7 +427,7 @@ testthat::test_that("repeat correction with one sample off warning", {
   fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
 
   add_metadata(fragments_list,
-    metadata[91:94, ])
+    metadata[16:19, ])
     
   find_alleles(fragments_list)
 
@@ -460,14 +460,14 @@ testthat::test_that("repeat correction with one sample off warning", {
 
 testthat::test_that("repeat correction one run missing", {
 
-  fsa_list <- lapply(cell_line_fsa_list[91:94], function(x) x$clone())
+  fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
   find_ladders(fsa_list,
           show_progress_bar = FALSE)
   
   
   fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
 
-  metadata_2 <- metadata[91:94, ]
+  metadata_2 <- metadata[16:19, ]
 
   metadata_2$batch_sample_modal_repeat <- ifelse(metadata_2$batch_run_id == "20230414", NA_real_,  metadata_2$batch_sample_modal_repeat)
 

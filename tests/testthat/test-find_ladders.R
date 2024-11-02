@@ -68,7 +68,7 @@ test_that("iterative ladder", {
 
 test_that("find ladders", {
 
-  fsa_list <- lapply(cell_line_fsa_list["20230413_B03.fsa"], function(x) x$clone())
+  fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
   suppressWarnings(
     find_ladders(
       fsa_list,
@@ -81,13 +81,13 @@ test_that("find ladders", {
 
 
 
-  testthat::expect_true(all(fsa_list$`20230413_B03.fsa`$ladder_df$scan == c(1555, 1633, 1783, 1927, 2159, 2218, 2278, 2525, 2828, 3161, 3408, 3470, 3792, 4085, 4322, 4370)))
+  testthat::expect_true(all(fsa_list[[1]]$ladder_df$scan == c(1540, 1618, 1766, 1909, 2139, 2198, 2257, 2502, 2802, 3131, 3376, 3438, 3756, 4046, 4280, 4328)))
 })
 
 
 test_that("find ladders scan subset", {
 
-  fsa_list <- lapply(cell_line_fsa_list["20230413_B03.fsa"], function(x) x$clone())
+  fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
   suppressWarnings(
     find_ladders(fsa_list,
       ladder_sizes = c(200, 250, 300, 340, 350, 400, 450),
@@ -100,7 +100,7 @@ test_that("find ladders scan subset", {
 
 
 
-  testthat::expect_true(all(fsa_list$`20230413_B03.fsa`$ladder_df$scan == c(2525, 2828, 3161, 3408, 3470, 3792, 4085)))
+  testthat::expect_true(all(fsa_list[[1]]$ladder_df$scan == c(2502, 2802, 3131, 3376, 3438, 3756, 4046)))
 })
 
 
@@ -109,7 +109,7 @@ test_that("find ladders scan subset", {
 
 test_that("ladder minium height", {
 
-  fsa_list <- lapply(cell_line_fsa_list["20230413_B03.fsa"], function(x) x$clone())
+  fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
 
     test_ladders <- find_ladders(fsa_list,
@@ -123,7 +123,7 @@ test_that("ladder minium height", {
 
 
 
-  testthat::expect_true(all(test_ladders$`20230413_B03.fsa`$ladder_df$scan == c(1555, 1633, 1783, 1927, 2159, 2218, 2278, 2525, 2828, 3161, 3408, 3470, 3792, 4085, 4322, 4370)))
+  testthat::expect_true(all(fsa_list[[1]]$ladder_df$scan == c(1540, 1618, 1766, 1909, 2139, 2198, 2257, 2502, 2802, 3131, 3376, 3438, 3756, 4046, 4280, 4328)))
 })
 
 
@@ -169,12 +169,12 @@ test_that("ladder minium height", {
 
 
 test_that("fix ladders manual", {
-  example_list <- list(
-    "20230413_A01.fsa" = data.frame(
-      size = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
-      scan = c(1593, 1671, 1825, 1971, 2208, 2269, 2329, 2581, 2888, 3228, 3479, 3543, 3872, 4170, 4412, 4460)
-    )
+ example_list <- list(
+  "20230413_A07.fsa" = data.frame(
+    size = c(100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
+    scan = c(1909, 2139, 2198, 2257, 2502, 2802, 3131, 3376, 3438, 3756, 4046, 4280, 4328)
   )
+ )
 
   fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
@@ -192,6 +192,6 @@ test_that("fix ladders manual", {
     )
   )
 
-  expect_true(nrow(fsa_list[[1]]$ladder_df) == 16)
+  expect_true(nrow(fsa_list[[1]]$ladder_df) == 13)
 })
 

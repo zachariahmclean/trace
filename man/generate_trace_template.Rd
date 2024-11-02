@@ -26,7 +26,7 @@ Generate a Quarto file that has the instability pipeline preset
 \examples{
 
 if (interactive()) {
-  generate_instability_template("test")
+   generate_trace_template("test")
 }
 
 

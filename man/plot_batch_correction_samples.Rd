@@ -28,7 +28,7 @@ These plots are made using base R plotting. Sometimes these fail to render in th
 }
 \examples{
 
-fsa_list <- lapply(cell_line_fsa_list[91:94], function(x) x$clone())
+fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
 
 find_ladders(fsa_list, show_progress_bar = FALSE)
 

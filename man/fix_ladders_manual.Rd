@@ -54,10 +54,10 @@ plot(raw_ladder_df$scan, raw_ladder_df$ladder_signal)
 # can be fixed. Each sample would have the the list element name as it's unique id.
 
 example_list <- list(
-  "20230413_A01.fsa" = data.frame(
-    size = c(100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
-    scan = c(1971, 2208, 2269, 2329, 2581, 2888, 3228, 3479, 3543, 3872, 4170, 4412, 4460)
-  )
+ "20230413_A07.fsa" = data.frame(
+   size = c(100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
+   scan = c(1909, 2139, 2198, 2257, 2502, 2802, 3131, 3376, 3438, 3756, 4046, 4280, 4328)
+ )
 )
 
 fix_ladders_manual(

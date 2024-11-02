@@ -458,7 +458,7 @@ model_repeat_length <- function(
 #'
 #' @examples
 #'
-#' fsa_list <- lapply(cell_line_fsa_list[c(90:94)], function(x) x$clone())
+#' fsa_list <- lapply(cell_line_fsa_list[c(16:19)], function(x) x$clone())
 #'
 #' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
@@ -470,7 +470,7 @@ model_repeat_length <- function(
 #' find_alleles(fragments_list)
 #' 
 #' add_metadata(fragments_list,
-#'    metadata[c(90:94), ]
+#'    metadata[c(16:19), ]
 #' )
 #'
 #' # Simple conversion from bp size to repeat size

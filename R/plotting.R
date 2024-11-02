@@ -454,7 +454,7 @@ plot_fragments <- function(
 #' @seealso [call_repeats()] for more info on batch correction.
 #' @examples
 #'
-#' fsa_list <- lapply(cell_line_fsa_list[91:94], function(x) x$clone())
+#' fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
 #'
 #' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
@@ -690,7 +690,7 @@ plot_data_channels <- function(
 #' @examples
 #'
 #'
-#' fsa_list <- lapply(cell_line_fsa_list[91:94], function(x) x$clone())
+#' fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
 #'
 #' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'

@@ -28,18 +28,17 @@ be saved and used within a script so that the correct does not need to be done
 every time.
 }
 \examples{
-fsa_list <- lapply(cell_line_fsa_list["20230413_B03.fsa"], function(x) x$clone())
+fsa_list <- lapply(cell_line_fsa_list["20230413_A08.fsa"], function(x) x$clone())
 
 find_ladders(fsa_list, show_progress_bar = FALSE)
 
 # to create an example, lets brake one of the ladders
-brake_ladder_list <- list(
-  "20230413_B03.fsa" = data.frame(
-    size = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
-    scan = c(1555, 1633, 1783, 1827, 2159, 2218, 2278, 2525, 2828, 3161, 3408, 3470, 3792,
-             4085, 4322, 4370)
-  )
-)
+brake_ladder_list <-  list(
+   "20230413_A08.fsa" = data.frame(
+     size = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
+     scan = c(1544, 1621, 1850, 1912, 2143, 2201, 2261, 2506, 2805, 3135, 3380, 3442, 3760, 4050, 4284, 4332)
+   )
+ )
 
 fix_ladders_manual(
   fsa_list,
@@ -50,7 +49,7 @@ plot_ladders(fsa_list)
 
 
 if (interactive()) {
-  fix_ladders_interactive(test_ladders_broken)
+  fix_ladders_interactive(fsa_list)
 }
 
 # once you have corrected your ladders in the app,

@@ -21,7 +21,7 @@ For each of the samples used for repeat correction, this table pulls out the mod
 \examples{
 
 
-fsa_list <- lapply(cell_line_fsa_list[91:94], function(x) x$clone())
+fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
 
 find_ladders(fsa_list, show_progress_bar = FALSE)
 

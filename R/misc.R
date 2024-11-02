@@ -162,7 +162,7 @@ remove_fragments <- function(
 #' @examples
 #'
 #' if (interactive()) {
-#'   generate_instability_template("test")
+#'    generate_trace_template("test")
 #' }
 #'
 #'

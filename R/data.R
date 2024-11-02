@@ -19,17 +19,6 @@
 "example_data"
 
 
-
-#' example_data_genemapper_alleles
-#'
-#' example_data_genemapper_alleles is genemapper output peak table with genemapper
-#' alleles called
-#'
-#' @format ## `example_data_genemapper_alleles`
-#' A genemapper output dataframe
-#' @source <https://www.nature.com/articles/s41467-024-47485-0>
-"example_data_genemapper_alleles"
-
 #' example_data_repeat_table
 #'
 #' example_data_repeat_table is data with repeats called
