@@ -53,8 +53,6 @@ combinations that should be tested}
 \item{warning_rsq_threshold}{The value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold.}
 
 \item{show_progress_bar}{show progress bar}
-
-\item{smoothing_window}{numeric: ladder signal smoothing window size passed}
 }
 \value{
 This function modifies list of fragments_trace objects in place with the ladder assigned and base pair calculated.
