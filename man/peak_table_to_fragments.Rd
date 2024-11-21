@@ -8,7 +8,7 @@ peak_table_to_fragments(
   df,
   data_format = NULL,
   peak_size_col = NULL,
-  peak_height_col = NULL,
+  peak_signal_col = NULL,
   unique_id = NULL,
   dye_col = NULL,
   dye_channel = NULL,
@@ -24,7 +24,7 @@ peak_table_to_fragments(
 
 \item{peak_size_col}{A character string specifying column name giving the peak size.}
 
-\item{peak_height_col}{A character string specifying column name giving the peak height.}
+\item{peak_signal_col}{A character string specifying column name giving the peak signal.}
 
 \item{unique_id}{A character string specifying column name giving the unique sample id (often the file name).}
 

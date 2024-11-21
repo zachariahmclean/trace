@@ -29,7 +29,7 @@ testthat::test_that("percentiles", {
 
   percentiles <- find_percentiles(
     repeats = test_distribution_df$repeats,
-    heights = test_distribution_df$height,
+    signals = test_distribution_df$signal,
     index_peak_repeat = test_fragments[[1]]$get_allele_peak()$allele_repeat,
     type = "percentile", # "percentile" or "repeat"
     range = seq(0.1, 0.99, .10),
@@ -38,7 +38,7 @@ testthat::test_that("percentiles", {
 
   repeat_test <- find_percentiles(
     repeats = test_distribution_df$repeats,
-    heights = test_distribution_df$height,
+    signals = test_distribution_df$signal,
     index_peak_repeat = test_fragments[[1]]$get_allele_peak()$allele_repeat,
     type = "repeat", # "percentile" or "repeat"
     range = percentiles$percentile_0.2,

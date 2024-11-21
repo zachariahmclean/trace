@@ -47,14 +47,14 @@ fragments <- R6::R6Class("fragments",
     #' @param x_axis Either "size" or "repeats" to indicate what should be plotted on the x-axis.
     #' @param xlim numeric vector length two specifying the x axis limits
     #' @param ylim numeric vector length two specifying the y axis limits
-    #' @param height_color_threshold A threshold value to colour the peaks relative to the tallest peak. 
+    #' @param signal_color_threshold A threshold value to colour the peaks relative to the tallest peak. 
     #' @param plot_title A character string for setting the plot title. Defaults to the unique id of the object
     #' @return A base R plot
     plot_trace = function(show_peaks = TRUE,
                           x_axis = NULL,
                           ylim = NULL,
                           xlim = NULL,
-                          height_color_threshold = 0.05,
+                          signal_color_threshold = 0.05,
                           plot_title = NULL) {
       plot_trace_helper(
         fragments = self,
@@ -62,7 +62,7 @@ fragments <- R6::R6Class("fragments",
         x_axis = x_axis,
         ylim = ylim,
         xlim = xlim,
-        height_color_threshold = height_color_threshold,
+        signal_color_threshold = signal_color_threshold,
         plot_title = plot_title)
 
     }
@@ -177,7 +177,7 @@ fragments_repeats <- R6::R6Class(
       alleles <- list(
         #these have allele_ prefix, because in R if you just call something repeat, it causes many issues
         allele_size = private$allele_size,
-        allele_height = private$allele_height,
+        allele_signal = private$allele_signal,
         allele_repeat = private$allele_repeat
       )
       return(alleles)
@@ -206,7 +206,7 @@ fragments_repeats <- R6::R6Class(
       }
       # Dynamically construct the variable names and assign values
       private$allele_size <- ifelse(!is.na(value), allele_df$size, NA_real_)
-      private$allele_height <- ifelse(!is.na(value), allele_df$height, NA_real_)
+      private$allele_signal <- ifelse(!is.na(value), allele_df$signal, NA_real_)
       private$allele_repeat <- ifelse(!is.null(self$repeat_table_df) && !is.na(value), allele_df$repeats, NA_real_)      
       private$find_main_peaks_used <- TRUE
 
@@ -218,7 +218,7 @@ fragments_repeats <- R6::R6Class(
     get_index_peak = function(){
       index <- list(
         index_repeat = private$index_repeat,
-        index_height = private$index_height
+        index_signal = private$index_signal
       )
       return(index)
     },
@@ -243,7 +243,7 @@ fragments_repeats <- R6::R6Class(
         value <- NA_real_
       }
       private$index_repeat <- ifelse(!is.na(value), index_df$repeats, NA_real_)
-      private$index_height <- ifelse(!is.na(value), index_df$height, NA_real_)
+      private$index_signal <- ifelse(!is.na(value), index_df$signal, NA_real_)
       private$assigned_index_peak_used <- TRUE
       
       invisible(self)
@@ -268,7 +268,7 @@ fragments_repeats <- R6::R6Class(
     # allele data
     allele_size = NA_real_,
     allele_repeat = NA_real_,
-    allele_height = NA_real_,
+    allele_signal = NA_real_,
     find_main_peaks_used = FALSE,
 
     # call_repeats data
@@ -281,7 +281,7 @@ fragments_repeats <- R6::R6Class(
 
     #assign_index_peak data
     index_repeat = NA_real_,
-    index_height = NA_real_,
+    index_signal = NA_real_,
     index_samples = NULL,
     assigned_index_peak_used = FALSE,
     assigned_index_peak_grouped = NULL,

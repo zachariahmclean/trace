@@ -18,7 +18,7 @@
 #' columns is important since the information is pulled by column position rather
 #' than column name). Closest peak in each sample is selected so the number needs to just be approximate.
 #'
-#' @return This function modifies list of fragments_repeats objects in place with index_repeat and index_height added.
+#' @return This function modifies list of fragments_repeats objects in place with index_repeat and index_signal added.
 #' @details
 #' A key part of instability metrics is the index peak. This is the repeat
 #' length used as the reference peak for relative instability metrics calculations, like expansion index.
@@ -26,7 +26,7 @@
 #'
 #' If `grouped` is set to `TRUE`, this function groups the samples by their `metrics_group_id` and uses the samples set as `metrics_baseline_control` to set the index peak. Use [add_metadata()] to set these variables. This is useful for cases like inferring repeat size of inherited alleles from mouse tail data. If the samples that are going to be used to assign index peak are from different fragment analysis runs, use `correction = "batch"` in [call_repeats()] to make sure the systematic differences between runs are corrected and the correct index peak is assigned. If there are multiple samples used as baseline control, the median value will be used to assign index peak to corresponding samples.
 #' 
-#' For mice, if just a few samples have the inherited repeat height shorter than the expanded population, you could not worry about this and instead use the `index_override_dataframe`. This can be used to manually override these assigned index repeat values (irrespective of whether `grouped` is TRUE or FALSE).
+#' For mice, if just a few samples have the inherited repeat signal shorter than the expanded population, you could not worry about this and instead use the `index_override_dataframe`. This can be used to manually override these assigned index repeat values (irrespective of whether `grouped` is TRUE or FALSE).
 #'
 #' As a final option, the index peak could be manually assigned directly to a [fragments_repeats] class using the internal setter function fragments_repeats$set_index_peak().
 #'

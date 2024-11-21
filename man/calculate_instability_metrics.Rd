@@ -15,7 +15,7 @@ calculate_instability_metrics(
 \arguments{
 \item{fragments_list}{A list of "fragments_repeats" objects representing fragment data.}
 
-\item{peak_threshold}{The threshold for peak heights to be considered in the calculations, relative to the modal peak height of the expanded allele.}
+\item{peak_threshold}{The threshold for peak signals to be considered in the calculations, relative to the modal peak signal of the expanded allele.}
 
 \item{window_around_index_peak}{A numeric vector (length = 2) defining the range around the index peak. First number specifies repeats before the index peak, second after. For example, \code{c(-5, 40)} around an index peak of 100 would analyze repeats 95 to 140. The sign of the numbers does not matter (The absolute value is found).}
 
@@ -40,7 +40,7 @@ Each of the columns in the supplied dataframe are explained below:
 \subsection{Quality Control}{
 \itemize{
 \item \code{QC_comments}: Quality control comments.
-\item \code{QC_modal_peak_height}: Quality control status based on the modal peak height (Low < 500, very low < 100).
+\item \code{QC_modal_peak_signal}: Quality control status based on the modal peak signal (Low < 500, very low < 100).
 \item \code{QC_peak_number}: Quality control status based on the number of peaks (Low < 20, very low < 10).
 \item \code{QC_off_scale}: Quality control comments for off-scale peaks. Potential peaks that are off-scale are given. However, a caveat is that this could be from any of the channels (ie it could be from the ladder channel but is the same scan as the given repeat).
 }
@@ -49,19 +49,19 @@ Each of the columns in the supplied dataframe are explained below:
 \subsection{General sample metrics}{
 \itemize{
 \item \code{modal_peak_repeat}: The repeat size of the modal peak.
-\item \code{modal_peak_height}: The height of the modal peak.
+\item \code{modal_peak_signal}: The signal of the modal peak.
 \item \code{index_peak_repeat}: The repeat size of the index peak (the repeat value closest to the modal peak of the index sample).
-\item \code{index_peak_height}: The height of the index peak.
-\item \code{index_weighted_mean_repeat}: The weighted mean repeat size (weighted on the height of the peaks) of the index sample.
+\item \code{index_peak_signal}: The signal of the index peak.
+\item \code{index_weighted_mean_repeat}: The weighted mean repeat size (weighted on the signal of the peaks) of the index sample.
 \item \code{n_peaks_total}: The total number of peaks in the repeat table.
 \item \code{n_peaks_analysis_subset}: The number of peaks in the analysis subset.
 \item \code{n_peaks_analysis_subset_expansions}: The number of expansion peaks in the analysis subset.
 \item \code{min_repeat}: The minimum repeat size in the analysis subset.
 \item \code{max_repeat}: The maximum repeat size in the analysis subset.
 \item \code{mean_repeat}: The mean repeat size in the analysis subset.
-\item \code{weighted_mean_repeat}: The weighted mean repeat size (weight on peak height) in the analysis subset.
+\item \code{weighted_mean_repeat}: The weighted mean repeat size (weight on peak signal) in the analysis subset.
 \item \code{median_repeat}: The median repeat size in the analysis subset.
-\item \code{max_height}: The maximum peak height in the analysis subset.
+\item \code{max_signal}: The maximum peak signal in the analysis subset.
 \item \code{max_delta_neg}: The maximum negative delta to the index peak.
 \item \code{max_delta_pos}: The maximum positive delta to the index peak.
 \item \code{skewness}: The skewness of the repeat size distribution.
@@ -72,13 +72,13 @@ Each of the columns in the supplied dataframe are explained below:
 \subsection{Repeat instability metrics}{
 \itemize{
 \item \code{modal_repeat_delta}: The delta between the modal peak repeat and the index peak repeat.
-\item \code{average_repeat_gain}: The average repeat change: The weighted mean of the sample (weighted by peak height) subtracted by the weighted mean repeat of the index sample.
-\item \code{instability_index}: The instability index based on peak height and distance to the index peak. (See Lee et al., 2010, https://doi.org/10.1186/1752-0509-4-29).
+\item \code{average_repeat_gain}: The average repeat change: The weighted mean of the sample (weighted by peak signal) subtracted by the weighted mean repeat of the index sample.
+\item \code{instability_index}: The instability index based on peak signal and distance to the index peak. (See Lee et al., 2010, https://doi.org/10.1186/1752-0509-4-29).
 \item \code{instability_index_abs}: The absolute instability index. The absolute value is taken for the "Change from the main allele".
 \item \code{expansion_index}: The instability index for expansion peaks only.
 \item \code{contraction_index}: The instability index for contraction peaks only.
-\item \code{expansion_ratio}: The ratio of expansion peaks' heights to the main peak height. Also known as "peak proportional sum" (https://doi.org/10.1016/j.cell.2019.06.036).
-\item \code{contraction_ratio}: The ratio of contraction peaks' heights to the main peak height.
+\item \code{expansion_ratio}: The ratio of expansion peaks' signals to the main peak signal. Also known as "peak proportional sum" (https://doi.org/10.1016/j.cell.2019.06.036).
+\item \code{contraction_ratio}: The ratio of contraction peaks' signals to the main peak signal.
 \item \verb{expansion_percentile_*}: The repeat size at specified percentiles of the cumulative distribution of expansion peaks.
 \item \verb{expansion_percentile_for_repeat_*}: The percentile rank of specified repeat sizes in the distribution of expansion peaks.
 }
@@ -102,7 +102,7 @@ add_metadata(
 find_alleles(
   fragments_list = test_fragments,
   peak_region_size_gap_threshold = 6,
-  peak_region_height_threshold_multiplier = 1
+  peak_region_signal_threshold_multiplier = 1
 )
 
 

@@ -4,7 +4,7 @@ testthat::test_that("add_metadata", {
   test_fragments <- peak_table_to_fragments(example_data,
     data_format = "genemapper5",
     # peak_size_col = "size",
-    # peak_height_col = "signal",
+    # peak_signal_col = "signal",
     dye_channel = "B"
   )
 

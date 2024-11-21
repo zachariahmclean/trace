@@ -37,7 +37,7 @@ find_ladder_peaks <- function(ladder_df,
   ladder_peaks <- vector("numeric")
   ladder_peak_threshold <- 1
 
-  #allow user to set min height
+  #allow user to set min signal
 
   if(!is.null(minimum_peak_signal)){
     peaks <- pracma::findpeaks(ladder_df$smoothed_signal,
@@ -73,7 +73,7 @@ find_ladder_peaks <- function(ladder_df,
   }
 
   # go through raw signal and make sure that the identified scan in the smoothed signal is still the highest
-  # it will also deal with cases where the scans have the same height (which.max will chose first)
+  # it will also deal with cases where the scans have the same signal (which.max will chose first)
   n_scans <- length(ladder_df$scan)
   window_width <- 3
   peak_position <- numeric(length(ladder_peaks))
@@ -273,7 +273,7 @@ ladder_rsq_warning_helper <- function(
 #'        there's a big spike right at the start. However, if your ladder peaks
 #'        are taller than the big spike, you will need to set this starting scan
 #'        number manually.
-#' @param minimum_peak_signal numeric: minimum height of peak from smoothed signal.
+#' @param minimum_peak_signal numeric: minimum signal of peak from smoothed signal.
 #' @param scan_subset numeric vector (length 2): filter the ladder and data signal
 #'        between the selected scans (eg scan_subset = c(3000, 5000)).
 #'        to pracma::savgol().

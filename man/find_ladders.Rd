@@ -37,7 +37,7 @@ there's a big spike right at the start. However, if your ladder peaks
 are taller than the big spike, you will need to set this starting scan
 number manually.}
 
-\item{minimum_peak_signal}{numeric: minimum height of peak from smoothed signal.}
+\item{minimum_peak_signal}{numeric: minimum signal of peak from smoothed signal.}
 
 \item{scan_subset}{numeric vector (length 2): filter the ladder and data signal
 between the selected scans (eg scan_subset = c(3000, 5000)).

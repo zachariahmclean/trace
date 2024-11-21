@@ -3,13 +3,13 @@
 
 deshoulder <- function(peak_table_df, shoulder_window) {
   fragment_size <- peak_table_df$size
-  heights <- peak_table_df$height
+  signals <- peak_table_df$signal
   fragment_size_deshoulder <- numeric()
   for (i in seq_along(fragment_size)) {
     if (i == 1) {
       if (fragment_size[i + 1] - fragment_size[i] > shoulder_window) {
         fragment_size_deshoulder <- append(fragment_size_deshoulder, fragment_size[i])
-      } else if (heights[i] > heights[i + 1]) {
+      } else if (signals[i] > signals[i + 1]) {
         fragment_size_deshoulder <- append(fragment_size_deshoulder, fragment_size[i])
       } else {
         next
@@ -17,7 +17,7 @@ deshoulder <- function(peak_table_df, shoulder_window) {
     } else if (i == length(fragment_size)) {
       if (fragment_size[i - 1] - fragment_size[i] > shoulder_window) {
         fragment_size_deshoulder <- append(fragment_size_deshoulder, fragment_size[i])
-      } else if (heights[i] > heights[i - 1]) {
+      } else if (signals[i] > signals[i - 1]) {
         fragment_size_deshoulder <- append(fragment_size_deshoulder, fragment_size[i])
       } else {
         next
@@ -25,8 +25,8 @@ deshoulder <- function(peak_table_df, shoulder_window) {
     } else if (fragment_size[i + 1] - fragment_size[i] < shoulder_window | fragment_size[i] - fragment_size[i - 1] < shoulder_window) {
       before <- fragment_size[i + 1] - fragment_size[i] < shoulder_window
       after <- fragment_size[i] - fragment_size[i - 1] < shoulder_window
-      before_and_higher <- heights[i] > heights[i + 1]
-      after_and_higher <- heights[i] > heights[i - 1]
+      before_and_higher <- signals[i] > signals[i + 1]
+      after_and_higher <- signals[i] > signals[i - 1]
 
       if (before & after) {
         if (before_and_higher & after_and_higher) {
@@ -182,19 +182,19 @@ find_batch_correction_factor <- function(
       batch_run_id = x$batch_run_id,
       batch_sample_id = x$batch_sample_id,
       batch_sample_modal_repeat = x$batch_sample_modal_repeat,
-      allele_height = x$get_allele_peak()$allele_height
+      allele_signal = x$get_allele_peak()$allele_signal
     )
     return(df)
   })
 
   metadata_df <- do.call(rbind, metadata_list)
 
-  # filter for batch correction samples that have a trace (height > 100). perhaps a little arbitrary
+  # filter for batch correction samples that have a trace (signal > 100). perhaps a little arbitrary
   correction_sample_df <- metadata_df[which(!is.na(metadata_df$batch_run_id) & !is.na(metadata_df$batch_sample_id)), , drop = FALSE]
-  correction_sample_df <- correction_sample_df[which(!is.na(correction_sample_df$allele_height) & correction_sample_df$allele_height > 100), ]
+  correction_sample_df <- correction_sample_df[which(!is.na(correction_sample_df$allele_signal) & correction_sample_df$allele_signal > 100), ]
 
   if(length(unique(na.omit(correction_sample_df$batch_run_id))) <= 1){
-    message("Batch correction was not carried out. There needs to be more than one 'batch_run_id' that have samples of adequate quality (allele_height > 100)")
+    message("Batch correction was not carried out. There needs to be more than one 'batch_run_id' that have samples of adequate quality (allele_signal > 100)")
     # need to now exit out of this function early and make sure batch correction is FALSE in the outer environment of the other function
     assign("batch_correction", FALSE, envir = parent.frame())
     return(NULL)
@@ -272,10 +272,10 @@ model_repeat_length <- function(
       df_length <- nrow(x$repeat_table_df)
       # identify peaks close to modal peak and at least 20% as high
       main_peak_delta <- x$repeat_table_df$size - x$get_allele_peak()$allele_size
-      height_prop <- x$repeat_table_df$height / x$get_allele_peak()$allele_height
+      signal_prop <- x$repeat_table_df$signal / x$get_allele_peak()$allele_signal
       peak_cluster <- vector("logical", length = nrow(x$repeat_table_df))
       for (i in seq_along(main_peak_delta)) {
-        if (abs(main_peak_delta[[i]]) < 30 & height_prop[[i]] > 0.2) {
+        if (abs(main_peak_delta[[i]]) < 30 & signal_prop[[i]] > 0.2) {
           peak_cluster[[i]] <- TRUE
         } else {
           peak_cluster[[i]] <- FALSE
@@ -293,7 +293,7 @@ model_repeat_length <- function(
           main_peak_repeat = x$batch_sample_modal_repeat,
           repeat_size = repeat_size
         ),
-        height = cluster_df$height,
+        signal = cluster_df$signal,
         batch_run_id = rep(x$batch_run_id, cluster_df_length)
       )
     })
@@ -552,13 +552,13 @@ call_repeats <- function(
   fragments_list <- lapply(fragments_list, function(fragment){
 
       # only continue from here if main peaks were successfully found, otherwise, don't return repeat data (ie it can be an empty df)
-      if (is.na(fragment$get_allele_peak()$allele_size) | is.na(fragment$get_allele_peak()$allele_height)) {
+      if (is.na(fragment$get_allele_peak()$allele_size) | is.na(fragment$get_allele_peak()$allele_signal)) {
         fragment$.__enclos_env__$private$repeats_not_called_reason <- "No main peaks"
         # populate with empty dataframe to help the rest of the pipeline
         fragment$repeat_table_df <- data.frame(
           unique_id = character(),
           size = numeric(),
-          height = numeric(),
+          signal = numeric(),
           calculated_repeats = numeric(),
           off_scale = logical()
         )
@@ -576,7 +576,7 @@ call_repeats <- function(
         repeat_table_df <- data.frame(
           unique_id = fragment$peak_table_df$unique_id,
           size = fragment$peak_table_df$size, 
-          height = fragment$peak_table_df$height,
+          signal = fragment$peak_table_df$signal,
           calculated_repeats = (fragment$peak_table_df$size- assay_size_without_repeat) / repeat_size,
           off_scale = ifelse(any(colnames(fragment$peak_table_df) == "off_scale"),
           fragment$peak_table_df$off_scale,
@@ -599,7 +599,7 @@ call_repeats <- function(
         repeat_table_df <- data.frame(
           unique_id = size_period_df$unique_id,
           size = size_period_df$size,
-          height = size_period_df$signal,
+          signal = size_period_df$signal,
           calculated_repeats = (size_period_df$size - assay_size_without_repeat) / repeat_size,
           off_scale = size_period_df$off_scale
         )

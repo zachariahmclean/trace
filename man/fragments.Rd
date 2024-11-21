@@ -73,7 +73,7 @@ plot the trace data
   x_axis = NULL,
   ylim = NULL,
   xlim = NULL,
-  height_color_threshold = 0.05,
+  signal_color_threshold = 0.05,
   plot_title = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -89,7 +89,7 @@ plot the trace data
 
 \item{\code{xlim}}{numeric vector length two specifying the x axis limits}
 
-\item{\code{height_color_threshold}}{A threshold value to colour the peaks relative to the tallest peak.}
+\item{\code{signal_color_threshold}}{A threshold value to colour the peaks relative to the tallest peak.}
 
 \item{\code{plot_title}}{A character string for setting the plot title. Defaults to the unique id of the object}
 }

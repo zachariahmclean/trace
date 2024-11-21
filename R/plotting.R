@@ -65,7 +65,7 @@ plot_fragments_helper <- function(fragment_repeats,
   all_x_values <- seq(min(rounded_x), max(rounded_x))
   y_values <- rep(0, length(all_x_values))
   for (i in seq_along(rounded_x)) {
-    y_values[which(all_x_values == rounded_x[i])] <- data[which(data$x == data$x[i]), "height"]
+    y_values[which(all_x_values == rounded_x[i])] <- data[which(data$x == data$x[i]), "signal"]
   }
 
 
@@ -88,7 +88,7 @@ plot_trace_helper <- function(fragments,
                               x_axis,
                               ylim,
                               xlim,
-                              height_color_threshold,
+                              signal_color_threshold,
                               plot_title) {
   if (is.null(fragments$trace_bp_df)) {
     stop(
@@ -159,10 +159,10 @@ plot_trace_helper <- function(fragments,
       peak_table <- peak_table[which(peak_table$x < xlim[2] & peak_table$x > xlim[1]), ]
     }
 
-    tallest_peak_height <- peak_table[which(peak_table$height == max(peak_table$height)), "height"]
-    tallest_peak_x <- peak_table[which(peak_table$height == tallest_peak_height), "x"]
-    if (!is.null(fragments$get_allele_peak()$allele_height) && !is.na(fragments$get_allele_peak()$allele_height)) {
-      tallest_peak_height <- fragments$get_allele_peak()$allele_height
+    tallest_peak_signal <- peak_table[which(peak_table$signal == max(peak_table$signal)), "signal"]
+    tallest_peak_x <- peak_table[which(peak_table$signal == tallest_peak_signal), "x"]
+    if (!is.null(fragments$get_allele_peak()$allele_signal) && !is.na(fragments$get_allele_peak()$allele_signal)) {
+      tallest_peak_signal <- fragments$get_allele_peak()$allele_signal
       # find the tallest peak x axis position
       if (is.null(x_axis) && is.na(fragments$get_allele_peak()$allele_repeat)) {
         tallest_peak_x <- fragments$get_allele_peak()$allele_size
@@ -175,20 +175,20 @@ plot_trace_helper <- function(fragments,
       }
     }
 
-    peaks_above <- peak_table[which(peak_table$height > tallest_peak_height * height_color_threshold), ]
-    peaks_below <- peak_table[which(peak_table$height < tallest_peak_height * height_color_threshold), ]
+    peaks_above <- peak_table[which(peak_table$signal > tallest_peak_signal * signal_color_threshold), ]
+    peaks_below <- peak_table[which(peak_table$signal < tallest_peak_signal * signal_color_threshold), ]
 
     # Adding peaks
     points(peaks_above$x,
-      peaks_above$height,
+      peaks_above$signal,
       col = "blue"
     )
     points(peaks_below$x,
-      peaks_below$height,
+      peaks_below$signal,
       col = "purple"
     )
     points(tallest_peak_x,
-      tallest_peak_height,
+      tallest_peak_signal,
       col = "green"
     )
 
@@ -197,9 +197,9 @@ plot_trace_helper <- function(fragments,
       for (i in 1:nrow(peak_table)) {
         segments(
           x0 = peak_table$repeats[i],
-          y0 = peak_table$height[i],
+          y0 = peak_table$signal[i],
           x1 = peak_table$calculated_repeats[i],
-          y1 = peak_table$height[i],
+          y1 = peak_table$signal[i],
           lty = 2
         )
       }
@@ -307,7 +307,7 @@ plot_ladders <- function(
 #' @param xlim the x limits of the plot. A numeric vector of length two.
 #' @param ylim the y limits of the plot. A numeric vector of length two.
 #' @param x_axis A character indicating what should be plotted on the x-axis, chose between `size` or `repeats`. If neither is selected, an assumption is made based on if repeats have been called.
-#' @param height_color_threshold Threshold relative to tallest peak to color the dots (blue above, purple below).
+#' @param signal_color_threshold Threshold relative to tallest peak to color the dots (blue above, purple below).
 #'
 #' @return plot traces from fragments object
 #' @export
@@ -328,7 +328,7 @@ plot_ladders <- function(
 #' flagged as off-scale. This is in any channel, so use your best judgment to determine
 #' if it's from the sample or ladder channel.
 #'
-#' If peaks are called, green is the tallest peak, blue is peaks above the height threshold (default 5%), purple is below the height threshold. If `force_whole_repeat_units` is used within [call_repeats()], the called repeat will be connected to the peak in the trace with a horizontal dashed line.
+#' If peaks are called, green is the tallest peak, blue is peaks above the signal threshold (default 5%), purple is below the signal threshold. If `force_whole_repeat_units` is used within [call_repeats()], the called repeat will be connected to the peak in the trace with a horizontal dashed line.
 #'
 #' The index peak will be plotted as a vertical dashed line when it has been set using `assign_index_peaks()`.
 #'
@@ -362,7 +362,7 @@ plot_traces <- function(
     xlim = NULL,
     ylim = NULL,
     x_axis = NULL,
-    height_color_threshold = 0.05) {
+    signal_color_threshold = 0.05) {
   if (!is.null(sample_subset)) {
     fragments_list <- fragments_list[which(names(fragments_list) %in% sample_subset)]
   }
@@ -374,7 +374,7 @@ plot_traces <- function(
       xlim = xlim,
       ylim = ylim,
       x_axis = x_axis,
-      height_color_threshold = height_color_threshold
+      signal_color_threshold = signal_color_threshold
     )
   }
   graphics::par(mfrow = c(1, 1)) # Reset the layout

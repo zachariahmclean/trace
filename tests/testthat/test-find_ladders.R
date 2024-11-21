@@ -107,7 +107,7 @@ test_that("find ladders scan subset", {
 
 
 
-test_that("ladder minium height", {
+test_that("ladder minium signal", {
 
   fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 

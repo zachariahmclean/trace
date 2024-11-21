@@ -215,7 +215,7 @@ suppressMessages(
   plot_data <- merge(test_metrics_grouped, metadata, by = "unique_id", all.x = TRUE)
 
   # Filter
-  plot_data <- plot_data[plot_data$day > 0 & plot_data$modal_peak_height > 500, ]
+  plot_data <- plot_data[plot_data$day > 0 & plot_data$modal_peak_signal > 500, ]
 
   # Group by
   plot_data <- split(plot_data, plot_data$metrics_group_id)

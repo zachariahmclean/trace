@@ -7,7 +7,7 @@
 find_alleles(
   fragments_list,
   peak_region_size_gap_threshold = 6,
-  peak_region_height_threshold_multiplier = 1
+  peak_region_signal_threshold_multiplier = 1
 )
 }
 \arguments{
@@ -15,7 +15,7 @@ find_alleles(
 
 \item{peak_region_size_gap_threshold}{Gap threshold for identifying peak regions. The peak_region_size_gap_threshold is a parameter used to determine the maximum allowed gap between peak sizes within a peak region. Adjusting this parameter affects the size range of peaks that can be grouped together in a region. A smaller value makes it more stringent, while a larger value groups peaks with greater size differences, leading to broader peak regions that may encompass wider size ranges.}
 
-\item{peak_region_height_threshold_multiplier}{Multiplier for the peak height threshold. The peak_region_height_threshold_multiplier parameter allows adjusting the threshold for identifying peak regions based on peak heights. Increasing this multiplier value will result in higher thresholds, making it more stringent to consider peaks as part of a peak region. Conversely, reducing the multiplier value will make the criteria less strict, potentially leading to more peaks being grouped into peak regions. It's important to note that this parameter's optimal value depends on the characteristics of the data and the specific analysis goals. Choosing an appropriate value for this parameter can help in accurately identifying meaningful peak regions in the data.}
+\item{peak_region_signal_threshold_multiplier}{Multiplier for the peak signal threshold. The peak_region_signal_threshold_multiplier parameter allows adjusting the threshold for identifying peak regions based on peak signals. Increasing this multiplier value will result in higher thresholds, making it more stringent to consider peaks as part of a peak region. Conversely, reducing the multiplier value will make the criteria less strict, potentially leading to more peaks being grouped into peak regions. It's important to note that this parameter's optimal value depends on the characteristics of the data and the specific analysis goals. Choosing an appropriate value for this parameter can help in accurately identifying meaningful peak regions in the data.}
 }
 \value{
 This function modifies list of fragments_repeats objects in place with alleles added.
@@ -28,7 +28,7 @@ This function finds the main alleles for each fragment in the list by identifyin
 
 The tallest of peaks will be selected as the allele. This means that if your sample has multiple alleles, you'll need to make sure that your data is subsetted to exclude that second allele. For example in a human cell line with a shorter repeat, we recommend using \code{min_bp_size} in \code{\link[=find_fragments]{find_fragments()}} to make sure that the smaller allele is excluded. Otherwise, the smaller taller allele will be set as the allele.
 
-The parameters \code{peak_region_height_threshold_multiplier} and \code{peak_region_size_gap_threshold} will only need to be adjusted if peaks are not being found for some reason. They influence the criteria for identifying peak regions, and finding the right balance between them is crucial.
+The parameters \code{peak_region_signal_threshold_multiplier} and \code{peak_region_size_gap_threshold} will only need to be adjusted if peaks are not being found for some reason. They influence the criteria for identifying peak regions, and finding the right balance between them is crucial.
 }
 \examples{
 fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
@@ -43,6 +43,6 @@ fragments_list <- find_fragments(fsa_list,
 find_alleles(
   fragments_list,
   peak_region_size_gap_threshold = 6,
-  peak_region_height_threshold_multiplier = 1
+  peak_region_signal_threshold_multiplier = 1
 )
 }

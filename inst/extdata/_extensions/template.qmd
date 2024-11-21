@@ -116,7 +116,7 @@ find_alleles(
   fragments_list = fragments_list,
   # advanced parameters for fine tuning
   peak_region_size_gap_threshold = 6,
-  peak_region_height_threshold_multiplier = 1)
+  peak_region_signal_threshold_multiplier = 1)
 ```
 
 # Call repeats
@@ -218,7 +218,7 @@ for (i in seq_along(fragments_list)) {
   # Add text annotation for allele_repeat
   text(
     x = fragments_list[[i]]$get_allele_peak()$allele_repeat, 
-    y = fragments_list[[i]]$get_allele_peak()$allele_height * 1.02, 
+    y = fragments_list[[i]]$get_allele_peak()$allele_signal * 1.02, 
     labels = round(fragments_list[[i]]$get_allele_peak()$allele_repeat)
   )
 }

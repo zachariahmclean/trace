@@ -18,7 +18,7 @@ find_fragments(
 
 \item{smoothing_window}{numeric: signal smoothing window size passed to pracma::savgol()}
 
-\item{minimum_peak_signal}{numeric: minimum height of peak from smoothed trace}
+\item{minimum_peak_signal}{numeric: minimum signal of peak from smoothed trace}
 
 \item{min_bp_size}{numeric: minimum bp size of peaks to consider}
 
