@@ -12,11 +12,9 @@ find_ladders(
     500),
   ladder_start_scan = NULL,
   minimum_peak_signal = NULL,
-  zero_floor = FALSE,
   scan_subset = NULL,
   ladder_selection_window = 5,
   max_combinations = 2500000,
-  smoothing_window = 21,
   warning_rsq_threshold = 0.998,
   show_progress_bar = TRUE
 )
@@ -39,11 +37,7 @@ there's a big spike right at the start. However, if your ladder peaks
 are taller than the big spike, you will need to set this starting scan
 number manually.}
 
-\item{minimum_peak_signal}{numeric: minimum height of peak from smoothed signal.}
-
-\item{zero_floor}{logical: if set to TRUE, all negative values will be set to zero.
-This can help deal with cases where there are peaks in the negative direction
-that interfere with peak detection.}
+\item{minimum_peak_signal}{numeric: minimum signal of peak from smoothed signal.}
 
 \item{scan_subset}{numeric vector (length 2): filter the ladder and data signal
 between the selected scans (eg scan_subset = c(3000, 5000)).
@@ -55,8 +49,6 @@ This value defines how large that block of peaks should be.}
 
 \item{max_combinations}{numeric: what is the maximum number of ladder
 combinations that should be tested}
-
-\item{smoothing_window}{numeric: ladder signal smoothing window size passed}
 
 \item{warning_rsq_threshold}{The value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold.}
 
@@ -71,17 +63,16 @@ Find the ladder peaks in and use that to call bp size
 \details{
 This function takes a list of fragments_trace files (the output from read_fsa) and identifies
 the ladders in the ladder channel which is used to call the bp size. The output
-is a list of fragments_traces. bp sizes are assigned using the local Southern
-method. Basically, for each data point, linear models are made for the lower
-and upper 3 size standard and the predicted sizes are averaged.
+is a list of fragments_traces.
+
+In this package, base pair (bp) sizes are assigned using a generalized additive model (GAM) with cubic regression splines. The model is fit to known ladder fragment sizes and their corresponding scan positions, capturing the relationship between scan number and bp size. Once trained, the model predicts bp sizes for all scans by interpolating between the known ladder points. This approach provides a flexible and accurate assignment of bp sizes, accommodating the slightly non-linear relationship.
 
 Use \code{\link[=plot_data_channels]{plot_data_channels()}} to plot the raw data on the fsa file to identify which channel the ladder and data are in.
 
 The ladder peaks are assigned from largest to smallest. I would recommend excluding
 size standard peaks less than 50 bp (eg size standard 35 bp).
 
-Each ladder should be manually inspected to make sure that is has been correctly
-assigned.
+Each ladder should be manually inspected to make sure that is has been correctly assigned.
 }
 \examples{
 

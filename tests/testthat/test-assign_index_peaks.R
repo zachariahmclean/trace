@@ -129,7 +129,7 @@ suppressMessages(
 )
 
 testthat::expect_true(class(assignment_warning)[1] == "simpleWarning")
-testthat::expect_true(grepl("20230413_A01.fsa", assignment_warning))
+testthat::expect_true(grepl("20230413_A07.fsa", assignment_warning))
 testthat::expect_true(grepl("batch_run_id", assignment_warning))
 
 })

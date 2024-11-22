@@ -11,7 +11,7 @@ plot_repeat_correction_model(
 )
 }
 \arguments{
-\item{fragments_list}{A list of fragments_repeats class objects obtained from the 'call_repeats' function when the 'repeat_length_correction' was either 'from_metadata' or 'from_genemapper'.}
+\item{fragments_list}{A list of fragments_repeats class objects obtained from the \code{\link[=call_repeats]{call_repeats()}} function when the \code{correction = "repeat"} parameter is used.}
 
 \item{batch_run_id_subset}{A character vector for a subset of batch_sample_id to plot. Or alternatively supply a number to select batch sample by position in alphabetical order.}
 
@@ -23,10 +23,13 @@ A base R graphic object displaying the repeat correction model results.
 \description{
 Plots the results of the repeat correction model for a list of fragments.
 }
+\details{
+This function makes plots for the model used to correct samples for each \code{batch_run_id}. The repeat correction algorithm assigns the user supplied repeat length to the modal peak of the sample, then pulls out a set of robust neighboring peaks to help get enough data to build an accurate linear model for the relationship between base-pair size and repeat length. So on this plot, each dot is an individual peak, with the colour indicating each sample, with the y-axis is the repeat length called from the user-supplied value in the metadata and the value assigned to each peak, with the x-axis showing the corresponding base-pair size.
+}
 \examples{
 
 
-fsa_list <- lapply(cell_line_fsa_list[91:94], function(x) x$clone())
+fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
 
 find_ladders(fsa_list, show_progress_bar = FALSE)
 

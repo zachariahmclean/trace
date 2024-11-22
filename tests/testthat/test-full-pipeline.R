@@ -88,7 +88,7 @@ find_alleles(
   plot_data <- merge(test_metrics_grouped, metadata, by = "unique_id", all.x = TRUE)
 
   # Filter
-  plot_data <- plot_data[plot_data$day > 0 & plot_data$modal_peak_height > 500, ]
+  plot_data <- plot_data[plot_data$day > 0 & plot_data$modal_peak_signal > 500, ]
 
   # Group by
   plot_data <- split(plot_data, plot_data$metrics_group_id)
@@ -119,6 +119,6 @@ find_alleles(
 
   medians <- aggregate(rel_gain ~ treatment + genotype, plot_data, median, na.rm = TRUE)
 
-  expect_true(all(round(medians$rel_gain, 5) == c(1.00000, 0.85831, 0.70219, 0.57056, 1.00000, 1.17666, 1.10977, 1.00459)))
+  expect_true(all(round(medians$rel_gain, 5) == c(1.00000, 0.86154, 0.73268, 0.55720)))
 })
 

@@ -32,8 +32,6 @@ It also contains methods for plotting the ladder and traces
 \item{\code{ladder_df}}{A dataframe of the identified ladder from \code{find_ladders()}. Scan is the scan number of peak and size is the associated bp size.}
 
 \item{\code{trace_bp_df}}{A dataframe of bp size for every scan from \code{find_ladders()}.}
-
-\item{\code{local_southern_mod}}{Output from \code{local_southern()} function (not exported). It is basically just a list of lm() after breaking up the ladder into chunks of three.}
 }
 \if{html}{\out{</div>}}
 }

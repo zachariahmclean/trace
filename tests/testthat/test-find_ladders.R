@@ -66,84 +66,9 @@ test_that("iterative ladder", {
 })
 
 
-
-# test_that("fit ladder", {
-#   file_list <- trace::cell_line_fsa_list
-
-#   test_ladder_signal <- file_list[[1]]$Data$DATA.105
-#   test_scans <- 0:(length(file_list[[1]]$Data$DATA.105) - 1)
-
-
-
-#   test_fit <- fit_ladder(
-#     ladder = test_ladder_signal,
-#     scans = test_scans,
-#     ladder_start_scan = NULL,
-#     ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
-#     smoothing_window = 21,
-#     minimum_peak_signal = NULL,
-#     zero_floor = FALSE,
-#     max_combinations = 2500000,
-#     ladder_selection_window = 5
-#   )
-
-
-#   mod <- lm(scan ~ size, data = test_fit)
-
-#   testthat::expect_true(round(mod$coefficients[[1]], 3) == 1347.69)
-#   testthat::expect_true(round(mod$coefficients[[2]], 5) == 6.25118)
-# })
-
-
-# test_that("local southern", {
-#   file_list <- trace::cell_line_fsa_list
-
-#   test_ladder_signal <- file_list[[1]]$Data$DATA.105
-#   test_scans <- 0:(length(file_list[[1]]$Data$DATA.105) - 1)
-
-
-
-#   test_fit <- fit_ladder(
-#     ladder = test_ladder_signal,
-#     scans = test_scans,
-#     ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
-#     ladder_start_scan = NULL,
-#     smoothing_window = 21,
-#     minimum_peak_signal = NULL,
-#     zero_floor = FALSE,
-#     max_combinations = 2500000,
-#     ladder_selection_window = 5
-#   )
-
-#   # ladder all as one lm
-
-
-#   mod <- lm(size ~ scan, data = test_fit)
-#   single_rsqd <- summary(mod)$r.squared
-
-
-
-
-#   mod_fit <- local_southern_fit(test_fit$scan, test_fit$size)
-
-#   multi_rsqd <- sapply(mod_fit, function(x) summary(x$mod)$r.squared)
-
-#   rsq_diff <- sum(multi_rsqd - single_rsqd)
-
-
-#   predicted_sizes <- local_southern_predict(mod_fit, test_scans)
-
-#   # plot(predicted_sizes, file_list[[1]]$Data$DATA.1)
-
-
-#   testthat::expect_true(round(rsq_diff, 5) == -0.00343)
-# })
-
-
-
 test_that("find ladders", {
 
-  fsa_list <- lapply(cell_line_fsa_list["20230413_B03.fsa"], function(x) x$clone())
+  fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
   suppressWarnings(
     find_ladders(
       fsa_list,
@@ -156,13 +81,13 @@ test_that("find ladders", {
 
 
 
-  testthat::expect_true(all(fsa_list$`20230413_B03.fsa`$ladder_df$scan == c(1555, 1633, 1783, 1927, 2159, 2218, 2278, 2525, 2828, 3161, 3408, 3470, 3792, 4085, 4322, 4370)))
+  testthat::expect_true(all(fsa_list[[1]]$ladder_df$scan == c(1540, 1618, 1766, 1909, 2139, 2198, 2257, 2502, 2802, 3131, 3376, 3438, 3756, 4046, 4280, 4328)))
 })
 
 
 test_that("find ladders scan subset", {
 
-  fsa_list <- lapply(cell_line_fsa_list["20230413_B03.fsa"], function(x) x$clone())
+  fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
   suppressWarnings(
     find_ladders(fsa_list,
       ladder_sizes = c(200, 250, 300, 340, 350, 400, 450),
@@ -175,16 +100,16 @@ test_that("find ladders scan subset", {
 
 
 
-  testthat::expect_true(all(fsa_list$`20230413_B03.fsa`$ladder_df$scan == c(2525, 2828, 3161, 3408, 3470, 3792, 4085)))
+  testthat::expect_true(all(fsa_list[[1]]$ladder_df$scan == c(2502, 2802, 3131, 3376, 3438, 3756, 4046)))
 })
 
 
 
 
 
-test_that("ladder minium height", {
+test_that("ladder minium signal", {
 
-  fsa_list <- lapply(cell_line_fsa_list["20230413_B03.fsa"], function(x) x$clone())
+  fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
 
     test_ladders <- find_ladders(fsa_list,
@@ -198,28 +123,9 @@ test_that("ladder minium height", {
 
 
 
-  testthat::expect_true(all(test_ladders$`20230413_B03.fsa`$ladder_df$scan == c(1555, 1633, 1783, 1927, 2159, 2218, 2278, 2525, 2828, 3161, 3408, 3470, 3792, 4085, 4322, 4370)))
+  testthat::expect_true(all(fsa_list[[1]]$ladder_df$scan == c(1540, 1618, 1766, 1909, 2139, 2198, 2257, 2502, 2802, 3131, 3376, 3438, 3756, 4046, 4280, 4328)))
 })
 
-
-test_that("ladder zero baseline", {
-  fsa_list <- lapply(cell_line_fsa_list["20230413_B03.fsa"], function(x) x$clone())
-
-
-
-  test_ladders <- find_ladders(fsa_list,
-                               ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
-                               max_combinations = 2500000,
-                               ladder_selection_window = 8,
-                               show_progress_bar = FALSE,
-                               zero_floor = TRUE
-  )
-
-
-
-
-  testthat::expect_true(all(test_ladders$`20230413_B03.fsa`$ladder_df$scan == c(1555, 1633, 1783, 1927, 2159, 2218, 2278, 2525, 2828, 3161, 3408, 3470, 3792, 4085, 4322, 4370)))
-})
 
 
 # test_that("fix ladders", {
@@ -263,12 +169,12 @@ test_that("ladder zero baseline", {
 
 
 test_that("fix ladders manual", {
-  example_list <- list(
-    "20230413_A01.fsa" = data.frame(
-      size = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
-      scan = c(1593, 1671, 1825, 1971, 2208, 2269, 2329, 2581, 2888, 3228, 3479, 3543, 3872, 4170, 4412, 4460)
-    )
+ example_list <- list(
+  "20230413_A07.fsa" = data.frame(
+    size = c(100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
+    scan = c(1909, 2139, 2198, 2257, 2502, 2802, 3131, 3376, 3438, 3756, 4046, 4280, 4328)
   )
+ )
 
   fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
@@ -286,6 +192,6 @@ test_that("fix ladders manual", {
     )
   )
 
-  expect_true(nrow(fsa_list[[1]]$ladder_df) == 16)
+  expect_true(nrow(fsa_list[[1]]$ladder_df) == 13)
 })
 

@@ -8,7 +8,7 @@ testthat::test_that("peak_table_to_fragments", {
       gm_raw,
       data_format = "genemapper5",
       peak_size_col = "Size",
-      peak_height_col = "Height",
+      peak_signal_col = "Height",
       unique_id = "Sample.File.Name",
       dye_col = "Dye.Sample.Peak",
       dye_channel = "B",

@@ -12,7 +12,7 @@ plot_traces(
   xlim = NULL,
   ylim = NULL,
   x_axis = NULL,
-  height_color_threshold = 0.05
+  signal_color_threshold = 0.05
 )
 }
 \arguments{
@@ -30,7 +30,7 @@ plot_traces(
 
 \item{x_axis}{A character indicating what should be plotted on the x-axis, chose between \code{size} or \code{repeats}. If neither is selected, an assumption is made based on if repeats have been called.}
 
-\item{height_color_threshold}{Threshold relative to tallest peak to color the dots (blue above, purple below).}
+\item{signal_color_threshold}{Threshold relative to tallest peak to color the dots (blue above, purple below).}
 }
 \value{
 plot traces from fragments object
@@ -43,7 +43,7 @@ A plot of the raw signal by bp size. Red vertical line indicates the scan was
 flagged as off-scale. This is in any channel, so use your best judgment to determine
 if it's from the sample or ladder channel.
 
-If peaks are called, green is the tallest peak, blue is peaks above the height threshold (default 5\%), purple is below the height threshold. If \code{force_whole_repeat_units} is used within \code{\link[=call_repeats]{call_repeats()}}, the called repeat will be connected to the peak in the trace with a horizontal dashed line.
+If peaks are called, green is the tallest peak, blue is peaks above the signal threshold (default 5\%), purple is below the signal threshold. If \code{force_whole_repeat_units} is used within \code{\link[=call_repeats]{call_repeats()}}, the called repeat will be connected to the peak in the trace with a horizontal dashed line.
 
 The index peak will be plotted as a vertical dashed line when it has been set using \code{assign_index_peaks()}.
 }

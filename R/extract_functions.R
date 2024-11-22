@@ -40,9 +40,7 @@ extract_trace_table <- function(fragments_trace_list) {
 #' @export
 #'
 #' @details
-#' The ladder peaks are assigned using a custom algorithm that maximizes the fit of detected ladder peaks and given base-pair sizes. The base pair is assigned using the local Southern method. Basically, for each data point, linear models are made for the lower and upper 3 size standard and the predicted sizes are averaged.
-#'
-#' This function summarizes the R-squared values of these individual linear models.
+#' The ladder peaks are assigned using a custom algorithm that maximizes the fit of detected ladder peaks and given base-pair sizes. This function summarizes the R-squared values of these individual correlations.
 #'
 #'
 #' @examples
@@ -61,11 +59,12 @@ extract_ladder_summary <- function(
     stop(call. = FALSE, "Wrong objects supplied. Please supply a list of 'fragments_trace' objects")
   }
   
-  summary_list <- lapply(fragments_trace_list, function(x){
-    rsq <- sapply(x$local_southern_mod, function(mod_list) suppressWarnings(summary(mod_list$mod)$r.squared))
+  summary_list <- lapply(fragments_trace_list, function(fragment){
+    cor_list <- ladder_fit_cor(fragment)
+    rsq <- sapply(cor_list, function(x) x$rsq)
 
     data.frame(
-      unique_id = x$unique_id,
+      unique_id = fragment$unique_id,
       avg_rsq = mean(rsq),
       min_rsq = min(rsq)
     )
@@ -105,7 +104,7 @@ extract_ladder_summary <- function(
 #' find_alleles(
 #'   fragments_list = test_fragments,
 #'   peak_region_size_gap_threshold = 6,
-#'   peak_region_height_threshold_multiplier = 1
+#'   peak_region_signal_threshold_multiplier = 1
 #' )
 #'
 #' extract_alleles(test_fragments)
@@ -116,7 +115,7 @@ extract_alleles <- function(fragments_list) {
       unique_id = x$unique_id,
       size = x$get_allele_peak()$allele_size,
       repeats = x$get_allele_peak()$allele_repeat,
-      height = x$get_allele_peak()$allele_height
+      signal = x$get_allele_peak()$allele_signal
     )
   })
   extracted_df <- do.call(rbind, extracted)
@@ -172,8 +171,8 @@ extract_fragments <- function(fragments_list) {
         data.frame(
           unique_id = rep(x$unique_id, df_length),
           main_peak_size = rep(x$get_allele_peak()$allele_size, df_length),
-          main_peak_height = rep(x$get_allele_peak()$allele_height, df_length),
-          height = x$peak_table_df$height,
+          main_peak_signal = rep(x$get_allele_peak()$allele_signal, df_length),
+          signal = x$peak_table_df$signal,
           size = x$peak_table_df$size
         )
       } else if (!is.null(x$repeat_table_df)) {
@@ -181,8 +180,8 @@ extract_fragments <- function(fragments_list) {
         data.frame(
           unique_id = rep(x$unique_id, df_length),
           main_peak_repeat = rep(x$get_allele_peak()$allele_repeat, df_length),
-          main_peak_height = rep(x$get_allele_peak()$allele_height, df_length),
-          height = x$repeat_table_df$height,
+          main_peak_signal = rep(x$get_allele_peak()$allele_signal, df_length),
+          signal = x$repeat_table_df$signal,
           repeats = x$repeat_table_df$repeats
         )
       }
@@ -193,3 +192,90 @@ extract_fragments <- function(fragments_list) {
 
   return(extracted_df)
 }
+
+
+
+#' Extract repeat correction summary
+#'
+#' Extracts a table summarizing the model used to correct repeat length
+#'
+#' @param fragments_list A list of fragments_repeats class objects obtained from the [call_repeats()] function when the `correction = "repeat"` parameter is used.
+#' @export
+#' @return A data.frame
+#' @details
+#' For each of the samples used for repeat correction, this table pulls out the modal repeat length called by the model (`allele_repeat`), how far that sample is on average from the linear model in repeat units by finding the average residuals (`avg_residual`), and the absolute value of the `avg_residual` (`abs_avg_residual`)
+#' 
+#' @examples
+#'
+#'
+#' fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
+#'
+#' find_ladders(fsa_list, show_progress_bar = FALSE)
+#'
+#' fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
+#'
+#' test_alleles <- find_alleles(
+#'   fragments_list 
+#' )
+#' 
+#' add_metadata(
+#'   fragments_list,
+#'   metadata
+#' )
+#'
+#'
+#' call_repeats(
+#'   fragments_list = fragments_list,
+#'   correction = "repeat"
+#' )
+#'
+#' # finally extract repeat correction summary
+#' extract_repeat_correction_summary(fragments_list)
+#'
+#'
+extract_repeat_correction_summary <- function(
+  fragments_list
+){
+  # first do some validation to check if it's valid that they are trying to use this function
+  if(is.null(fragments_list[[1]]$.__enclos_env__$private$repeat_correction_mod)){
+    stop(call. = FALSE, "No repeat correction model detected in the first sample. You must have used correction = 'repeat' in call_repeats() to use this function.")
+  }
+  first_model_df <- fragments_list[[1]]$.__enclos_env__$private$repeat_correction_mod
+  identical_model_test <- logical(length(fragments_list))
+  for (i in seq_along(fragments_list)) {
+    identical_model_test[i] <- identical(first_model_df, fragments_list[[i]]$.__enclos_env__$private$repeat_correction_mod)
+  }
+  if (!all(identical_model_test)) {
+    stop("The supplied fragments list must come from the same 'call_repeats' function output", call. = FALSE)
+  }
+
+  #generate table of average residual and allele
+  controls_repeats_df <- fragments_list[[1]]$.__enclos_env__$private$repeat_correction_mod$model
+  controls_repeats_df$unique_id <- sub("\\.[0-9]+$", "", row.names(controls_repeats_df))
+  controls_repeats_df$residuals <- fragments_list[[1]]$.__enclos_env__$private$repeat_correction_mod$residuals
+  
+  controls_repeats_df_split <- split(controls_repeats_df, controls_repeats_df$unique_id)
+  controls_repeats_df_split_summarized <- lapply(controls_repeats_df_split, function(x){
+    data.frame(
+      unique_id = unique(x$unique_id),
+      avg_residual = mean(x$residuals)
+    )
+  })
+  
+  controls_repeats_summarized <- do.call(rbind, controls_repeats_df_split_summarized)
+  controls_repeats_summarized$batch_run_id <- sapply(fragments_list[controls_repeats_summarized$unique_id], function(x) x$batch_run_id)
+  controls_repeats_summarized$batch_sample_id <- sapply(fragments_list[controls_repeats_summarized$unique_id], function(x) x$batch_sample_id)
+  controls_repeats_summarized$batch_sample_modal_repeat <- sapply(fragments_list[controls_repeats_summarized$unique_id], function(x) x$batch_sample_modal_repeat)
+  controls_repeats_summarized$allele_repeat <- sapply(fragments_list[controls_repeats_summarized$unique_id], function(x) x$get_allele_peak()$allele_repeat)
+  controls_repeats_summarized$abs_avg_residual <- abs(controls_repeats_summarized$avg_residual)
+  # reorder cols
+  controls_repeats_summarized <- controls_repeats_summarized[ ,names(controls_repeats_summarized)[c(1,3:6,2,7)]]
+
+  return(controls_repeats_summarized)
+}
+
+
+
+
+
+

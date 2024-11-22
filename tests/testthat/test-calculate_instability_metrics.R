@@ -2,7 +2,7 @@
 
 testthat::test_that("percentiles", {
   gm_raw <- trace::example_data
-  test_sample <- "20230413_A01.fsa"
+  test_sample <- unique(gm_raw$Sample.File.Name)[1]
 
   test_df <- gm_raw[which(gm_raw$Sample.File.Name == test_sample), ]
 
@@ -29,7 +29,7 @@ testthat::test_that("percentiles", {
 
   percentiles <- find_percentiles(
     repeats = test_distribution_df$repeats,
-    heights = test_distribution_df$height,
+    signals = test_distribution_df$signal,
     index_peak_repeat = test_fragments[[1]]$get_allele_peak()$allele_repeat,
     type = "percentile", # "percentile" or "repeat"
     range = seq(0.1, 0.99, .10),
@@ -38,7 +38,7 @@ testthat::test_that("percentiles", {
 
   repeat_test <- find_percentiles(
     repeats = test_distribution_df$repeats,
-    heights = test_distribution_df$height,
+    signals = test_distribution_df$signal,
     index_peak_repeat = test_fragments[[1]]$get_allele_peak()$allele_repeat,
     type = "repeat", # "percentile" or "repeat"
     range = percentiles$percentile_0.2,
@@ -46,7 +46,7 @@ testthat::test_that("percentiles", {
   )
 
   # the values go full cirle
-  testthat::expect_true(repeat_test[[1]] == 0.2)
+  testthat::expect_true(repeat_test[[1]] == "0.2")
 })
 
 
@@ -106,9 +106,9 @@ testthat::test_that("calculate metrics", {
     )
   )
 
-  testthat::expect_true(round(mean(test_metrics_ungrouped$expansion_index, na.rm = TRUE), 3) == 4.867)
+  testthat::expect_true(round(mean(test_metrics_ungrouped$expansion_index, na.rm = TRUE), 3) == 4.634)
   testthat::expect_true(all(is.na(test_metrics_ungrouped$average_repeat_gain)))
-  testthat::expect_true(round(mean(test_metrics_ungrouped$skewness, na.rm = TRUE), 5) == -0.009)
+  testthat::expect_true(round(mean(test_metrics_ungrouped$skewness, na.rm = TRUE), 5) == -0.00683)
   testthat::expect_true(test_fragments[[1]]$get_allele_peak()$allele_repeat == test_fragments[[1]]$get_index_peak()$index_repeat)
   testthat::expect_true(all(sapply(test_fragments, function(x) x$.__enclos_env__$private$assigned_index_peak_used)))
   
@@ -171,9 +171,9 @@ testthat::test_that("calculate metrics", {
   )
 
 
-  testthat::expect_true(round(mean(test_metrics_grouped$expansion_index, na.rm = TRUE), 3) == 6.599)
-  testthat::expect_true(round(mean(test_metrics_grouped$average_repeat_gain, na.rm = TRUE), 3) == 4.05)
-  testthat::expect_true(round(mean(test_metrics_grouped$skewness, na.rm = TRUE), 5) == -0.009)
+  testthat::expect_true(round(mean(test_metrics_grouped$expansion_index, na.rm = TRUE), 3) == 5.728)
+  testthat::expect_true(round(mean(test_metrics_grouped$average_repeat_gain, na.rm = TRUE), 3) == 3.348)
+  testthat::expect_true(round(mean(test_metrics_grouped$skewness, na.rm = TRUE), 5) == -0.00683)
   testthat::expect_true(test_fragments[[1]]$get_allele_peak()$allele_repeat != test_fragments[[1]]$get_index_peak()$index_repeat)
   testthat::expect_true(all(sapply(test_fragments, function(x) x$.__enclos_env__$private$assigned_index_peak_used)))
 

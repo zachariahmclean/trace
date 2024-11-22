@@ -126,10 +126,8 @@ fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 
 # Find ladders
 
-First we find the ladders and call bp size in the fsa file. The bp is
-assigned using the local Southern method. Basically, for each data
-point, linear models are made for the lower and upper 3 size standard
-and the predicted sizes are averaged.
+The known ladder sizes are assigned to peaks in the ladder channel and
+bp are predicted for each scan.
 
 ``` r
 find_ladders(
@@ -255,7 +253,7 @@ the samples are set as `metrics_baseline_control`, meaning they are the
 samples taken at day 0 in this experiment. This allows us to set
 `grouped = TRUE` and set the index peak for the expansion index and
 other metrics. For mice, if just a few samples have the inherited repeat
-height shorter than the expanded population, you could not worry about
+signal shorter than the expanded population, you could not worry about
 this and instead use the `index_override_dataframe` in
 `assign_index_peaks()`.
 
@@ -308,7 +306,7 @@ plot_data <- metrics_grouped_df |>
   dplyr::left_join(metadata, by = dplyr::join_by(unique_id)) |>
   dplyr::filter(
     day > 0,
-    modal_peak_height > 500
+    modal_peak_signal > 500
   ) |>
   dplyr::group_by(metrics_group_id) |>
   dplyr::mutate(

@@ -10,7 +10,7 @@
 #'
 #' @param fragments_trace_list A list of fragments_trace objects containing fragment data.
 #' @param smoothing_window numeric: signal smoothing window size passed to pracma::savgol()
-#' @param minimum_peak_signal numeric: minimum height of peak from smoothed trace
+#' @param minimum_peak_signal numeric: minimum signal of peak from smoothed trace
 #' @param min_bp_size numeric: minimum bp size of peaks to consider
 #' @param max_bp_size numeric: maximum bp size of peaks to consider
 #' @param ... pass additional arguments to findpeaks, or change the default arguments
@@ -88,7 +88,7 @@ find_fragments <- function(
     window_width <- 3
 
     # go through raw signal and make sure that the identified scan in the smoothed signal is still the highest
-    # it will also deal with cases where the scans have the same height (which.max will chose first)
+    # it will also deal with cases where the scans have the same signal (which.max will chose first)
     peak_position <- numeric(nrow(peaks))
     for (i in seq_along(peak_position)) {
       if (peaks[i, 2] + window_width > 1 & peaks[i, 2] + window_width < n_scans) { # make sure that the subsetting would be in bounds when taking window into account
@@ -101,7 +101,7 @@ find_fragments <- function(
     }
 
     df <- trace_bp_df[peak_position, c("scan", "size", "signal", "off_scale")]
-    colnames(df) <- c("scan", "size", "height", "off_scale")
+    colnames(df) <- c("scan", "size", "signal", "off_scale")
 
     # remove shoulder peaks
     df2 <- deshoulder(df, shoulder_window = 1.5)

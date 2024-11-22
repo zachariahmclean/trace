@@ -3,7 +3,7 @@
 clean_genemapper5 <- function(
     df,
     peak_size_col,
-    peak_height_col,
+    peak_signal_col,
     unique_id,
     dye_col,
     dye_channel,
@@ -11,7 +11,7 @@ clean_genemapper5 <- function(
   df <- as.data.frame(df)
   # rename cols based on used supplied name
   names(df)[names(df) == peak_size_col] <- "size"
-  names(df)[names(df) == peak_height_col] <- "height"
+  names(df)[names(df) == peak_signal_col] <- "signal"
   names(df)[names(df) == unique_id] <- "unique_id"
   names(df)[names(df) == dye_col] <- "Dye.Sample.Peak"
   names(df)[names(df) == allele_col] <- "allele"
@@ -34,12 +34,12 @@ clean_genemapper5 <- function(
 clean_generic <- function(
     df,
     peak_size_col,
-    peak_height_col,
+    peak_signal_col,
     unique_id) {
   df <- as.data.frame(df)
   # rename cols based on used supplied name
   names(df)[names(df) == peak_size_col] <- "size"
-  names(df)[names(df) == peak_height_col] <- "height"
+  names(df)[names(df) == peak_signal_col] <- "signal"
   names(df)[names(df) == unique_id] <- "unique_id"
 
   # tidy dataframe names to snake case
@@ -63,7 +63,7 @@ clean_generic <- function(
 #' @param data_format The format that the data frame is in (for example, a genemapper peak table). Choose between: genemapper5, generic.
 #' @param unique_id A character string specifying column name giving the unique sample id (often the file name).
 #' @param peak_size_col A character string specifying column name giving the peak size.
-#' @param peak_height_col A character string specifying column name giving the peak height.
+#' @param peak_signal_col A character string specifying column name giving the peak signal.
 #' @param min_size_bp Numeric value indicating the minimum size of the peak table to import.
 #' @param max_size_bp Numeric value indicating the maximum size of the peak table to import.
 #' @param dye_col Genemapper specific. A character string specifying column name indicating the dye channel.
@@ -93,7 +93,7 @@ peak_table_to_fragments <- function(
     df,
     data_format = NULL,
     peak_size_col = NULL,
-    peak_height_col = NULL,
+    peak_signal_col = NULL,
     unique_id = NULL,
     dye_col = NULL,
     dye_channel = NULL,
@@ -101,9 +101,9 @@ peak_table_to_fragments <- function(
     min_size_bp = 200,
     max_size_bp = 1000) {
   # check to make sure that if the user supplies a column name, that it's actually in the dataframe
-  if (any(!is.null(peak_size_col), !is.null(peak_height_col), !is.null(unique_id))) {
-    function_input_vector <- c(peak_size_col, peak_height_col, unique_id)
-    function_input_name_vector <- c("peak_size_col", "peak_height_col", "unique_id")
+  if (any(!is.null(peak_size_col), !is.null(peak_signal_col), !is.null(unique_id))) {
+    function_input_vector <- c(peak_size_col, peak_signal_col, unique_id)
+    function_input_name_vector <- c("peak_size_col", "peak_signal_col", "unique_id")
     for (i in seq_along(function_input_vector)) {
       if (!any(names(df) == function_input_vector[[i]])) {
         stop(paste0(function_input_name_vector[[i]], " input '", function_input_vector[[i]], "' was not detected as a column name in the supplied dataframe. Check column names and supply the right character string for the ", function_input_name_vector[[i]], " input"),
@@ -118,7 +118,7 @@ peak_table_to_fragments <- function(
   if (data_format == "genemapper5") {
     df2 <- clean_genemapper5(df,
       peak_size_col = ifelse(length(peak_size_col) == 0, "Size", peak_size_col),
-      peak_height_col = ifelse(length(peak_height_col) == 0, "Height", peak_height_col),
+      peak_signal_col = ifelse(length(peak_signal_col) == 0, "Height", peak_signal_col),
       unique_id = ifelse(length(unique_id) == 0, "Sample.File.Name", unique_id),
       dye_col = ifelse(length(dye_col) == 0, "Dye.Sample.Peak", dye_col),
       dye_channel = ifelse(length(dye_channel) == 0, "B", dye_channel),
@@ -127,7 +127,7 @@ peak_table_to_fragments <- function(
   } else if (data_format == "generic") {
     df2 <- clean_generic(df,
       peak_size_col = peak_size_col,
-      peak_height_col = peak_height_col,
+      peak_signal_col = peak_signal_col,
       unique_id = unique_id
     )
   } else {
@@ -208,7 +208,7 @@ repeat_table_to_repeats <- function(
   }
 
   names(df)[names(df) == repeat_col] <- "repeats"
-  names(df)[names(df) == frequency_col] <- "height"
+  names(df)[names(df) == frequency_col] <- "signal"
   names(df)[names(df) == unique_id] <- "unique_id"
 
   repeats_list <- lapply(
