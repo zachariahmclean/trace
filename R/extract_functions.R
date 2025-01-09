@@ -111,12 +111,7 @@ extract_ladder_summary <- function(
 #'
 extract_alleles <- function(fragments_list) {
   extracted <- lapply(fragments_list, function(x) {
-    data.frame(
-      unique_id = x$unique_id,
-      size = x$get_allele_peak()$allele_size,
-      repeats = x$get_allele_peak()$allele_repeat,
-      signal = x$get_allele_peak()$allele_signal
-    )
+    as.data.frame(x$get_allele_peak())
   })
   extracted_df <- do.call(rbind, extracted)
 
