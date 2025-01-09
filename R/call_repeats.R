@@ -108,7 +108,16 @@ size_period_repeat_caller <- function(
                                         main_peak_size,
                                         size_period,
                                         direction,
-                                        window) {
+                                        window,
+                                        min_bp_size,
+                                        max_bp_size
+                                      ) {
+    
+    # first filter by previously set size constraints
+    df <- df[which(df$size > fragments_repeat$.__enclos_env__$private$min_bp_size & 
+      df$size < fragments_repeat$.__enclos_env__$private$max_bp_size), ]
+    
+    # filter for the directly wer are iterating over
     if (direction == 1) {
       df_post_main <- df[which(df$size > main_peak_size), ]
     } else {
@@ -151,19 +160,21 @@ size_period_repeat_caller <- function(
     fragments_repeat$get_allele_peak()$allele_size,
     size_period,
     direction = 1,
-    window = scan_peak_window)
+    window = scan_peak_window,
+    min_bp_size = fragments_repeat$.__enclos_env__$private$min_bp_size,
+    max_bp_size = fragments_repeat$.__enclos_env__$private$max_bp_size)
 
   neg_peaks <- find_peaks_by_size_period(fragments_repeat$trace_bp_df,
     fragments_repeat$get_allele_peak()$allele_size,
     size_period,
     direction = -1,
-    window = scan_peak_window)
+    window = scan_peak_window,
+    min_bp_size = fragments_repeat$.__enclos_env__$private$min_bp_size,
+    max_bp_size = fragments_repeat$.__enclos_env__$private$max_bp_size)
 
   peak_table <- fragments_repeat$trace_bp_df
   allele_scan <- peak_table[which(peak_table$size == fragments_repeat$get_allele_peak()$allele_size), "scan"]
   peak_table <- peak_table[which(peak_table$scan %in% c(neg_peaks, allele_scan, pos_peaks)), ]
-  peak_table <- peak_table[which(peak_table$size > fragments_repeat$.__enclos_env__$private$min_bp_size & 
-                                 peak_table$size < fragments_repeat$.__enclos_env__$private$max_bp_size), ]
 
   return(peak_table)
 }

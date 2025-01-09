@@ -206,9 +206,11 @@ plot_trace_helper <- function(fragments,
     }
   }
 
-
-  if (!is.null(fragments$get_index_peak()$index_repeat) && !is.na(fragments$get_index_peak()$index_repeat)) {
-    abline(v = fragments$get_index_peak()$index_repeat, col = "black", lwd = 2, lty = 3)
+  # add index peak to the plot if appropriate
+  if(class(fragments)[1] == "fragments_repeats"){
+    if (!is.null(fragments$get_index_peak()$index_repeat) && !is.na(fragments$get_index_peak()$index_repeat)) {
+      abline(v = fragments$get_index_peak()$index_repeat, col = "black", lwd = 2, lty = 3)
+    }
   }
 }
 

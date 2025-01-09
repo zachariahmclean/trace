@@ -10,11 +10,11 @@
 #'
 #' @param fragments_trace_list A list of fragments_trace objects containing fragment data.
 #' @param smoothing_window numeric: signal smoothing window size passed to pracma::savgol()
-#' @param minimum_peak_signal numeric: minimum signal of peak from smoothed trace
+#' @param minimum_peak_signal numeric: minimum signal of peak from smoothed trace that is passed to pracma::findpeaks(). To have no minimum signal set as "-Inf". Note that the smoothing decreases the signal, so this value will need to be set lower than what is seen on the raw signal.
 #' @param min_bp_size numeric: minimum bp size of peaks to consider
 #' @param max_bp_size numeric: maximum bp size of peaks to consider
-#' @param ... pass additional arguments to findpeaks, or change the default arguments
-#' we set. minimum_peak_signal above is passed to findpeaks as minpeakheight, and
+#' @param ... pass additional arguments to pracma::findpeaks(), or change the default arguments
+#' we set. minimum_peak_signal above is passed to pracma::findpeaks() as minpeakheight, and
 #' peakpat has been set to '\[+\]\{6,\}\[0\]*\[-\]\{6,\}' so that peaks with flat tops are
 #' still called, see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
 #'

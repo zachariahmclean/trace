@@ -23,5 +23,10 @@ Authors:
   \item Kevin Correia
 }
 
+Other contributors:
+\itemize{
+  \item Andrew Jiang [contributor]
+}
+
 }
 \keyword{internal}

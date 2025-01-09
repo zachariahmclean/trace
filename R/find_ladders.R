@@ -374,11 +374,11 @@ find_ladders <- function(
     return(combined_ladder_peaks)
   }
 
-  for (i in seq_along(fragments_trace)) {
-    if (show_progress_bar) {
-      pb <- utils::txtProgressBar(min = 0, max = length(fragments_trace), style = 3)
-    }
+  if (show_progress_bar) {
+    pb <- utils::txtProgressBar(min = 0, max = length(fragments_trace), style = 3)
+  }
 
+  for (i in seq_along(fragments_trace)) {
     # populate the ladder and data channels with the supplied channel name
 
     fragments_trace[[i]]$raw_ladder <- fragments_trace[[i]]$fsa$Data[[ladder_channel]]
