@@ -12,9 +12,9 @@
 #'
 #' @details This function finds the main alleles for each fragment in the list by identifying clusters of peaks ("peak regions") with the highest signal intensities. This is based on the idea that PCR amplicons of repeats have clusters of peaks (from somatic mosaicism and PCR artifacts) that help differentiate the main allele of interest from capillary electrophoresis noise/contamination.
 #'
-#' If number_of_alleles = 1, the tallest of peaks will be selected as the allele. This means that if your sample has multiple alleles, you have two options i) make sure that your data is subsetted to only include the allele of interest (using `min_bp_size` in [find_fragments()] to make sure that the smaller allele is excluded), or ii) setting number_of_alleles = 2, which will pick the two tallest peaks in their respective peak regions and set the main allele as the larger repeat size, and allele_2 as the shorter repeat size. We recommend the subsetting approach since that is far simple and less likely to fail, and the second option only if you're doing an experiment analysis a large number of human samples where both the normal and expanded allele repeat lengths vary, which makes it very difficult to find a common bp size that excludes the normal allele.
+#' If number_of_alleles = 1, the tallest of peaks will be selected as the allele. This means that if your sample has multiple alleles, you have two options i) make sure that your data is subsetted to only include the allele of interest (using `min_bp_size` in [find_fragments()] to make sure that the smaller allele is excluded), or ii) setting number_of_alleles = 2, which will pick the two tallest peaks in their respective peak regions and set the main allele as the larger repeat size, and allele_2 as the shorter repeat size. We recommend the subsetting approach since that is far simpler and less likely to fail, and the second option only if you're doing an experiment analysis a large number of human samples where both the normal and expanded allele repeat lengths vary, which makes it very difficult to find a common bp size that excludes the normal allele.
 #' 
-#' The parameters `peak_region_signal_threshold_multiplier` and `peak_region_size_gap_threshold` will only need to be adjusted if peaks are not being found for some reason. They influence the criteria for identifying peak regions, and finding the right balance between them is crucial.
+#' The parameters `peak_region_signal_threshold_multiplier` and `peak_region_size_gap_threshold` will only need to be adjusted in rare cases if peaks are not being found for some reason. They influence the criteria for identifying peak regions. peak_region_signal_threshold_multiplier is multiplied to the mean height of all the peaks to create a hight threshold for inclusion into the peak region, so most of the time it's already a very low value and probably only needs to be changed if you have very few peaks. peak_region_size_gap_threshold is the distance between the peaks, either bp size, or repeats if repeats have already been called. 
 #' @export
 #'
 #' @examples
@@ -39,6 +39,7 @@ find_alleles <- function(
     peak_region_signal_threshold_multiplier = 1) {
   # internal helper functions
   find_peak_regions <- function(signal, size) {
+    
     peak_regions <- rep(NA_real_, length(signal))
     mean_signal <- mean(signal) * peak_region_signal_threshold_multiplier
     # loop over each fragment and check to see if it's within the thresholds
@@ -77,9 +78,12 @@ find_alleles <- function(
     # then of those clusters, pick out the tallest of them all
 
 
-    # first select if working off repeat size or bp size
+    # first select if working off repeat size or bp size, and return warning if going off repeats
     fragment_signal <- if (is.null(fragment$repeat_table_df)) fragment$peak_table_df$signal else fragment$repeat_table_df$signal
     fragment_sizes <- if (is.null(fragment$repeat_table_df)) fragment$peak_table_df$size else fragment$repeat_table_df$repeats
+    if (is.null(fragment$repeat_table_df)){
+      warning(call. = FALSE, "Alleles were called on repeat size. The default peak_region_size_gap_threshold is set expecting bp size, so may need to be decreased (eg, 6 / 3 repeats = 2 for the value in repeat units). This is probably only relevant if selecting two alleles.")
+    }
 
     # Find peak regions
     peak_regions <- find_peak_regions(fragment_signal, fragment_sizes)
@@ -149,6 +153,9 @@ find_alleles <- function(
         else {
           top_regional_peaks_positions <- c(top_regional_peaks_positions[1], top_regional_peaks_positions[1])
         }
+      } else{
+        top_regional_peaks_positions <- top_regional_peaks_positions[order(fragment_signal[top_regional_peaks_positions], decreasing = TRUE)][1:2]
+        top_regional_peaks_positions <- sort(top_regional_peaks_positions)
       }
       
       # change this so that it populates either repeat, size

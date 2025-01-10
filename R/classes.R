@@ -175,7 +175,7 @@ fragments_repeats <- R6::R6Class(
     #' This returns a list with the allele information for this object.
     get_allele_peak = function(){
       
-      if(is.na(private$allele_2_size)){
+      if(is.na(private$allele_2_signal)){
         alleles <- list(
           allele_size = private$allele_size,
           allele_signal = private$allele_signal,
@@ -223,13 +223,14 @@ fragments_repeats <- R6::R6Class(
         
       }
       }
+
       # Dynamically construct the variable names and assign values
       if(allele == 1){
-        private$allele_size <- ifelse(!is.na(value), allele_df$size, NA_real_)
+        private$allele_size <- ifelse(!is.na(value) && !is.null(allele_df$size), allele_df$size, NA_real_)
         private$allele_signal <- ifelse(!is.na(value), allele_df$signal, NA_real_)
         private$allele_repeat <- ifelse(!is.null(self$repeat_table_df) && !is.na(value), allele_df$repeats, NA_real_)   
       } else if(allele == 2){
-        private$allele_2_size <- ifelse(!is.na(value), allele_df$size, NA_real_)
+        private$allele_2_size <- ifelse(!is.na(value) && !is.null(allele_df$size), allele_df$size, NA_real_)
         private$allele_2_signal <- ifelse(!is.na(value), allele_df$signal, NA_real_)
         private$allele_2_repeat <- ifelse(!is.null(self$repeat_table_df) && !is.na(value), allele_df$repeats, NA_real_)   
       } else{

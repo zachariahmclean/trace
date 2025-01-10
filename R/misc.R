@@ -42,7 +42,7 @@ print_helper <- function(fragment,
     private_names <- ls(fragment$.__enclos_env__$private, all.names = TRUE)
     alleles_names <- private_names[which(grepl("allele_", private_names))]
     #should allele_2 be included? remove if is na since it's only an edge case
-    if(is.na(fragment$.__enclos_env__$private$allele_2_size)){
+    if(is.na(fragment$.__enclos_env__$private$allele_2_signal)){
       alleles_names <- alleles_names[-grep("allele_2_", alleles_names)]
     }
     alleles_names <- c(alleles_names, "index_repeat")
