@@ -71,8 +71,9 @@ Each of the columns in the supplied dataframe are explained below:
 
 \subsection{Repeat instability metrics}{
 \itemize{
-\item \code{modal_repeat_delta}: The delta between the modal peak repeat and the index peak repeat.
-\item \code{average_repeat_gain}: The average repeat change: The weighted mean of the sample (weighted by peak signal) subtracted by the weighted mean repeat of the index sample.
+\item \code{modal_repeat_change}: The difference between the modal repeat and the index repeat.
+\item \code{average_repeat_change}: The weighted mean of the sample (weighted by peak signal) subtracted by the weighted mean repeat of the index sample(s).
+\item \code{instability_index_change}: The instability index of the sample subtracted by the instability index of the index sample(s). This will be very similar to the average_repeat_change, with the key difference of instability_index_change being that it is an internally calculated metric for each sample, and therefore the random slight fluctuations of bp size (or systematic if across plates for example) will be removed. However, it requires the index peak to be correctly set for each sample, and if set incorrectly, can produce large arbitrary differences.
 \item \code{instability_index}: The instability index based on peak signal and distance to the index peak. (See Lee et al., 2010, https://doi.org/10.1186/1752-0509-4-29).
 \item \code{instability_index_abs}: The absolute instability index. The absolute value is taken for the "Change from the main allele".
 \item \code{expansion_index}: The instability index for expansion peaks only.

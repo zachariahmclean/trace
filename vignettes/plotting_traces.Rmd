@@ -160,7 +160,7 @@ One issue is that the height of the signal for each sample varies. We can solve 
 
 alleles_df <- extract_alleles(fragments_list[samples_for_plotting])
 
-sample_to_exclude <- alleles_df[which(is.na(alleles_df$repeats)), "unique_id"]
+sample_to_exclude <- alleles_df[which(is.na(alleles_df$allele_repeat)), "unique_id"]
 
 traces_for_plotting_with_metadata_df <- traces_for_plotting_with_metadata_df |>
   dplyr::filter(between(calculated_repeats, 100, 150),

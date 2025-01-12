@@ -24,7 +24,7 @@ assistance or any other inquires, contact [Zach
 McLean](mailto:zmclean@mgh.harvard.edu?subject=%5BGitHub%5D%20trace).
 
 If you use this package, please cite
-[this](https://www.nature.com/articles/s41467-024-47485-0) paper for
+[this](https://doi.org/10.1038/s41467-024-47485-0) paper for
 now.
 
 # How to use the package
@@ -292,7 +292,7 @@ metrics_grouped_df <- calculate_instability_metrics(
 
 These metrics can then be used to quantify repeat instability. For
 example, this reproduces Figure 7e of [our
-manuscript](https://www.nature.com/articles/s41467-024-47485-0).
+manuscript](https://doi.org/10.1038/s41467-024-47485-0).
 
 First, prepare the data for plotting by removing poor quality samples
 and finding the average repeat gain relative to the DMSO group for each
@@ -310,7 +310,7 @@ plot_data <- metrics_grouped_df |>
   ) |>
   dplyr::group_by(metrics_group_id) |>
   dplyr::mutate(
-    rel_gain = average_repeat_gain / median(average_repeat_gain[which(treatment == 0)]),
+    rel_gain = average_repeat_change / median(average_repeat_change[which(treatment == 0)]),
     genotype = forcats::fct_rev(genotype)
   )
 ```

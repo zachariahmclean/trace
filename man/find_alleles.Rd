@@ -6,12 +6,15 @@
 \usage{
 find_alleles(
   fragments_list,
+  number_of_alleles = 1,
   peak_region_size_gap_threshold = 6,
   peak_region_signal_threshold_multiplier = 1
 )
 }
 \arguments{
 \item{fragments_list}{A list of fragment objects containing peak data.}
+
+\item{number_of_alleles}{Number of alleles to be returned for each fragment. Must either be 1 or 2. Being able to identify two alleles is for cases when you are analyze different human samples with a normal and expanded alleles and you can't do the preferred option of simply ignoring the normal allele in \code{\link[=find_fragments]{find_fragments()}} (eg setting the min_bp_size above the normal allele bp size).}
 
 \item{peak_region_size_gap_threshold}{Gap threshold for identifying peak regions. The peak_region_size_gap_threshold is a parameter used to determine the maximum allowed gap between peak sizes within a peak region. Adjusting this parameter affects the size range of peaks that can be grouped together in a region. A smaller value makes it more stringent, while a larger value groups peaks with greater size differences, leading to broader peak regions that may encompass wider size ranges.}
 
@@ -26,9 +29,9 @@ This function identifies main allele within each fragment object.
 \details{
 This function finds the main alleles for each fragment in the list by identifying clusters of peaks ("peak regions") with the highest signal intensities. This is based on the idea that PCR amplicons of repeats have clusters of peaks (from somatic mosaicism and PCR artifacts) that help differentiate the main allele of interest from capillary electrophoresis noise/contamination.
 
-The tallest of peaks will be selected as the allele. This means that if your sample has multiple alleles, you'll need to make sure that your data is subsetted to exclude that second allele. For example in a human cell line with a shorter repeat, we recommend using \code{min_bp_size} in \code{\link[=find_fragments]{find_fragments()}} to make sure that the smaller allele is excluded. Otherwise, the smaller taller allele will be set as the allele.
+If number_of_alleles = 1, the tallest of peaks will be selected as the allele. This means that if your sample has multiple alleles, you have two options i) make sure that your data is subsetted to only include the allele of interest (using \code{min_bp_size} in \code{\link[=find_fragments]{find_fragments()}} to make sure that the smaller allele is excluded), or ii) setting number_of_alleles = 2, which will pick the two tallest peaks in their respective peak regions and set the main allele as the larger repeat size, and allele_2 as the shorter repeat size. We recommend the subsetting approach since that is far simpler and less likely to fail, and the second option only if you're doing an experiment analysis a large number of human samples where both the normal and expanded allele repeat lengths vary, which makes it very difficult to find a common bp size that excludes the normal allele.
 
-The parameters \code{peak_region_signal_threshold_multiplier} and \code{peak_region_size_gap_threshold} will only need to be adjusted if peaks are not being found for some reason. They influence the criteria for identifying peak regions, and finding the right balance between them is crucial.
+The parameters \code{peak_region_signal_threshold_multiplier} and \code{peak_region_size_gap_threshold} will only need to be adjusted in rare cases if peaks are not being found for some reason. They influence the criteria for identifying peak regions. peak_region_signal_threshold_multiplier is multiplied to the mean height of all the peaks to create a hight threshold for inclusion into the peak region, so most of the time it's already a very low value and probably only needs to be changed if you have very few peaks. peak_region_size_gap_threshold is the distance between the peaks, either bp size, or repeats if repeats have already been called.
 }
 \examples{
 fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())

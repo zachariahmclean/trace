@@ -2,18 +2,22 @@
 
 #' Read fsa file
 #'
-#' This function is just a wrapper of seqinr::read.abif
+#' Read fsa file into memory and create fragments_trace object
 #'
-#' @param files a chr vector of fsa file names.
+#' @param files a chr vector of fsa file names. For example, return all the fsa files in a directory with 'list.files("example_directory/", full.names = TRUE, pattern = ".fsa")'.
+#' 
+#' @details
+#' read_fsa is just a wrapper around [seqinr::read.abif()] that reads the fsa file into memory and stores it inside a fragments_trace object. That enables you to use the next function [find_ladders()].
 #'
 #' @return A list of fragments_trace objects
-#' @seealso [seqinr::read.abif()]
+#' @seealso [find_ladders()], [plot_data_channels()]
 #' @export
 #' @importFrom seqinr read.abif
 #'
 #' @examples
-#' # files <- list.files("example_directory/", full.names = TRUE, pattern = ".fsa")
-#' # read_fsa(files)
+#' 
+#' fsa_file <- read_fsa(system.file("abif/2_FAC321_0000205983_B02_004.fsa", package = "seqinr"))
+#' plot_data_channels(fsa_file)
 #'
 read_fsa <- function(
   files) {

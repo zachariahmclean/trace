@@ -168,8 +168,9 @@ repeat_table_subset <- function(repeat_table_df,
 #' - `kurtosis`: The kurtosis of the repeat size distribution.
 #'
 #' ## Repeat instability metrics
-#' - `modal_repeat_delta`: The delta between the modal peak repeat and the index peak repeat.
-#' - `average_repeat_gain`: The average repeat change: The weighted mean of the sample (weighted by peak signal) subtracted by the weighted mean repeat of the index sample.
+#' - `modal_repeat_change`: The difference between the modal repeat and the index repeat.
+#' - `average_repeat_change`: The weighted mean of the sample (weighted by peak signal) subtracted by the weighted mean repeat of the index sample(s).
+#' - `instability_index_change`: The instability index of the sample subtracted by the instability index of the index sample(s). This will be very similar to the average_repeat_change, with the key difference of instability_index_change being that it is an internally calculated metric for each sample, and therefore the random slight fluctuations of bp size (or systematic if across plates for example) will be removed. However, it requires the index peak to be correctly set for each sample, and if set incorrectly, can produce large arbitrary differences.  
 #' - `instability_index`: The instability index based on peak signal and distance to the index peak. (See Lee et al., 2010, https://doi.org/10.1186/1752-0509-4-29).
 #' - `instability_index_abs`: The absolute instability index. The absolute value is taken for the "Change from the main allele".
 #' - `expansion_index`: The instability index for expansion peaks only.
@@ -178,7 +179,6 @@ repeat_table_subset <- function(repeat_table_df,
 #' - `contraction_ratio`: The ratio of contraction peaks' signals to the main peak signal.
 #' - `expansion_percentile_*`: The repeat size at specified percentiles of the cumulative distribution of expansion peaks.
 #' - `expansion_percentile_for_repeat_*`: The percentile rank of specified repeat sizes in the distribution of expansion peaks.
-
 #'
 #' @export
 #'
@@ -272,22 +272,42 @@ calculate_instability_metrics <- function(
       window_around_index_peak = window_around_index_peak
     )
 
+    # filter and calculate index samples if they exist
     if(!is.null(fragments_repeats$.__enclos_env__$private$index_samples) && length(fragments_repeats$.__enclos_env__$private$index_samples) > 0){
-      control_weighted_mean_repeat <- sapply(fragments_repeats$.__enclos_env__$private$index_samples, function(x){
-        control_filtered_df <- repeat_table_subset(
-          repeat_table_df = x[[2]],
-          allele_signal = x[[2]][which(x[[2]]$repeats == x[[1]]), "signal"],
-          index_repeat = x[[1]],
-          peak_threshold = peak_threshold,
-          window_around_index_peak = window_around_index_peak
+      index_sample_list_filtered <- lapply(fragments_repeats$.__enclos_env__$private$index_samples, function(x){
+        list(
+          x[[1]],
+          repeat_table_subset(
+            repeat_table_df = x[[2]],
+            allele_signal = x[[2]][which(x[[2]]$repeats == x[[1]]), "signal"],
+            index_repeat = x[[1]],
+            peak_threshold = peak_threshold,
+            window_around_index_peak = window_around_index_peak
+          )
         )
-
-        weighted.mean(control_filtered_df$repeats, control_filtered_df$signal)
       })
 
+
+      control_weighted_mean_repeat <- sapply(index_sample_list_filtered, function(x){
+        weighted.mean(x[[2]]$repeats, x[[2]]$signal)
+      })
       index_weighted_mean_repeat <- median(control_weighted_mean_repeat, na.rm = TRUE)
+
+      control_instability_index <- sapply(index_sample_list_filtered, function(x){
+        instability_index(
+          # can use the modal as the index peak since these are the index samples
+          repeats = x[[2]]$repeats,
+          signals = x[[2]]$signal,
+          index_peak_signal = x[[2]][which(x[[2]]$repeats == x[[1]]), "signal"],
+          index_peak_repeat = x[[1]],
+          peak_threshold = peak_threshold,
+          abs_sum = FALSE
+        )
+      })
+      index_instability_index <- median(control_instability_index, na.rm = TRUE)
     } else{
       index_weighted_mean_repeat <- NA
+      index_instability_index <- NA
     }
 
     # first subset to make some dataframe that are just for contractions or expansions
@@ -346,8 +366,16 @@ calculate_instability_metrics <- function(
       max_delta_pos = max(size_filtered_df$repeat_delta_index_peak),
       skewness = fishers_skewness(size_filtered_df$repeats, size_filtered_df$signal),
       kurtosis = fishers_kurtosis(size_filtered_df$repeats, size_filtered_df$signal),
-      modal_repeat_delta = fragments_repeats$get_allele_peak()$allele_repeat - fragments_repeats$get_index_peak()$index_repeat,
-      average_repeat_gain = weighted.mean(size_filtered_df$repeats, size_filtered_df$signal) - index_weighted_mean_repeat,
+      modal_repeat_change = fragments_repeats$get_allele_peak()$allele_repeat - fragments_repeats$get_index_peak()$index_repeat,
+      average_repeat_change = weighted.mean(size_filtered_df$repeats, size_filtered_df$signal) - index_weighted_mean_repeat,
+      instability_index_change = instability_index(
+        repeats = size_filtered_df$repeats,
+        signals = size_filtered_df$signal,
+        index_peak_signal = fragments_repeats$get_allele_peak()$allele_signal,
+        index_peak_repeat = fragments_repeats$get_index_peak()$index_repeat,
+        peak_threshold = peak_threshold,
+        abs_sum = FALSE
+      ) - index_instability_index,
       instability_index = instability_index(
         repeats = size_filtered_df$repeats,
         signals = size_filtered_df$signal,

@@ -11,7 +11,7 @@ A list with 92 elements, each one being the contents of an fsa file:
 }
 }
 \source{
-\url{https://www.nature.com/articles/s41467-024-47485-0}
+\url{https://doi.org/10.1038/s41467-024-47485-0}
 }
 \usage{
 cell_line_fsa_list
