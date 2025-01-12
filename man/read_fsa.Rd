@@ -7,19 +7,23 @@
 read_fsa(files)
 }
 \arguments{
-\item{files}{a chr vector of fsa file names.}
+\item{files}{a chr vector of fsa file names. For example, return all the fsa files in a directory with 'list.files("example_directory/", full.names = TRUE, pattern = ".fsa")'.}
 }
 \value{
 A list of fragments_trace objects
 }
 \description{
-This function is just a wrapper of seqinr::read.abif
+Read fsa file into memory and create fragments_trace object
+}
+\details{
+read_fsa is just a wrapper around \code{\link[seqinr:read.abif]{seqinr::read.abif()}} that reads the fsa file into memory and stores it inside a fragments_trace object. That enables you to use the next function \code{\link[=find_ladders]{find_ladders()}}.
 }
 \examples{
-# files <- list.files("example_directory/", full.names = TRUE, pattern = ".fsa")
-# read_fsa(files)
+
+fsa_file <- read_fsa(system.file("abif/2_FAC321_0000205983_B02_004.fsa", package = "seqinr"))
+plot_data_channels(fsa_file)
 
 }
 \seealso{
-\code{\link[seqinr:read.abif]{seqinr::read.abif()}}
+\code{\link[=find_ladders]{find_ladders()}}, \code{\link[=plot_data_channels]{plot_data_channels()}}
 }

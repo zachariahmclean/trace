@@ -6,7 +6,7 @@
 \alias{trace-package}
 \title{trace: Tandem Repeat Analysis by Capillary Electrophoresis}
 \description{
-The goal of package is to provide a pipeline for short tandem repeat instability analysis from fragment analysis data. This package takes inputs of fsa files or peak tables (eg Genemapper5 software output), and a user supplied metadata data-frame. The package identifies ladders, calls peaks, identifies the modal peaks, calls repeats, then calculates repeat instability metrics (ie expansion index or average repeat gain).
+A pipeline for short tandem repeat instability analysis from fragment analysis data. Inputs of fsa files or peak tables, and a user supplied metadata data-frame. The package identifies ladders, calls peaks, identifies the modal peaks, calls repeats, then calculates repeat instability metrics (e.g. expansion index from Lee et al. (2010) \doi{10.1186/1752-0509-4-29}).
 }
 \seealso{
 Useful links:

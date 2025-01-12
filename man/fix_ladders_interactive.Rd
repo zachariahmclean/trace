@@ -25,7 +25,10 @@ button to generate a file that has the ladder correction data. Read this file
 back into R using readRDS, then use \code{\link[=fix_ladders_manual]{fix_ladders_manual()}} and supply the ladder
 correction data as \code{ladder_df_list}. This allows the manually corrected data to
 be saved and used within a script so that the correct does not need to be done
-every time.
+every time. An example of what you would need to do:
+
+ladder_df_list <- readRDS('path/to/exported/data.rds')
+test_ladders_fixed <- fix_ladders_manual(test_ladders_broken, ladder_df_list)
 }
 \examples{
 fsa_list <- lapply(cell_line_fsa_list["20230413_A08.fsa"], function(x) x$clone())
@@ -53,13 +56,9 @@ if (interactive()) {
   fix_ladders_interactive(fsa_list)
 }
 
-# once you have corrected your ladders in the app,
-# export the data we need to incorporate that into the script:
-# ladder_df_list <- readRDS('path/to/exported/data.rds')
-# test_ladders_fixed <- fix_ladders_manual(test_ladders_broken, ladder_df_list)
-
-# plot_ladders(test_ladders_fixed["20230413_B03.fsa"],
-#           n_facet_col = 1)
+# once you have corrected your ladders in the app, 
+# export the data for incorporation into the script.
+# You can then re-import the data and fix ladders as described in the help details.
 
 }
 \seealso{

@@ -11,7 +11,7 @@ A genemapper output dataframe
 }
 }
 \source{
-\url{https://www.nature.com/articles/s41467-024-47485-0}
+\url{https://doi.org/10.1038/s41467-024-47485-0}
 }
 \usage{
 example_data_repeat_table
