@@ -63,12 +63,14 @@ This returns a list with the allele information for this object.
 \subsection{Method \code{set_allele_peak()}}{
 This sets a single allele size/repeat. It searches through the appropriate peak table and finds the closest peak to the value that's provided.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{fragments_repeats$set_allele_peak(unit, value)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{fragments_repeats$set_allele_peak(allele, unit, value)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{allele}}{Either \code{1} or \code{2}, indicating which allele information should be set. Allele 1 is the only one used for repeat instability metrics calculations.}
+
 \item{\code{unit}}{Either "size" or "repeats" to indicate if the value you're providing is bp size or repeat length.}
 
 \item{\code{value}}{Numeric vector (length one) of the size/repeat length to set.}

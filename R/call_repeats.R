@@ -675,7 +675,11 @@ call_repeats <- function(
       fragment$repeat_table_df <- repeat_table_df
       allele_subset <- repeat_table_df$repeats[which(repeat_table_df$size == fragment$get_allele_peak()$allele_size)]
       
-      fragment$set_allele_peak(unit = "repeats", value = allele_subset)
+      fragment$set_allele_peak(allele = 1, unit = "repeats", value = allele_subset)
+      if(!is.na(fragment$.__enclos_env__$private$allele_2_size)){
+        allele_2_subset <- repeat_table_df$repeats[which(repeat_table_df$size == fragment$get_allele_peak()$allele_2_size)]
+        fragment$set_allele_peak(allele = 2, unit = "repeats", value = allele_2_subset)
+      }
       
       # save useful info that is used elsewhere
       fragment$.__enclos_env__$private$repeat_size <- repeat_size
