@@ -95,7 +95,7 @@ find_alleles(
 
   # Mutate
   for (i in seq_along(plot_data)) {
-    plot_data[[i]]$rel_gain <- plot_data[[i]]$average_repeat_gain / median(plot_data[[i]]$average_repeat_gain[which(plot_data[[i]]$treatment == 0)])
+    plot_data[[i]]$rel_gain <- plot_data[[i]]$average_repeat_change / median(plot_data[[i]]$average_repeat_change[which(plot_data[[i]]$treatment == 0)])
   }
 
   plot_data <- do.call(rbind, plot_data)

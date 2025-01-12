@@ -81,7 +81,7 @@ find_alleles <- function(
     # first select if working off repeat size or bp size, and return warning if going off repeats
     fragment_signal <- if (is.null(fragment$repeat_table_df)) fragment$peak_table_df$signal else fragment$repeat_table_df$signal
     fragment_sizes <- if (is.null(fragment$repeat_table_df)) fragment$peak_table_df$size else fragment$repeat_table_df$repeats
-    if (is.null(fragment$repeat_table_df)){
+    if (!is.null(fragment$repeat_table_df)){
       warning(call. = FALSE, "Alleles were called on repeat size. The default peak_region_size_gap_threshold is set expecting bp size, so may need to be decreased (eg, 6 / 3 repeats = 2 for the value in repeat units). This is probably only relevant if selecting two alleles.")
     }
 
