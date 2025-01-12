@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -240,7 +240,7 @@ the id of the sample to exclude.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="va">alleles_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_alleles.html">extract_alleles</a></span><span class="op">(</span><span class="va">fragments_list</span><span class="op">[</span><span class="va">samples_for_plotting</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">sample_to_exclude</span> <span class="op">&lt;-</span> <span class="va">alleles_df</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">alleles_df</span><span class="op">$</span><span class="va">repeats</span><span class="op">)</span><span class="op">)</span>, <span class="st">"unique_id"</span><span class="op">]</span></span>
+<span><span class="va">sample_to_exclude</span> <span class="op">&lt;-</span> <span class="va">alleles_df</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">alleles_df</span><span class="op">$</span><span class="va">allele_repeat</span><span class="op">)</span><span class="op">)</span>, <span class="st">"unique_id"</span><span class="op">]</span></span>
 <span></span>
 <span><span class="va">traces_for_plotting_with_metadata_df</span> <span class="op">&lt;-</span> <span class="va">traces_for_plotting_with_metadata_df</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/between.html" class="external-link">between</a></span><span class="op">(</span><span class="va">calculated_repeats</span>, <span class="fl">100</span>, <span class="fl">150</span><span class="op">)</span>,</span>

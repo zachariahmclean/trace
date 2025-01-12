@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,9 @@ button to generate a file that has the ladder correction data. Read this file
 back into R using readRDS, then use <code><a href="fix_ladders_manual.html">fix_ladders_manual()</a></code> and supply the ladder
 correction data as <code>ladder_df_list</code>. This allows the manually corrected data to
 be saved and used within a script so that the correct does not need to be done
-every time.</p>
+every time. An example of what you would need to do:</p>
+<p>ladder_df_list &lt;- readRDS('path/to/exported/data.rds')
+test_ladders_fixed &lt;- fix_ladders_manual(test_ladders_broken, ladder_df_list)</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -104,13 +106,9 @@ every time.</p>
 <span class="r-in"><span>  <span class="fu">fix_ladders_interactive</span><span class="op">(</span><span class="va">fsa_list</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># once you have corrected your ladders in the app,</span></span></span>
-<span class="r-in"><span><span class="co"># export the data we need to incorporate that into the script:</span></span></span>
-<span class="r-in"><span><span class="co"># ladder_df_list &lt;- readRDS('path/to/exported/data.rds')</span></span></span>
-<span class="r-in"><span><span class="co"># test_ladders_fixed &lt;- fix_ladders_manual(test_ladders_broken, ladder_df_list)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># plot_ladders(test_ladders_fixed["20230413_B03.fsa"],</span></span></span>
-<span class="r-in"><span><span class="co">#           n_facet_col = 1)</span></span></span>
+<span class="r-in"><span><span class="co"># once you have corrected your ladders in the app, </span></span></span>
+<span class="r-in"><span><span class="co"># export the data for incorporation into the script.</span></span></span>
+<span class="r-in"><span><span class="co"># You can then re-import the data and fix ladders as described in the help details.</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

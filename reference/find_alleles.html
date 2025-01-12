@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,7 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">find_alleles</span><span class="op">(</span></span>
 <span>  <span class="va">fragments_list</span>,</span>
+<span>  number_of_alleles <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  peak_region_size_gap_threshold <span class="op">=</span> <span class="fl">6</span>,</span>
 <span>  peak_region_signal_threshold_multiplier <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -55,6 +56,10 @@
 
 <dl><dt id="arg-fragments-list">fragments_list<a class="anchor" aria-label="anchor" href="#arg-fragments-list"></a></dt>
 <dd><p>A list of fragment objects containing peak data.</p></dd>
+
+
+<dt id="arg-number-of-alleles">number_of_alleles<a class="anchor" aria-label="anchor" href="#arg-number-of-alleles"></a></dt>
+<dd><p>Number of alleles to be returned for each fragment. Must either be 1 or 2. Being able to identify two alleles is for cases when you are analyze different human samples with a normal and expanded alleles and you can't do the preferred option of simply ignoring the normal allele in <code><a href="find_fragments.html">find_fragments()</a></code> (eg setting the min_bp_size above the normal allele bp size).</p></dd>
 
 
 <dt id="arg-peak-region-size-gap-threshold">peak_region_size_gap_threshold<a class="anchor" aria-label="anchor" href="#arg-peak-region-size-gap-threshold"></a></dt>
@@ -72,8 +77,8 @@
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function finds the main alleles for each fragment in the list by identifying clusters of peaks ("peak regions") with the highest signal intensities. This is based on the idea that PCR amplicons of repeats have clusters of peaks (from somatic mosaicism and PCR artifacts) that help differentiate the main allele of interest from capillary electrophoresis noise/contamination.</p>
-<p>The tallest of peaks will be selected as the allele. This means that if your sample has multiple alleles, you'll need to make sure that your data is subsetted to exclude that second allele. For example in a human cell line with a shorter repeat, we recommend using <code>min_bp_size</code> in <code><a href="find_fragments.html">find_fragments()</a></code> to make sure that the smaller allele is excluded. Otherwise, the smaller taller allele will be set as the allele.</p>
-<p>The parameters <code>peak_region_signal_threshold_multiplier</code> and <code>peak_region_size_gap_threshold</code> will only need to be adjusted if peaks are not being found for some reason. They influence the criteria for identifying peak regions, and finding the right balance between them is crucial.</p>
+<p>If number_of_alleles = 1, the tallest of peaks will be selected as the allele. This means that if your sample has multiple alleles, you have two options i) make sure that your data is subsetted to only include the allele of interest (using <code>min_bp_size</code> in <code><a href="find_fragments.html">find_fragments()</a></code> to make sure that the smaller allele is excluded), or ii) setting number_of_alleles = 2, which will pick the two tallest peaks in their respective peak regions and set the main allele as the larger repeat size, and allele_2 as the shorter repeat size. We recommend the subsetting approach since that is far simpler and less likely to fail, and the second option only if you're doing an experiment analysis a large number of human samples where both the normal and expanded allele repeat lengths vary, which makes it very difficult to find a common bp size that excludes the normal allele.</p>
+<p>The parameters <code>peak_region_signal_threshold_multiplier</code> and <code>peak_region_size_gap_threshold</code> will only need to be adjusted in rare cases if peaks are not being found for some reason. They influence the criteria for identifying peak regions. peak_region_signal_threshold_multiplier is multiplied to the mean height of all the peaks to create a hight threshold for inclusion into the peak region, so most of the time it's already a very low value and probably only needs to be changed if you have very few peaks. peak_region_size_gap_threshold is the distance between the peaks, either bp size, or repeats if repeats have already been called.</p>
     </div>
 
     <div class="section level2">

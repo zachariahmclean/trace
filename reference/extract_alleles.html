@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,26 +75,46 @@
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">extract_alleles</span><span class="op">(</span><span class="va">test_fragments</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                   unique_id   size repeats signal</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_A07.fsa           20230413_A07.fsa 480.54      NA   1240</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_A08.fsa           20230413_A08.fsa 480.54      NA   1230</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_A09.fsa           20230413_A09.fsa 486.32      NA   1284</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_C01.fsa           20230413_C01.fsa 482.43      NA   1068</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_C02.fsa           20230413_C02.fsa 480.10      NA   1164</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_C03.fsa           20230413_C03.fsa 480.30      NA   1083</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_D07.fsa           20230413_D07.fsa 478.16      NA   1361</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_D08.fsa           20230413_D08.fsa 475.33      NA   1382</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_D09.fsa           20230413_D09.fsa 475.37      NA   1123</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_F01.fsa           20230413_F01.fsa 476.53      NA    807</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_F02.fsa           20230413_F02.fsa 474.28      NA   1001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_F03.fsa           20230413_F03.fsa 477.33      NA    948</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_G07.fsa           20230413_G07.fsa 466.33      NA   3363</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_G08.fsa           20230413_G08.fsa 466.67      NA   1918</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_G09.fsa           20230413_G09.fsa 466.32      NA   3935</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_H07.fsa           20230413_H07.fsa 414.55      NA   3798</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_H08.fsa           20230413_H08.fsa 420.70      NA   2081</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> S-21-211_20220630.fsa S-21-211_20220630.fsa 414.83      NA   3159</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> S-21-212_20220630.fsa S-21-212_20220630.fsa 420.87      NA   2653</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                   unique_id allele_size allele_signal</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_A07.fsa           20230413_A07.fsa      480.54          1240</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_A08.fsa           20230413_A08.fsa      480.54          1230</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_A09.fsa           20230413_A09.fsa      486.32          1284</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_C01.fsa           20230413_C01.fsa      482.43          1068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_C02.fsa           20230413_C02.fsa      480.10          1164</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_C03.fsa           20230413_C03.fsa      480.30          1083</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_D07.fsa           20230413_D07.fsa      478.16          1361</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_D08.fsa           20230413_D08.fsa      475.33          1382</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_D09.fsa           20230413_D09.fsa      475.37          1123</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_F01.fsa           20230413_F01.fsa      476.53           807</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_F02.fsa           20230413_F02.fsa      474.28          1001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_F03.fsa           20230413_F03.fsa      477.33           948</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_G07.fsa           20230413_G07.fsa      466.33          3363</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_G08.fsa           20230413_G08.fsa      466.67          1918</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_G09.fsa           20230413_G09.fsa      466.32          3935</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_H07.fsa           20230413_H07.fsa      414.55          3798</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_H08.fsa           20230413_H08.fsa      420.70          2081</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> S-21-211_20220630.fsa S-21-211_20220630.fsa      412.74          1944</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> S-21-212_20220630.fsa S-21-212_20220630.fsa      418.75          1902</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                       allele_repeat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_A07.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_A08.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_A09.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_C01.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_C02.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_C03.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_D07.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_D08.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_D09.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_F01.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_F02.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_F03.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_G07.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_G08.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_G09.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_H07.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_H08.fsa                 NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> S-21-211_20220630.fsa            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> S-21-212_20220630.fsa            NA</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,12 +94,16 @@
 <h3 id="method-set-allele-peak-">Method <code>set_allele_peak()</code><a class="anchor" aria-label="anchor" href="#method-set-allele-peak-"></a></h3>
 <p>This sets a single allele size/repeat. It searches through the appropriate peak table and finds the closest peak to the value that's provided.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">fragments_repeats</span><span class="op">$</span><span class="fu">set_allele_peak</span><span class="op">(</span><span class="va">unit</span>, <span class="va">value</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">fragments_repeats</span><span class="op">$</span><span class="fu">set_allele_peak</span><span class="op">(</span><span class="va">allele</span>, <span class="va">unit</span>, <span class="va">value</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>unit</code></dt>
+<p></p><div class="arguments"><dl><dt><code>allele</code></dt>
+<dd><p>Either <code>1</code> or <code>2</code>, indicating which allele information should be set. Allele 1 is the only one used for repeat instability metrics calculations.</p></dd>
+
+
+<dt><code>unit</code></dt>
 <dd><p>Either "size" or "repeats" to indicate if the value you're providing is bp size or repeat length.</p></dd>
 
 

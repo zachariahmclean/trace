@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,30 +36,37 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.3.0" id="trace-030">trace 0.3.0<a class="anchor" aria-label="anchor" href="#trace-030"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.4.0" id="trace-040">trace 0.4.0<a class="anchor" aria-label="anchor" href="#trace-040"></a></h2>
 <p>Along with a new name, this is a major update to the <a href="https://github.com/zachariahmclean/instability" class="external-link">previous version of the package</a>. The updates below are changes relative to the main branch of the ‘instability’ github branch.</p>
 <div class="section level3">
-<h3 id="breaking-changes-0-3-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-3-0"></a></h3>
+<h3 id="breaking-changes-0-4-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-4-0"></a></h3>
 <ul><li>
-<p>Most main functions in the pipeline modify in place rather than return a new object for efficient use of memory.</p>
+<p>Most main functions in the pipeline modify in place rather than return a new object for efficient use of memory</p>
 <ul><li>This applies to the following functions: <code><a href="../reference/find_ladders.html">find_ladders()</a></code>, <code><a href="../reference/add_metadata.html">add_metadata()</a></code>, <code><a href="../reference/find_alleles.html">find_alleles()</a></code>, <code><a href="../reference/call_repeats.html">call_repeats()</a></code>, and <code><a href="../reference/assign_index_peaks.html">assign_index_peaks()</a></code>.</li>
 </ul></li>
 <li>
 <p>Repeat correction changes</p>
-<ul><li>The argument <code>repeat_length_correction</code> has been removed <code>from call_repeats()</code> and been replaced with <code>correction</code>.</li>
-<li>Now you chose between “repeat” or “batch” correction (see <code><a href="../reference/call_repeats.html">call_repeats()</a></code> documentation for more info).</li>
+<ul><li>The argument <code>repeat_length_correction</code> has been removed <code>from call_repeats()</code> and been replaced with <code>correction</code>
+</li>
+<li>Now you chose between “repeat” or “batch” correction (see <code><a href="../reference/call_repeats.html">call_repeats()</a></code> documentation for more info)</li>
 </ul></li>
 <li>
 <p>Metadata categories renamed</p>
 <ul><li>Renamed for clarity and to make it clearer which functionality it’s associated with</li>
 <li>plate_id -&gt; batch_id, group_id -&gt; metrics_group_id</li>
 <li>size_standard_repeat_length -&gt; batch_sample_modal_repeat</li>
-<li>“size_standard” removed due to unnecessary redundancy of category.</li>
+<li>“size_standard” removed due to unnecessary redundancy of category</li>
 </ul></li>
 <li>
-<p>Now only possible to find one allele</p>
-<ul><li>Removed <code>number_of_peaks_to_return</code> in <code><a href="../reference/find_alleles.html">find_alleles()</a></code>.</li>
+<p>Renamed instability metrics for clarity:</p>
+<ul><li>
+<code>average_repeat_gain</code> to <code>average_repeat_change</code>
+</li>
+<li>
+<code>modal_repeat_delta</code> to <code>modal_repeat_change</code>
+</li>
 </ul></li>
+<li><p>Renamed <code>number_of_peaks_to_return</code> to <code>number_of_alleles</code> in <code><a href="../reference/find_alleles.html">find_alleles()</a></code></p></li>
 <li>
 <p>Allele and index peak information can no longer be directly interacted with in the class</p>
 <ul><li>Setters (<code>fragment_repeats$set_allele_peak()</code> &amp; <code>fragment_repeats$set_index_peak()</code>) and getters (<code>fragment_repeats$get_allele_peak()</code> &amp; <code>fragment_repeats$get_index_peak()</code>) have been introduced so users don’t accidentally break things if they chose to directly interact with objects.</li>
@@ -67,27 +74,30 @@
 <li>
 <p>Removed backwards compatibility of index assignment in <code><a href="../reference/calculate_instability_metrics.html">calculate_instability_metrics()</a></code></p>
 <ul><li>
-<code>grouped</code> and <code>index_override_dataframe</code> parameters removed from <code><a href="../reference/calculate_instability_metrics.html">calculate_instability_metrics()</a></code>.</li>
+<code>grouped</code> and <code>index_override_dataframe</code> parameters removed from <code><a href="../reference/calculate_instability_metrics.html">calculate_instability_metrics()</a></code>
+</li>
 </ul></li>
 <li><p>Renamed <code>spike_location</code> parameter in <code><a href="../reference/find_ladders.html">find_ladders()</a></code> to <code>ladder_start_scan</code></p></li>
 <li><p>Removed <code>fix_ladders_auto()</code> function</p></li>
 <li><p>The function <code>generate_instability_template()</code> was renamed to <code><a href="../reference/generate_trace_template.html">generate_trace_template()</a></code></p></li>
 <li><p><code>fragment_trace</code> class is now instantiated after <code><a href="../reference/read_fsa.html">read_fsa()</a></code> function rather than <code><a href="../reference/find_ladders.html">find_ladders()</a></code></p></li>
+<li><p>Throughout the package renamed any mention of <code>height</code> to <code>signal</code> for consistency</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="new-features-0-3-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-3-0"></a></h3>
+<h3 id="new-features-0-4-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-4-0"></a></h3>
 <ul><li>
 <p>Batch correction</p>
-<ul><li><p>Correct systematic batch effects that occur across fragment analysis runs by using common samples across runs without having to know the repeat length.</p></li>
-<li><p>New associated function <code><a href="../reference/plot_batch_correction_samples.html">plot_batch_correction_samples()</a></code> to help visualize this batch correction.</p></li>
-<li><p>See documentation for <code><a href="../reference/call_repeats.html">call_repeats()</a></code> for more info.</p></li>
+<ul><li><p>Correct systematic batch effects that occur across fragment analysis runs by using common samples across runs without having to know the repeat length</p></li>
+<li><p>New associated function <code><a href="../reference/plot_batch_correction_samples.html">plot_batch_correction_samples()</a></code> to help visualize this batch correction</p></li>
+<li><p>See documentation for <code><a href="../reference/call_repeats.html">call_repeats()</a></code> for more info</p></li>
 </ul></li>
-<li><p>New function <code><a href="../reference/extract_ladder_summary.html">extract_ladder_summary()</a></code> to get a summary of the ladder fits for all samples.</p></li>
-<li><p>New function <code><a href="../reference/plot_data_channels.html">plot_data_channels()</a></code> to help identify the channels containing the ladder and raw data.</p></li>
+<li><p>New instability metric <code>instability_index_change</code></p></li>
+<li><p>New function <code><a href="../reference/extract_ladder_summary.html">extract_ladder_summary()</a></code> to get a summary of the ladder fits for all samples</p></li>
+<li><p>New function <code><a href="../reference/plot_data_channels.html">plot_data_channels()</a></code> to help identify the channels containing the ladder and raw data</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-0-3-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-0"></a></h3>
-<ul><li>If some samples do not having a metrics_group_id or metrics_baseline_control the calculate_instability_metrics() function will still run but those samples will have missing values.</li>
+<h3 id="bug-fixes-0-4-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-4-0"></a></h3>
+<ul><li>If some samples do not having a metrics_group_id or metrics_baseline_control the calculate_instability_metrics() function will still run but those samples will have missing values</li>
 </ul></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
