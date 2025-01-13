@@ -4,7 +4,7 @@
 #'
 #' @format ## `cell_line_fsa_list`
 #' A list with 92 elements, each one being the contents of an fsa file:
-#' @source <https://doi.org/10.1038/s41467-024-47485-0>
+#' @source \doi{10.1038/s41467-024-47485-0}
 "cell_line_fsa_list"
 
 
@@ -15,7 +15,7 @@
 #'
 #' @format ## `example_data`
 #' A genemapper output dataframe
-#' @source <https://doi.org/10.1038/s41467-024-47485-0>
+#' @source \doi{10.1038/s41467-024-47485-0}
 "example_data"
 
 
@@ -25,7 +25,7 @@
 #'
 #' @format ## `example_data_repeat_table`
 #' A genemapper output dataframe
-#' @source <https://doi.org/10.1038/s41467-024-47485-0>
+#' @source \doi{10.1038/s41467-024-47485-0}
 "example_data_repeat_table"
 
 #' metadata
@@ -34,5 +34,5 @@
 #'
 #' @format ## `metadata`
 #' A genemapper output dataframe
-#' @source <https://doi.org/10.1038/s41467-024-47485-0>
+#' @source \doi{10.1038/s41467-024-47485-0}
 "metadata"
