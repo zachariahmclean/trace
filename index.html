@@ -60,7 +60,7 @@
 <p>This package provides a pipeline for short tandem repeat instability analysis from fragment analysis data. The inputs are fsa files or peak tables (e.g. Genemapper 5 software peak table output), and a user supplied metadata data-frame. The functions identify ladders, calls peaks, and calculate repeat instability metrics (i.e. expansion index or average repeat gain).</p>
 <p>This code is not for clinical use. There are features for accurate repeat sizing if you use validated control samples, but integer repeat units are not returned.</p>
 <p>To report bugs or feature requests, please visit the Github issue tracker <a href="https://github.com/zachariahmclean/trace/issues" class="external-link">here</a>. For assistance or any other inquires, contact <a href="mailto:zmclean@mgh.harvard.edu?subject=%5BGitHub%5D%20trace">Zach McLean</a>.</p>
-<p>If you use this package, please cite <a href="https://doi.org/10.1038/s41467-024-47485-0" class="external-link">this</a> paper for now.</p>
+<p>If you use this package, please cite <a href="https://www.nature.com/articles/s41467-024-47485-0" class="external-link">this</a> paper for now.</p>
 </div>
 <div class="section level1">
 <h1 id="how-to-use-the-package">How to use the package<a class="anchor" aria-label="anchor" href="#how-to-use-the-package"></a>
@@ -245,7 +245,7 @@
 <span>  fragments_list <span class="op">=</span> <span class="va">fragments_list</span>,</span>
 <span>  peak_threshold <span class="op">=</span> <span class="fl">0.05</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>These metrics can then be used to quantify repeat instability. For example, this reproduces Figure 7e of <a href="https://doi.org/10.1038/s41467-024-47485-0" class="external-link">our manuscript</a>.</p>
+<p>These metrics can then be used to quantify repeat instability. For example, this reproduces Figure 7e of <a href="https://www.nature.com/articles/s41467-024-47485-0" class="external-link">our manuscript</a>.</p>
 <p>First, prepare the data for plotting by removing poor quality samples and finding the average repeat gain relative to the DMSO group for each cell line</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
