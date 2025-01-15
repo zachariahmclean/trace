@@ -1,3 +1,12 @@
+# trace 0.5.0
+
+-   `expansion_ratio` metric updated so that it starts at 1 rather than 0
+    -   It now includes the relative signal of the index peak in the metric
+
+-   `find_fragments` filters `minimum_peak_signal` on the raw signal rather than the smoothed signal
+
+-   `extract_alleles` now will always return allele_2 so that the column names are always consistent
+
 # trace 0.4.0
 
 Along with a new name, this is a major update to the [previous version of the package](https://github.com/zachariahmclean/instability). The updates below are changes relative to the main branch of the 'instability' github branch.

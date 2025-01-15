@@ -408,8 +408,8 @@ calculate_instability_metrics <- function(
         peak_threshold = peak_threshold,
         abs_sum = FALSE
       ),
-      expansion_ratio = sum(expansion_filtered$peak_percent) - 1, # remove the main peak by subtracting 1
-      contraction_ratio = sum(contraction_filtered$peak_percent) - 1
+      expansion_ratio = sum(expansion_filtered$peak_percent), 
+      contraction_ratio = sum(contraction_filtered$peak_percent)
     )
 
     expansion_percentile <- find_percentiles(
