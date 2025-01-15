@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,6 +35,15 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.0" id="trace-050">trace 0.5.0<a class="anchor" aria-label="anchor" href="#trace-050"></a></h2>
+<ul><li>
+<p><code>expansion_ratio</code> metric updated so that it starts at 1 rather than 0</p>
+<ul><li>It now includes the relative signal of the index peak in the metric</li>
+</ul></li>
+<li><p><code>find_fragments</code> filters <code>minimum_peak_signal</code> on the raw signal rather than the smoothed signal</p></li>
+<li><p><code>extract_alleles</code> now will always return allele_2 so that the column names are always consistent</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.0" id="trace-040">trace 0.4.0<a class="anchor" aria-label="anchor" href="#trace-040"></a></h2>
 <p>Along with a new name, this is a major update to the <a href="https://github.com/zachariahmclean/instability" class="external-link">previous version of the package</a>. The updates below are changes relative to the main branch of the ‘instability’ github branch.</p>
