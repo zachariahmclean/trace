@@ -10,7 +10,7 @@
 #'
 #' @param fragments_trace_list A list of fragments_trace objects containing fragment data.
 #' @param smoothing_window numeric: signal smoothing window size passed to pracma::savgol()
-#' @param minimum_peak_signal numeric: minimum signal of peak from smoothed trace that is passed to pracma::findpeaks(). To have no minimum signal set as "-Inf". Note that the smoothing decreases the signal, so this value will need to be set lower than what is seen on the raw signal.
+#' @param minimum_peak_signal numeric: minimum signal of the raw trace. To have no minimum signal set as "-Inf". 
 #' @param min_bp_size numeric: minimum bp size of peaks to consider
 #' @param max_bp_size numeric: maximum bp size of peaks to consider
 #' @param ... pass additional arguments to pracma::findpeaks(), or change the default arguments
@@ -67,19 +67,15 @@ find_fragments <- function(
     # deals with cases of user overriding values
     if ("peakpat" %in% ...names()) {
       peaks <- pracma::findpeaks(smoothed_signal,
-        minpeakheight = minimum_peak_signal,
+        minpeakheight = -Inf,
         ...
       )
     } else if ("minpeakheight" %in% ...names()) {
-      # user minpeakheight instead of minimum_peak_signal
-      peaks <- pracma::findpeaks(smoothed_signal,
-        peakpat = "[+]{6,}[0]*[-]{6,}", # see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
-        ...
-      )
+      stop(call. = FALSE, "Please use minimum_peak_signal instead of minpeakheight")
     } else {
       peaks <- pracma::findpeaks(smoothed_signal,
         peakpat = "[+]{6,}[0]*[-]{6,}", # see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
-        minpeakheight = minimum_peak_signal,
+        minpeakheight = -Inf,
         ...
       )
     }
@@ -102,6 +98,9 @@ find_fragments <- function(
 
     df <- trace_bp_df[peak_position, c("scan", "size", "signal", "off_scale")]
     colnames(df) <- c("scan", "size", "signal", "off_scale")
+
+    # filter for minimum_peak_signal. Do it here rather than in findpeaks so that it is filtered on the raw signal value
+    df <- df[which(df$signal > minimum_peak_signal), , drop = FALSE]
 
     # remove shoulder peaks
     df2 <- deshoulder(df, shoulder_window = 1.5)

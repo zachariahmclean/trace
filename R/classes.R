@@ -174,24 +174,15 @@ fragments_repeats <- R6::R6Class(
     #' @description
     #' This returns a list with the allele information for this object.
     get_allele_peak = function(){
-      
-      if(is.na(private$allele_2_signal)){
-        alleles <- list(
-          allele_size = private$allele_size,
-          allele_signal = private$allele_signal,
-          allele_repeat = private$allele_repeat
-        )
-      } else{
-        alleles <- list(
-          allele_size = private$allele_size,
-          allele_signal = private$allele_signal,
-          allele_repeat = private$allele_repeat,
-          allele_2_size = private$allele_2_size,
-          allele_2_signal = private$allele_2_signal,
-          allele_2_repeat = private$allele_2_repeat
-        )
-      }
-        #these have allele_ prefix, because in R if you just call something repeat, it causes many issues
+      #these have allele_ prefix, because in R if you just call something repeat, it causes many issues
+      alleles <- list(
+        allele_size = private$allele_size,
+        allele_signal = private$allele_signal,
+        allele_repeat = private$allele_repeat,
+        allele_2_size = private$allele_2_size,
+        allele_2_signal = private$allele_2_signal,
+        allele_2_repeat = private$allele_2_repeat
+      )
       
       return(alleles)
     },

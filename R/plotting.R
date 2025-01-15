@@ -286,14 +286,24 @@ plot_ladders <- function(
     fragments_trace_list <- fragments_trace_list[which(names(fragments_trace_list) %in% sample_subset)]
   }
 
+  #save and reset user par settings
+  old_par <- graphics::par(no.readonly = TRUE) 
+  on.exit(graphics::par(old_par)) 
+
   graphics::par(mfrow = c(ceiling(length(fragments_trace_list) / n_facet_col), n_facet_col)) # Adjust layout as needed
   for (i in seq_along(fragments_trace_list)) {
-    fragments_trace_list[[i]]$plot_ladder(
-      xlim = xlim,
-      ylim = ylim
+    tryCatch(
+      {
+        fragments_trace_list[[i]]$plot_ladder(
+          xlim = xlim,
+          ylim = ylim
+        )
+      },
+      error = function(e) {
+        warning(sprintf("Error in plotting ladder for fragment %s: %s", names(fragments_trace_list)[i], e$message))
+      }
     )
   }
-  graphics::par(mfrow = c(1, 1)) # Reset the layout
 }
 
 # plot traces -------------------------------------------------------------
@@ -369,17 +379,27 @@ plot_traces <- function(
     fragments_list <- fragments_list[which(names(fragments_list) %in% sample_subset)]
   }
 
+  #save and reset user par settings
+  old_par <- graphics::par(no.readonly = TRUE) 
+  on.exit(graphics::par(old_par)) 
+
   graphics::par(mfrow = c(ceiling(length(fragments_list) / n_facet_col), n_facet_col)) # Adjust layout as needed
   for (i in seq_along(fragments_list)) {
-    fragments_list[[i]]$plot_trace(
-      show_peaks = show_peaks,
-      xlim = xlim,
-      ylim = ylim,
-      x_axis = x_axis,
-      signal_color_threshold = signal_color_threshold
+    tryCatch(
+      {
+        fragments_list[[i]]$plot_trace(
+          show_peaks = show_peaks,
+          xlim = xlim,
+          ylim = ylim,
+          x_axis = x_axis,
+          signal_color_threshold = signal_color_threshold
+        )
+      },
+      error = function(e) {
+        warning(sprintf("Error in plotting trace for fragment %s: %s", names(fragments_list)[i], e$message))
+      }
     )
   }
-  graphics::par(mfrow = c(1, 1)) # Reset the layout
 }
 
 # plot fragment data -------------------------------------------------------
@@ -421,14 +441,24 @@ plot_fragments <- function(
     fragments_list <- fragments_list[which(names(fragments_list) %in% sample_subset)]
   }
 
+  #save and reset user par settings
+  old_par <- graphics::par(no.readonly = TRUE) 
+  on.exit(graphics::par(old_par)) 
+
   graphics::par(mfrow = c(ceiling(length(fragments_list) / n_facet_col), n_facet_col)) # Adjust layout as needed
   for (i in seq_along(fragments_list)) {
-    fragments_list[[i]]$plot_fragments(
-      xlim = xlim,
-      ylim = ylim
+    tryCatch(
+      {
+        fragments_list[[i]]$plot_fragments(
+          xlim = xlim,
+          ylim = ylim
+        )
+      },
+      error = function(e) {
+        warning(sprintf("Error in plotting ladder for fragment %s: %s", names(fragments_list)[i], e$message))
+      }
     )
   }
-  graphics::par(mfrow = c(1, 1)) # Reset the layout
 }
 
 
@@ -485,148 +515,149 @@ plot_fragments <- function(
 #'
 #'
 plot_batch_correction_samples <- function(
-  fragments_list,
-  selected_sample,
-  xlim = NULL) {
-# first check to see if repeats have been called or batches corrected and give some warnings
-  
-if(all(sapply(fragments_list, function(x) is.null(x$repeat_table_df)))){
-  warning(call. = FALSE,
-    "Repeats not detected. Only samples before correction values will be plotted. Use call_repeats(correction = 'batch') or call_repeats(correction = 'repeat') to see the effect of batch correction on selected sample."
-  )
-} else if(!any(sapply(fragments_list, function(x) !is.na(x$.__enclos_env__$private$batch_correction_factor))) & !any(sapply(fragments_list, function(x) !is.na(x$.__enclos_env__$private$repeat_correction_factor)))){
-  warning(call. = FALSE,
-    "Batch or repeat correction not detected. Only samples before correction values will be plotted. Use call_repeats(correction = 'batch') or call_repeats(correction = 'repeat') to see the effect of batch correction on selected sample."
-  )
-}
-  
-size_standard_fragments <- sapply(fragments_list, function(x) x$batch_sample_id)
-controls_fragments_list <- fragments_list[which(!is.na(size_standard_fragments))]
+    fragments_list,
+    selected_sample,
+    xlim = NULL) {
+  # first check to see if repeats have been called or batches corrected and give some warnings
 
-if (length(unique(na.omit(size_standard_fragments))) == 0) {
-  stop(
-    call. = FALSE,
-    "There are no samples with batch_sample_id assigned. Check that the batch_sample_id has been added to the samples via add_metadata()."
-  )
-}
-
-if (!is.null(selected_sample) & is.character(selected_sample)) {
-  selected_sample_list <- sapply(controls_fragments_list, function(x) x$batch_sample_id %in% selected_sample)
-  controls_fragments_list <- controls_fragments_list[which(selected_sample_list)]
-
-  if (length(controls_fragments_list) == 0) {
-    stop(
+  if (all(sapply(fragments_list, function(x) is.null(x$repeat_table_df)))) {
+    warning(
       call. = FALSE,
-      "After subsetting the samples with the provided id, no samples were left. Check that you provided the correct id or that the batch_sample_id has been added to the samples."
+      "Repeats not detected. Only samples before correction values will be plotted. Use call_repeats(correction = 'batch') or call_repeats(correction = 'repeat') to see the effect of batch correction on selected sample."
+    )
+  } else if (!any(sapply(fragments_list, function(x) !is.na(x$.__enclos_env__$private$batch_correction_factor))) & !any(sapply(fragments_list, function(x) !is.na(x$.__enclos_env__$private$repeat_correction_factor)))) {
+    warning(
+      call. = FALSE,
+      "Batch or repeat correction not detected. Only samples before correction values will be plotted. Use call_repeats(correction = 'batch') or call_repeats(correction = 'repeat') to see the effect of batch correction on selected sample."
     )
   }
-} else if(is.numeric(selected_sample)){
-  batch_sample_ids <- sapply(controls_fragments_list, function(x) x$batch_sample_id)
-  unique_batch_sample_ids <- unique(na.omit(batch_sample_ids))
-  if(selected_sample > length(unique_batch_sample_ids)){
+
+  size_standard_fragments <- sapply(fragments_list, function(x) x$batch_sample_id)
+  controls_fragments_list <- fragments_list[which(!is.na(size_standard_fragments))]
+
+  if (length(unique(na.omit(size_standard_fragments))) == 0) {
     stop(
       call. = FALSE,
-      paste0("Invalid selected_sample number, there are only ", length(unique_batch_sample_ids), "unique batch_sample_ids")
+      "There are no samples with batch_sample_id assigned. Check that the batch_sample_id has been added to the samples via add_metadata()."
     )
   }
-  controls_fragments_list <- controls_fragments_list[which(batch_sample_ids == unique_batch_sample_ids[selected_sample])]
-} 
 
-overlapping_plot <- function(sample_fragments, before_or_after_correction) {
+  if (!is.null(selected_sample) & is.character(selected_sample)) {
+    selected_sample_list <- sapply(controls_fragments_list, function(x) x$batch_sample_id %in% selected_sample)
+    controls_fragments_list <- controls_fragments_list[which(selected_sample_list)]
 
+    if (length(controls_fragments_list) == 0) {
+      stop(
+        call. = FALSE,
+        "After subsetting the samples with the provided id, no samples were left. Check that you provided the correct id or that the batch_sample_id has been added to the samples."
+      )
+    }
+  } else if (is.numeric(selected_sample)) {
+    batch_sample_ids <- sapply(controls_fragments_list, function(x) x$batch_sample_id)
+    unique_batch_sample_ids <- unique(na.omit(batch_sample_ids))
+    if (selected_sample > length(unique_batch_sample_ids)) {
+      stop(
+        call. = FALSE,
+        paste0("Invalid selected_sample number, there are only ", length(unique_batch_sample_ids), "unique batch_sample_ids")
+      )
+    }
+    controls_fragments_list <- controls_fragments_list[which(batch_sample_ids == unique_batch_sample_ids[selected_sample])]
+  }
 
-  sample_traces <- vector("list", length(sample_fragments))
-  for (i in seq_along(sample_fragments)) {
-    sample_traces[[i]] <- sample_fragments[[i]]$trace_bp_df
+  overlapping_plot <- function(sample_fragments, before_or_after_correction) {
+    sample_traces <- vector("list", length(sample_fragments))
+    for (i in seq_along(sample_fragments)) {
+      sample_traces[[i]] <- sample_fragments[[i]]$trace_bp_df
 
-    # check to see if repeats have been called to see what should be plotted on the x_axis
-    if(all(sapply(sample_fragments, function(x) is.null(x$repeat_table_df)))){
-      x_axis <- "size"
-      sample_traces[[i]]$x <- sample_traces[[i]]$size
-    } else{
-      x_axis <- "repeats"
-      if(before_or_after_correction == "before"){
-        # re-calculate repeats using uncorrected size
-        sample_traces[[i]]$x <- (sample_traces[[i]]$size - sample_fragments[[i]]$.__enclos_env__$private$assay_size_without_repeat) / sample_fragments[[i]]$.__enclos_env__$private$repeat_size
-      } else{
-        sample_traces[[i]]$x <- sample_traces[[i]]$calculated_repeats
+      # check to see if repeats have been called to see what should be plotted on the x_axis
+      if (all(sapply(sample_fragments, function(x) is.null(x$repeat_table_df)))) {
+        x_axis <- "size"
+        sample_traces[[i]]$x <- sample_traces[[i]]$size
+      } else {
+        x_axis <- "repeats"
+        if (before_or_after_correction == "before") {
+          # re-calculate repeats using uncorrected size
+          sample_traces[[i]]$x <- (sample_traces[[i]]$size - sample_fragments[[i]]$.__enclos_env__$private$assay_size_without_repeat) / sample_fragments[[i]]$.__enclos_env__$private$repeat_size
+        } else {
+          sample_traces[[i]]$x <- sample_traces[[i]]$calculated_repeats
+        }
       }
     }
-  }
-  # Generate colors dynamically
-  n_dfs <- length(sample_traces)
-  colors <- rainbow(n_dfs, alpha = 0.5) # Generates n colors with alpha for transparency
+    # Generate colors dynamically
+    n_dfs <- length(sample_traces)
+    colors <- rainbow(n_dfs, alpha = 0.5) # Generates n colors with alpha for transparency
 
 
-  if (!is.null(xlim)) {
-    sample_traces <- lapply(sample_traces, function(df) {
-      df <- df[which(df$x < xlim[2] & df$x > xlim[1]), ]
-      return(df)
+    if (!is.null(xlim)) {
+      sample_traces <- lapply(sample_traces, function(df) {
+        df <- df[which(df$x < xlim[2] & df$x > xlim[1]), ]
+        return(df)
+      })
+    }
+
+    # normalize signal to samples have the same maximum
+    sample_traces <- lapply(sample_traces, function(x) {
+      x$signal <- x$signal - min(x$signal)
+      x$rel_signal <- x$signal / max(x$signal)
+      return(x)
     })
+
+    plot_title <- ifelse(before_or_after_correction == "before", "Before correction", "After correction")
+    plot_title <- paste0(plot_title, paste0("\n", unique(sapply(sample_fragments, function(x) x$batch_sample_id))))
+
+    # Plot the first dataframe
+    plot(sample_traces[[1]]$x, sample_traces[[1]]$rel_signal,
+      type = "l",
+      col = colors[1],
+      xlab = ifelse(x_axis == "size", "Size", "Repeats"),
+      ylab = "Signal",
+      ylim = range(sapply(sample_traces, function(df) range(df$rel_signal))),
+      main = plot_title
+    )
+
+    # Add lines for remaining dataframes
+    for (i in 2:n_dfs) {
+      graphics::lines(sample_traces[[i]]$x, sample_traces[[i]]$rel_signal, col = colors[i])
+    }
+
+    graphics::legend("topright",
+      legend = sapply(sample_fragments, function(x) x$unique_id),
+      col = colors,
+      lty = 1, lwd = 1,
+      cex = 0.8, # reduce the size of the text
+      inset = c(-0.5, 0), # Adjust position to be inside the plot, but in the corner
+      x.intersp = 0.25, # Adjust horizontal spacing between symbols and text
+      y.intersp = 0.6, # Adjust vertical spacing to align text under the lines
+      bty = "n" # Remove the box around the legend
+    )
   }
 
-  # normalize signal to samples have the same maximum
-  sample_traces <- lapply(sample_traces, function(x){
-    x$signal <- x$signal - min(x$signal)
-    x$rel_signal <- x$signal / max(x$signal)
-    return(x)
-  })
+  # save and reset user par settings
+  old_par <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(old_par))
 
-  plot_title <- ifelse(before_or_after_correction == "before", "Before correction", "After correction")
-  plot_title <- paste0(plot_title, paste0("\n", unique(sapply(sample_fragments, function(x) x$batch_sample_id))))
+  graphics::par(mfrow = c(1, 2))
+  # for some reason we need to use the recordPlot() strategy below.
+  # just looping over the plots only rendered one for some reason
+  recorded_plots <- vector("list", 2)
 
-  # Plot the first dataframe
-  plot(sample_traces[[1]]$x, sample_traces[[1]]$rel_signal,
-    type = "l",
-    col = colors[1],
-    xlab = ifelse(x_axis == "size", "Size", "Repeats"),
-    ylab = "Signal",
-    ylim = range(sapply(sample_traces, function(df) range(df$rel_signal))),
-    main = plot_title
-  )
+  # before correction plot
+  overlapping_plot(controls_fragments_list, before_or_after_correction = "before")
+  recorded_plots[[1]] <- grDevices::recordPlot()
 
-  # Add lines for remaining dataframes
-  for (i in 2:n_dfs) {
-    graphics::lines(sample_traces[[i]]$x, sample_traces[[i]]$rel_signal, col = colors[i])
-
+  # after correction plot
+  if (!all(sapply(controls_fragments_list, function(x) is.null(x$repeat_table_df))) && any(sapply(controls_fragments_list, function(x) !is.na(x$.__enclos_env__$private$batch_correction_factor))) | any(sapply(controls_fragments_list, function(x) !is.na(x$.__enclos_env__$private$repeat_correction_factor)))) {
+    overlapping_plot(controls_fragments_list, before_or_after_correction = "after")
+    recorded_plots[[2]] <- grDevices::recordPlot()
+  } else {
+    recorded_plots[[2]] <- plot.new()
   }
 
-  graphics::legend("topright", 
-  legend = sapply(sample_fragments, function(x) x$unique_id), 
-  col = colors,
-  lty = 1, lwd = 1,
-  cex = 0.8, # reduce the size of the text
-  inset = c(-0.5, 0),  # Adjust position to be inside the plot, but in the corner
-  x.intersp = 0.25,   # Adjust horizontal spacing between symbols and text
-  y.intersp = 0.6,   # Adjust vertical spacing to align text under the lines
-  bty = "n"  # Remove the box around the legend
-)       
-
-}
-graphics::par(mfrow = c(1, 2)) 
-# for some reason we need to use the recordPlot() strategy below.
-# just looping over the plots only rendered one for some reason
-recorded_plots <- vector("list", 2)
-
-#before correction plot
-overlapping_plot(controls_fragments_list, before_or_after_correction = "before")
-recorded_plots[[1]] <- grDevices::recordPlot()
-  
-#after correction plot
-if(!all(sapply(controls_fragments_list, function(x) is.null(x$repeat_table_df))) && any(sapply(controls_fragments_list, function(x) !is.na(x$.__enclos_env__$private$batch_correction_factor))) | any(sapply(controls_fragments_list, function(x) !is.na(x$.__enclos_env__$private$repeat_correction_factor)))){
-  overlapping_plot(controls_fragments_list, before_or_after_correction = "after")
-  recorded_plots[[2]] <- grDevices::recordPlot()
-} else{
-  recorded_plots[[2]] <- plot.new()
+  for (i in seq_along(recorded_plots)) {
+    grDevices::replayPlot(recorded_plots[[i]])
+  }
 }
 
-for (i in seq_along(recorded_plots)) {
-  grDevices::replayPlot(recorded_plots[[i]])
-}
-
-graphics::par(mfrow = c(1, 1)) # Reset the layout
-  
-}
 
 
 
@@ -656,6 +687,11 @@ plot_data_channels <- function(
   if (!is.null(sample_subset)) {
     fragments_list <- fragments_list[which(names(fragments_list) %in% sample_subset)]
   }
+
+  # save and reset user par settings
+  old_par <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(old_par))
+
   graphics::par(mfrow = c(ceiling(length(fragments_list) / n_facet_col), n_facet_col)) # Adjust layout as needed
   # for some reason we need to use the recordPlot() strategy below.
   # just looping over the plots only rendered one for some reason
@@ -669,8 +705,6 @@ plot_data_channels <- function(
   for (i in seq_along(recorded_plots)) {
     grDevices::replayPlot(recorded_plots[[i]])
   }
-
-  graphics::par(mfrow = c(1, 1)) # Reset the layout
 }
 
 
@@ -756,6 +790,10 @@ plot_repeat_correction_model <- function(
     unique_batch_run_ids <- unique_batch_run_ids[which(unique_batch_run_ids %in% batch_run_id_subset)]
   }
 
+  # save and reset user par settings
+  old_par <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(old_par))
+
   graphics::par(mfrow = c(ceiling(length(unique_batch_run_ids) / n_facet_col), n_facet_col)) # Adjust layout as needed
   recorded_plots <- vector("list", length(unique_batch_run_ids))
   for (i in 1:length(unique_batch_run_ids)) {
@@ -781,8 +819,6 @@ plot_repeat_correction_model <- function(
   for (i in 1:length(unique_batch_run_ids)) {
     grDevices::replayPlot(recorded_plots[[i]])
   }
-
-  graphics::par(mfrow = c(1, 1)) # Reset the layout
 
 }
 

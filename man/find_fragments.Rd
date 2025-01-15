@@ -18,7 +18,7 @@ find_fragments(
 
 \item{smoothing_window}{numeric: signal smoothing window size passed to pracma::savgol()}
 
-\item{minimum_peak_signal}{numeric: minimum signal of peak from smoothed trace that is passed to pracma::findpeaks(). To have no minimum signal set as "-Inf". Note that the smoothing decreases the signal, so this value will need to be set lower than what is seen on the raw signal.}
+\item{minimum_peak_signal}{numeric: minimum signal of the raw trace. To have no minimum signal set as "-Inf".}
 
 \item{min_bp_size}{numeric: minimum bp size of peaks to consider}
 
