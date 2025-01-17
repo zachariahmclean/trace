@@ -99,21 +99,29 @@ experiment and things to consider when using this package:
 
 # Installation
 
-You can install from [GitHub](https://github.com/zachariahmclean/trace)
-with:
+Install the package from CRAN:
 
 ``` r
-# install.packages("pak")
+install.packages("trace")
+```
+
+## Development version
+
+You can install the development version from
+[GitHub](https://github.com/zachariahmclean/trace) with:
+
+``` r
+if (!require("pak", quietly = TRUE)) install.packages("pak")
 pak::pak("zachariahmclean/trace")
 ```
 
-Then load the package:
+# Import data
+
+Load the package:
 
 ``` r
 library(trace)
 ```
-
-# Import data
 
 First, we read in the raw data. In this case we will used example data
 within this package, but usually this would be fsa files that are read
@@ -286,52 +294,38 @@ metrics.
 ``` r
 metrics_grouped_df <- calculate_instability_metrics(
   fragments_list = fragments_list,
-  peak_threshold = 0.05
+  peak_threshold = 0.05,
+  window_around_index_peak = c(-40, 40)
 )
 ```
 
 These metrics can then be used to quantify repeat instability. For
-example, this reproduces Figure 7e of [our
+example, this reproduces a subset of Figure 7e of [our
 manuscript](https://www.nature.com/articles/s41467-024-47485-0).
-
-First, prepare the data for plotting by removing poor quality samples
-and finding the average repeat gain relative to the DMSO group for each
-cell line
-
-``` r
-library(dplyr)
-
-
-plot_data <- metrics_grouped_df |>
-  dplyr::left_join(metadata, by = dplyr::join_by(unique_id)) |>
-  dplyr::filter(
-    day > 0,
-    modal_peak_signal > 500
-  ) |>
-  dplyr::group_by(metrics_group_id) |>
-  dplyr::mutate(
-    rel_gain = average_repeat_change / median(average_repeat_change[which(treatment == 0)]),
-    genotype = forcats::fct_rev(genotype)
-  )
-```
-
-Then we can plot the instability metrics
 
 ``` r
 library(ggplot2)
+library(dplyr)
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
 
-ggplot(
-  plot_data,
-  aes(genotype, rel_gain, colour = genotype)
-) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter() +
-  facet_wrap(vars(as.factor(treatment)), nrow = 1) +
-  labs(
-    y = "Average repeat gain\n(relative to DMSO)",
-    x = "PMS1 pseudoexon status"
-  ) +
-  theme(legend.position = "none")
+metrics_grouped_df |>
+  left_join(metadata, by = join_by(unique_id)) |>
+  filter(
+    day > 0,
+    modal_peak_signal > 500
+  ) |>
+  ggplot(aes(as.factor(treatment), average_repeat_change)) +
+    geom_boxplot() +
+    geom_jitter() +
+    labs(y = "Average repeat gain",
+         x = "Branaplam (nM)") 
 ```
 
 <img src="man/figures/README-ggplot-1.png" width="100%" />
