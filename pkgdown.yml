@@ -3,7 +3,7 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   plotting_traces: plotting_traces.html
-last_built: 2025-01-15T19:42Z
+last_built: 2025-01-17T15:47Z
 urls:
   reference: https://zachariahmclean.github.io/trace/reference
   article: https://zachariahmclean.github.io/trace/articles

@@ -84,32 +84,39 @@
 <div class="section level1">
 <h1 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h1>
-<p>You can install from <a href="https://github.com/zachariahmclean/trace" class="external-link">GitHub</a> with:</p>
+<p>Install the package from CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"zachariahmclean/trace"</span><span class="op">)</span></span></code></pre></div>
-<p>Then load the package:</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"trace"</span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="development-version">Development version<a class="anchor" aria-label="anchor" href="#development-version"></a>
+</h2>
+<p>You can install the development version from <a href="https://github.com/zachariahmclean/trace" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://zachariahmclean.github.io/trace/">trace</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://pak.r-lib.org/" class="external-link">"pak"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"zachariahmclean/trace"</span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level1">
 <h1 id="import-data">Import data<a class="anchor" aria-label="anchor" href="#import-data"></a>
 </h1>
-<p>First, we read in the raw data. In this case we will used example data within this package, but usually this would be fsa files that are read in using <code><a href="reference/read_fsa.html">read_fsa()</a></code>. The example data is also cloned since the next step modifies the object in place.</p>
+<p>Load the package:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://zachariahmclean.github.io/trace/">trace</a></span><span class="op">)</span></span></code></pre></div>
+<p>First, we read in the raw data. In this case we will used example data within this package, but usually this would be fsa files that are read in using <code><a href="reference/read_fsa.html">read_fsa()</a></code>. The example data is also cloned since the next step modifies the object in place.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fsa_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">cell_line_fsa_list</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level1">
 <h1 id="find-ladders">Find ladders<a class="anchor" aria-label="anchor" href="#find-ladders"></a>
 </h1>
 <p>The known ladder sizes are assigned to peaks in the ladder channel and bp are predicted for each scan.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/find_ladders.html">find_ladders</a></span><span class="op">(</span></span>
 <span>  <span class="va">fsa_list</span>,</span>
 <span>  show_progress_bar <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>visually inspect each ladder to make sure that the ladders were correctly assigned</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_ladders.html">plot_ladders</a></span><span class="op">(</span><span class="va">fsa_list</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-plot_ladders-1.png" width="100%"></p>
 <p>If the ladders are are not assigned correctly, you can adjust parameters or manually using the built-in fix_ladders_interactive() app.</p>
@@ -119,20 +126,20 @@
 <h1 id="find-fragments">Find fragments<a class="anchor" aria-label="anchor" href="#find-fragments"></a>
 </h1>
 <p>The fragment peaks are identified in the raw continuous trace data. These objects are assigned because find_fragments transitions to a new object since the class structure changes. This reflects the data moving from a continuous trace to a peak table.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fragments_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/find_fragments.html">find_fragments</a></span><span class="op">(</span></span>
 <span>  <span class="va">fsa_list</span>,</span>
 <span>  min_bp_size <span class="op">=</span> <span class="fl">300</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Visually inspect the traces and called peaks to make sure they were correctly assigned.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_traces.html">plot_traces</a></span><span class="op">(</span><span class="va">fragments_list</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
 <span>  xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">400</span>, <span class="fl">550</span><span class="op">)</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1200</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-plot_traces-1.png" width="100%"></p>
 <p>Alternatively, this is where you would use data exported from Genemapper if you would rather use the Genemapper bp sizing and peak identification algorithms. However, this is not recommended as some of the functionality of this package would not be accessible (mainly in <code><a href="reference/call_repeats.html">call_repeats()</a></code>, with <code>batch_correction</code> and repeat calling algorithms)</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fragments_list_genemapper</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/peak_table_to_fragments.html">peak_table_to_fragments</a></span><span class="op">(</span><span class="va">example_data</span>,</span>
 <span>  data_format <span class="op">=</span> <span class="st">"genemapper5"</span>,</span>
 <span>  dye_channel <span class="op">=</span> <span class="st">"B"</span>,</span>
@@ -195,7 +202,7 @@
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/add_metadata.html">add_metadata</a></span><span class="op">(</span></span>
 <span>  fragments_list <span class="op">=</span> <span class="va">fragments_list</span>,</span>
@@ -212,12 +219,12 @@
 <h1 id="identify-modal-peaks-and-call-repeats">Identify modal peaks and call repeats<a class="anchor" aria-label="anchor" href="#identify-modal-peaks-and-call-repeats"></a>
 </h1>
 <p>Next we identify the modal peaks with <code><a href="reference/find_alleles.html">find_alleles()</a></code> and convert the base pair fragments to repeats with <code><a href="reference/call_repeats.html">call_repeats()</a></code>.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/find_alleles.html">find_alleles</a></span><span class="op">(</span><span class="va">fragments_list</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/call_repeats.html">call_repeats</a></span><span class="op">(</span><span class="va">fragments_list</span><span class="op">)</span></span></code></pre></div>
 <p>We can view the distribution of repeat sizes and the identified modal peak with a plotting function.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_traces.html">plot_traces</a></span><span class="op">(</span><span class="va">fragments_list</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">110</span>, <span class="fl">150</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-plot_fragments-1.png" width="100%"></p>
 </div>
@@ -225,14 +232,14 @@
 <h1 id="assign-index-peaks">Assign index peaks<a class="anchor" aria-label="anchor" href="#assign-index-peaks"></a>
 </h1>
 <p>A key part of several instability metrics is the index peak. This is the repeat length used as the reference for relative instability metrics calculations, like expansion index or average repeat gain. In the metadata, samples are grouped by a <code>metrics_group_id</code> and a subset of the samples are set as <code>metrics_baseline_control</code>, meaning they are the samples taken at day 0 in this experiment. This allows us to set <code>grouped = TRUE</code> and set the index peak for the expansion index and other metrics. For mice, if just a few samples have the inherited repeat signal shorter than the expanded population, you could not worry about this and instead use the <code>index_override_dataframe</code> in <code><a href="reference/assign_index_peaks.html">assign_index_peaks()</a></code>.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/assign_index_peaks.html">assign_index_peaks</a></span><span class="op">(</span></span>
 <span>  <span class="va">fragments_list</span>,</span>
 <span>  grouped <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>We can validate that the index peaks were assigned correctly with a dotted vertical line added to the trace. This is perhaps more useful in the context of mice where you can visually see when the inherited repeat length should be in the bimodal distribution.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_traces.html">plot_traces</a></span><span class="op">(</span><span class="va">fragments_list</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">110</span>, <span class="fl">150</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-2-1.png" width="100%"></p>
 </div>
@@ -240,48 +247,47 @@
 <h1 id="calculate-instability-metrics">Calculate instability metrics<a class="anchor" aria-label="anchor" href="#calculate-instability-metrics"></a>
 </h1>
 <p>All of the information we need to calculate the repeat instability metrics has now been identified. We can finally use <code>calculate_instability_metrics</code> to generate a dataframe of per-sample metrics.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">metrics_grouped_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/calculate_instability_metrics.html">calculate_instability_metrics</a></span><span class="op">(</span></span>
 <span>  fragments_list <span class="op">=</span> <span class="va">fragments_list</span>,</span>
-<span>  peak_threshold <span class="op">=</span> <span class="fl">0.05</span></span>
+<span>  peak_threshold <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  window_around_index_peak <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">40</span>, <span class="fl">40</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>These metrics can then be used to quantify repeat instability. For example, this reproduces Figure 7e of <a href="https://www.nature.com/articles/s41467-024-47485-0" class="external-link">our manuscript</a>.</p>
-<p>First, prepare the data for plotting by removing poor quality samples and finding the average repeat gain relative to the DMSO group for each cell line</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<p>These metrics can then be used to quantify repeat instability. For example, this reproduces a subset of Figure 7e of <a href="https://www.nature.com/articles/s41467-024-47485-0" class="external-link">our manuscript</a>.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     filter, lag</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
 <span></span>
-<span></span>
-<span><span class="va">plot_data</span> <span class="op">&lt;-</span> <span class="va">metrics_grouped_df</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">metadata</span>, by <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/join_by.html" class="external-link">join_by</a></span><span class="op">(</span><span class="va">unique_id</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span><span class="va">metrics_grouped_df</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">metadata</span>, by <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/join_by.html" class="external-link">join_by</a></span><span class="op">(</span><span class="va">unique_id</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>    <span class="va">day</span> <span class="op">&gt;</span> <span class="fl">0</span>,</span>
 <span>    <span class="va">modal_peak_signal</span> <span class="op">&gt;</span> <span class="fl">500</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">metrics_group_id</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
-<span>    rel_gain <span class="op">=</span> <span class="va">average_repeat_change</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">average_repeat_change</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">treatment</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,</span>
-<span>    genotype <span class="op">=</span> <span class="fu">forcats</span><span class="fu">::</span><span class="fu">fct_rev</span><span class="op">(</span><span class="va">genotype</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
-<p>Then we can plot the instability metrics</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span></span>
-<span>  <span class="va">plot_data</span>,</span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">genotype</span>, <span class="va">rel_gain</span>, colour <span class="op">=</span> <span class="va">genotype</span><span class="op">)</span></span>
-<span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span>outlier.shape <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html" class="external-link">geom_jitter</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html" class="external-link">vars</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">treatment</span><span class="op">)</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>    y <span class="op">=</span> <span class="st">"Average repeat gain\n(relative to DMSO)"</span>,</span>
-<span>    x <span class="op">=</span> <span class="st">"PMS1 pseudoexon status"</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">treatment</span><span class="op">)</span>, <span class="va">average_repeat_change</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html" class="external-link">geom_jitter</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Average repeat gain"</span>,</span>
+<span>         x <span class="op">=</span> <span class="st">"Branaplam (nM)"</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="reference/figures/README-ggplot-1.png" width="100%"></p>
 </div>
 
-  </main><aside class="col-md-3"><div class="license">
+  </main><aside class="col-md-3"><div class="links">
+<h2 data-toc-skip>Links</h2>
+<ul class="list-unstyled">
+<li><a href="https://cloud.r-project.org/package=trace" class="external-link">View on CRAN</a></li>
+</ul>
+</div>
+
+<div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
