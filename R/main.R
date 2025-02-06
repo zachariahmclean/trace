@@ -194,7 +194,7 @@ setMethod("traceMain", "traceFsa", function(x,
     x@fragments_list,
     number_of_alleles = number_of_alleles,
     peak_region_size_gap_threshold = config$find_alleles$peak_region_size_gap_threshold,
-    peak_region_signal_threshold_multiplier = config$find_alleles$peak_region_size_gap_threshold
+    peak_region_signal_threshold_multiplier = config$find_alleles$peak_region_signal_threshold_multiplier
   )
 
   call_repeats(
@@ -323,7 +323,7 @@ setMethod("traceMain", "traceRepeats", function(x,
     x@fragments_list,
     number_of_alleles = number_of_alleles,
     peak_region_size_gap_threshold = config$find_alleles$peak_region_size_gap_threshold,
-    peak_region_signal_threshold_multiplier = config$find_alleles$peak_region_size_gap_threshold
+    peak_region_signal_threshold_multiplier = config$find_alleles$peak_region_signal_threshold_multiplier
   )
 
   message("Assigning index peaks")
