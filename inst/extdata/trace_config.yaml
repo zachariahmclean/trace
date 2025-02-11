@@ -7,6 +7,10 @@ add_metadata:
   batch_sample_modal_repeat: "batch_sample_modal_repeat"
 
 find_ladders: 
+  ladder_channel: "DATA.105"
+  signal_channel: "DATA.1"
+  ladder_sizes: [50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500]
+  ladder_start_scan: NULL
   minimum_peak_signal: NULL
   scan_subset: NULL
   ladder_selection_window: 5
@@ -17,9 +21,23 @@ find_ladders:
 find_fragments:
   smoothing_window: 21
   minimum_peak_signal: 20
+  min_bp_size: 100
   max_bp_size: 1000
   peakpat: '[+]{6,}[0]*[-]{6,}'
 
 find_alleles:
+  number_of_alleles: 1
   peak_region_size_gap_threshold: 6
   peak_region_signal_threshold_multiplier: 1
+
+call_repeats:
+  assay_size_without_repeat: 87
+  repeat_size: 3
+  correction: "none"
+  force_whole_repeat_units: FALSE
+  force_repeat_pattern: FALSE
+  force_repeat_pattern_size_period: 2.79
+  force_repeat_pattern_size_window: 0.5
+
+assign_index_peaks:
+  grouped: FALSE

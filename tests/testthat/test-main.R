@@ -4,6 +4,8 @@ test_that("main trace", {
 
   frag_list <- trace_main(fsa_list)
 
+  frag_list <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
+
 
 })
 
