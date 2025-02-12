@@ -11,7 +11,7 @@ find_ladders:
   signal_channel: "DATA.1"
   ladder_sizes: [50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500]
   ladder_start_scan: NULL
-  minimum_peak_signal: NULL
+  minimum_ladder_signal: NULL
   scan_subset: NULL
   ladder_selection_window: 5
   max_combinations: 2500000
@@ -21,9 +21,9 @@ find_ladders:
 find_fragments:
   smoothing_window: 21
   minimum_peak_signal: 20
-  min_bp_size: 100
+  min_bp_size: 200
   max_bp_size: 1000
-  peakpat: '[+]{6,}[0]*[-]{6,}'
+  peakpat: '[+]{5,}[0]*[-]{5,}'
 
 find_alleles:
   number_of_alleles: 1

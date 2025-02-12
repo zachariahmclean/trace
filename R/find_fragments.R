@@ -15,7 +15,7 @@
 #' @param max_bp_size numeric: maximum bp size of peaks to consider
 #' @param ... pass additional arguments to pracma::findpeaks(), or change the default arguments
 #' we set. minimum_peak_signal above is passed to pracma::findpeaks() as minpeakheight, and
-#' peakpat has been set to '\[+\]\{6,\}\[0\]*\[-\]\{6,\}' so that peaks with flat tops are
+#' peakpat has been set to '\[+\]\{5,\}\[0\]*\[-\]\{5,\}' so that peaks with flat tops are
 #' still called, see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
 #'
 #'
@@ -74,7 +74,7 @@ find_fragments <- function(
       stop(call. = FALSE, "Please use minimum_peak_signal instead of minpeakheight")
     } else {
       peaks <- pracma::findpeaks(smoothed_signal,
-        peakpat = "[+]{6,}[0]*[-]{6,}", # see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
+        peakpat = "[+]{5,}[0]*[-]{5,}", # see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
         minpeakheight = -Inf,
         ...
       )

@@ -1,3 +1,9 @@
+# new
+
+#renamed find_ladders() minimum_peak_signal to minimum_ladder_signal
+#relaxed peakpat to make peak calling slightly less agressive to avoid missing peaks
+
+
 # trace 0.5.0
 
 -   `expansion_ratio` metric updated so that it starts at 1 rather than 0

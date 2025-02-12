@@ -65,7 +65,7 @@ find_ladders(
   ladder_sizes = ladder_sizes,
   # advanced parameters for fine tuning
   ladder_start_scan = NULL,
-  minimum_peak_signal = NULL,
+  minimum_ladder_signal = NULL,
   zero_floor = FALSE,
   scan_subset = NULL,
   ladder_selection_window = 5,

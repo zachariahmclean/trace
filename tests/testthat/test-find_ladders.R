@@ -13,7 +13,7 @@ testthat::test_that("find ladder peaks", {
   test_ladder_peaks <- find_ladder_peaks(
     test_processed,
     length(ladder_sizes),
-    minimum_peak_signal = NULL,
+    minimum_ladder_signal = NULL,
     sample_id = names(file_list[1])
   )
 
@@ -23,7 +23,7 @@ testthat::test_that("find ladder peaks", {
   test_ladder_peaks_32 <- find_ladder_peaks(
     test_processed,
     n_reference_sizes = 32,
-    minimum_peak_signal = NULL,
+    minimum_ladder_signal = NULL,
     sample_id = names(file_list[1])
   )
 
@@ -117,7 +117,7 @@ test_that("ladder minium signal", {
                                  max_combinations = 2500000,
                                  ladder_selection_window = 8,
                                  show_progress_bar = FALSE,
-                                 minimum_peak_signal = 100
+                                 minimum_ladder_signal = 100
     )
 
 

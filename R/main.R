@@ -9,10 +9,12 @@
 #' The main function for the trace package that handles processing of samples through the pipeline ready for the calculation of repeat instability metrics.
 #'
 #' @param fragments_list A list of fragments objects containing fragment data, generated with either [read_fsa()], [peak_table_to_fragments()], or [repeat_table_to_repeats()].
-#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`.
 #' @param input_type Type of data input, either "fsa", "fragments", or "repeats", which are detailed below.
 #' @param metadata_data.frame metadata passed to [add_metadata()] for grouping samples for metrics calculations or batch correction.
+#' @param index_override_dataframe
+#' @param ladder_df_list
 #' @param config_file A YAML file containing a full list of parameters that can be adjusted for the pipeline if many need to be changed. Use the following command to make a copy of the YAML file: `file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")`.
+#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`.
 #'
 #' @return A list of fragments objects ready for calculation of instability metrics using [calculate_instability_metrics()]
 #'
@@ -42,10 +44,12 @@
 #'
  trace_main <- function(
   fragments_list, 
-  ...,
   input_type = "fsa",
   metadata_data.frame = NULL,
-  config_file = NULL
+  index_override_dataframe = NULL,
+  ladder_df_list = NULL,
+  config_file = NULL,
+  ...
 ){
    
   # Import config file if not supplied by user
@@ -60,17 +64,20 @@
       fragments_list,
       config = config,
       metadata_data.frame = metadata_data.frame,
+      index_override_dataframe = index_override_dataframe,
       ladder_df_list = ladder_df_list
     ),
     fragments = trace_fragments(
       fragments_list,
       config = config,
-      metadata_data.frame = metadata_data.frame
+      metadata_data.frame = metadata_data.frame,
+      index_override_dataframe = index_override_dataframe
     ),
     repeats = trace_repeats(
       fragments_list,
       config = config,
-      metadata_data.frame = metadata_data.frame
+      metadata_data.frame = metadata_data.frame,
+      index_override_dataframe = index_override_dataframe
     )
   )
  
@@ -84,32 +91,20 @@ load_config <- function(config_file, ...) {
     config_file <- system.file("extdata/trace_config.yaml", package = "trace")
   }
 
-  config <- yaml::read_yaml(config_file)
+  # read in config and flatten
+  config_nested <- yaml::read_yaml(config_file)
+  config <- list()
+  for (i in seq_along(config_nested)) {
+    config <- c(config, config_nested[[i]])
+  }
 
+  # override config file with user supplied arguments
   user_args <- list(...)
 
   if(length(user_args) > 0){
-    for (i in seq_along(config)) {
-      for (param in names(user_args)) {
-        if(param %in% names(config[[i]])){
-          config[[i]][[param]] <- user_args[[param]]
-        }
-      }   
-    }
-  }
-
-  # need to add index_override_dataframe if supplied since it cant be in config file
-  if(!is.null(user_args$index_override_dataframe)){
-    config$assign_index_peaks$index_override_dataframe <- user_args$index_override_dataframe
-  } else{
-    config$assign_index_peaks$index_override_dataframe <- NULL
-  }
-
-  # add ladder fixing if requried
-  if(!is.null(user_args$ladder_df_list)){
-    config$fix_ladders_manual$ladder_df_list <- user_args$ladder_df_list
-  } else{
-    config$fix_ladders_manual$ladder_df_list <- NULL
+	  for(arg in names(user_args)){
+		config[[arg]] <- user_args[[arg]]
+	  }
   }
 
   return(config)
@@ -129,64 +124,64 @@ trace_fsa <-  function(x,
     add_metadata(
       x,
       metadata_data.frame = metadata_data.frame,
-      unique_id = config$add_metadata$unique_id,
-      metrics_group_id = config$add_metadata$metrics_group_id,
-      metrics_baseline_control = config$add_metadata$metrics_baseline_control,
-      batch_run_id = config$add_metadata$batch_run_id,
-      batch_sample_id = config$add_metadata$batch_sample_id,
-      batch_sample_modal_repeat = config$add_metadata$batch_sample_modal_repeat
+      unique_id = config$unique_id,
+      metrics_group_id = config$metrics_group_id,
+      metrics_baseline_control = config$metrics_baseline_control,
+      batch_run_id = config$batch_run_id,
+      batch_sample_id = config$batch_sample_id,
+      batch_sample_modal_repeat = config$batch_sample_modal_repeat
     )
   }
 
   find_ladders(
     x,
-    ladder_channel = config$find_ladders$ladder_channel,
-    signal_channel = config$find_ladders$signal_channel,
-    ladder_sizes = config$find_ladders$ladder_sizes,
-    ladder_start_scan = config$find_ladders$ladder_start_scan,
-    minimum_peak_signal = config$find_ladders$minimum_peak_signal,
-    scan_subset = config$find_ladders$scan_subset,
-    ladder_selection_window = config$find_ladders$ladder_selection_window,
-    max_combinations = config$find_ladders$max_combinations,
-    warning_rsq_threshold = config$find_ladders$warning_rsq_threshold,
-    show_progress_bar = config$find_ladders$show_progress_bar
+    ladder_channel = config$ladder_channel,
+    signal_channel = config$signal_channel,
+    ladder_sizes = config$ladder_sizes,
+    ladder_start_scan = config$ladder_start_scan,
+    minimum_ladder_signal = config$minimum_ladder_signal,
+    scan_subset = config$scan_subset,
+    ladder_selection_window = config$ladder_selection_window,
+    max_combinations = config$max_combinations,
+    warning_rsq_threshold = config$warning_rsq_threshold,
+    show_progress_bar = config$show_progress_bar
   )
 
-  if(!is.null(config$fix_ladders_manual$ladder_df_list)){
-    fix_ladders_manual(x, config$fix_ladders_manual$ladder_df_list, config$find_ladders$warning_rsq_threshold)
+  if(!is.null(ladder_df_list)){
+    fix_ladders_manual(x, ladder_df_list, config$warning_rsq_threshold)
   }
 
   x <- find_fragments(
     x,
-    smoothing_window = config$find_fragments$smoothing_window,
-    minimum_peak_signal = config$find_fragments$minimum_peak_signal,
-    min_bp_size = config$find_fragments$min_bp_size,
-    max_bp_size = config$find_fragments$max_bp_size,
-    peakpat = config$find_fragments$peakpat
+    smoothing_window = config$smoothing_window,
+    minimum_peak_signal = config$minimum_peak_signal,
+    min_bp_size = config$min_bp_size,
+    max_bp_size = config$max_bp_size,
+    peakpat = config$peakpat
   )
 
  find_alleles(
     x,
-    number_of_alleles = config$find_alleles$number_of_alleles,
-    peak_region_size_gap_threshold = config$find_alleles$peak_region_size_gap_threshold,
-    peak_region_signal_threshold_multiplier = config$find_alleles$peak_region_signal_threshold_multiplier
+    number_of_alleles = config$number_of_alleles,
+    peak_region_size_gap_threshold = config$peak_region_size_gap_threshold,
+    peak_region_signal_threshold_multiplier = config$peak_region_signal_threshold_multiplier
   )
 
   call_repeats(
     x,
-    assay_size_without_repeat = config$call_repeats$assay_size_without_repeat,
-    repeat_size = config$call_repeats$repeat_size,
-    correction = config$call_repeats$correction,
-    force_whole_repeat_units = config$call_repeats$force_whole_repeat_units,
-    force_repeat_pattern = config$call_repeats$force_repeat_pattern,
-    force_repeat_pattern_size_period = config$call_repeats$force_repeat_pattern_size_period,
-    force_repeat_pattern_size_window = config$call_repeats$force_repeat_pattern_size_window
+    assay_size_without_repeat = config$assay_size_without_repeat,
+    repeat_size = config$repeat_size,
+    correction = config$correction,
+    force_whole_repeat_units = config$force_whole_repeat_units,
+    force_repeat_pattern = config$force_repeat_pattern,
+    force_repeat_pattern_size_period = config$force_repeat_pattern_size_period,
+    force_repeat_pattern_size_window = config$force_repeat_pattern_size_window
   )
 
   assign_index_peaks(
     x,
-    grouped = config$assign_index_peaks$grouped,
-    index_override_dataframe = config$assign_index_peaks$index_override_dataframe
+    grouped = config$grouped,
+    index_override_dataframe = index_override_dataframe
   )
 
   return(x)
@@ -200,37 +195,37 @@ trace_fragments <-  function(x,
     add_metadata(
       x,
       metadata_data.frame = metadata_data.frame,
-      unique_id = config$add_metadata$unique_id,
-      metrics_group_id = config$add_metadata$metrics_group_id,
-      metrics_baseline_control = config$add_metadata$metrics_baseline_control,
-      batch_run_id = config$add_metadata$batch_run_id,
-      batch_sample_id = config$add_metadata$batch_sample_id,
-      batch_sample_modal_repeat = config$add_metadata$batch_sample_modal_repeat
+      unique_id = config$unique_id,
+      metrics_group_id = config$metrics_group_id,
+      metrics_baseline_control = config$metrics_baseline_control,
+      batch_run_id = config$batch_run_id,
+      batch_sample_id = config$batch_sample_id,
+      batch_sample_modal_repeat = config$batch_sample_modal_repeat
     )
   }
 
   find_alleles(
     x,
-    number_of_alleles = config$find_alleles$number_of_alleles,
-    peak_region_size_gap_threshold = config$find_alleles$peak_region_size_gap_threshold,
-    peak_region_signal_threshold_multiplier = config$find_alleles$peak_region_signal_threshold_multiplier
+    number_of_alleles = config$number_of_alleles,
+    peak_region_size_gap_threshold = config$peak_region_size_gap_threshold,
+    peak_region_signal_threshold_multiplier = config$peak_region_signal_threshold_multiplier
   )
 
   call_repeats(
     x,
-    assay_size_without_repeat = config$call_repeats$assay_size_without_repeat,
-    repeat_size = config$call_repeats$repeat_size,
-    correction = config$call_repeats$correction,
-    force_whole_repeat_units = config$call_repeats$force_whole_repeat_units,
-    force_repeat_pattern = config$call_repeats$force_repeat_pattern,
-    force_repeat_pattern_size_period = config$call_repeats$force_repeat_pattern_size_period,
-    force_repeat_pattern_size_window = config$call_repeats$force_repeat_pattern_size_window
+    assay_size_without_repeat = config$assay_size_without_repeat,
+    repeat_size = config$repeat_size,
+    correction = config$correction,
+    force_whole_repeat_units = config$force_whole_repeat_units,
+    force_repeat_pattern = config$force_repeat_pattern,
+    force_repeat_pattern_size_period = config$force_repeat_pattern_size_period,
+    force_repeat_pattern_size_window = config$force_repeat_pattern_size_window
   )
 
   assign_index_peaks(
     x,
-    grouped = config$assign_index_peaks$grouped,
-    index_override_dataframe = config$assign_index_peaks$index_override_dataframe
+    grouped = config$grouped,
+    index_override_dataframe = config$index_override_dataframe
   )
 
   return(x)
@@ -244,12 +239,12 @@ trace_repeats <- function(x,
     add_metadata(
       x,
       metadata_data.frame = metadata_data.frame,
-      unique_id = config$add_metadata$unique_id,
-      metrics_group_id = config$add_metadata$metrics_group_id,
-      metrics_baseline_control = config$add_metadata$metrics_baseline_control,
-      batch_run_id = config$add_metadata$batch_run_id,
-      batch_sample_id = config$add_metadata$batch_sample_id,
-      batch_sample_modal_repeat = config$add_metadata$batch_sample_modal_repeat
+      unique_id = config$unique_id,
+      metrics_group_id = config$metrics_group_id,
+      metrics_baseline_control = config$metrics_baseline_control,
+      batch_run_id = config$batch_run_id,
+      batch_sample_id = config$batch_sample_id,
+      batch_sample_modal_repeat = config$batch_sample_modal_repeat
     )
   }
 
@@ -258,22 +253,22 @@ trace_repeats <- function(x,
   # there's an issue that the default peak_region_size_gap_threshold in the config file is for fragments
   # if the user hasn't uploaded their own value, change it to 2 (for two repeats)
   if(is.null(config_file)){
-    config$find_alleles$peak_region_size_gap_threshold <- 2
+    config$peak_region_size_gap_threshold <- 2
     message("overriding peak_region_size_gap_threshold to 2")
   }
 
   find_alleles(
     x,
-    number_of_alleles = config$find_alleles$number_of_alleles,
-    peak_region_size_gap_threshold = config$find_alleles$peak_region_size_gap_threshold,
-    peak_region_signal_threshold_multiplier = config$find_alleles$peak_region_signal_threshold_multiplier
+    number_of_alleles = config$number_of_alleles,
+    peak_region_size_gap_threshold = config$peak_region_size_gap_threshold,
+    peak_region_signal_threshold_multiplier = config$peak_region_signal_threshold_multiplier
   )
 
   message("Assigning index peaks")
   assign_index_peaks(
     x,
-    grouped = config$assign_index_peaks$grouped,
-    index_override_dataframe = config$assign_index_peaks$index_override_dataframe
+    grouped = config$grouped,
+    index_override_dataframe = config$index_override_dataframe
   )
 
   return(x)

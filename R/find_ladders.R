@@ -29,7 +29,7 @@ process_ladder_signal <- function(ladder,
 
 find_ladder_peaks <- function(ladder_df,
                               n_reference_sizes,
-                              minimum_peak_signal,
+                              minimum_ladder_signal,
                               sample_id) {
   median_signal <- median(ladder_df$smoothed_signal, na.rm = TRUE)
   sd_signal <- stats::sd(ladder_df$smoothed_signal, na.rm = TRUE)
@@ -39,17 +39,17 @@ find_ladder_peaks <- function(ladder_df,
 
   #allow user to set min signal
 
-  if(!is.null(minimum_peak_signal)){
+  if(!is.null(minimum_ladder_signal)){
     peaks <- pracma::findpeaks(ladder_df$smoothed_signal,
-                               peakpat = "[+]{6,}[0]*[-]{6,}", # see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
-                               minpeakheight = minimum_peak_signal
+                               peakpat = "[+]{5,}[0]*[-]{5,}", # see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
+                               minpeakheight = minimum_ladder_signal
     )
 
     ladder_peaks <- ladder_df$scan[peaks[, 2]]
   } else {
     while (length(ladder_peaks) < n_reference_sizes) {
       peaks <- pracma::findpeaks(ladder_df$smoothed_signal,
-                                 peakpat = "[+]{6,}[0]*[-]{6,}", # see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
+                                 peakpat = "[+]{5,}[0]*[-]{5,}", # see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
                                  minpeakheight = median_signal + sd_signal * ladder_peak_threshold
       )
 
@@ -273,7 +273,7 @@ ladder_rsq_warning_helper <- function(
 #'        there's a big spike right at the start. However, if your ladder peaks
 #'        are taller than the big spike, you will need to set this starting scan
 #'        number manually.
-#' @param minimum_peak_signal numeric: minimum signal of peak from smoothed signal.
+#' @param minimum_ladder_signal numeric: minimum signal of peak from smoothed signal.
 #' @param scan_subset numeric vector (length 2): filter the ladder and data signal
 #'        between the selected scans (eg scan_subset = c(3000, 5000)).
 #'        to pracma::savgol().
@@ -323,7 +323,7 @@ find_ladders <- function(
     signal_channel = "DATA.1",
     ladder_sizes = c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
     ladder_start_scan = NULL,
-    minimum_peak_signal = NULL,
+    minimum_ladder_signal = NULL,
     scan_subset = NULL,
     ladder_selection_window = 5,
     max_combinations = 2500000,
@@ -349,7 +349,7 @@ find_ladders <- function(
     ladder_peaks <- find_ladder_peaks(
       ladder_df = ladder_df,
       n_reference_sizes = length(ladder_sizes),
-      minimum_peak_signal = minimum_peak_signal,
+      minimum_ladder_signal = minimum_ladder_signal,
       sample_id = sample_id
     )
 
