@@ -191,8 +191,7 @@ functionality of this package would not be accessible (mainly in
 `call_repeats()`, with `batch_correction` and repeat calling algorithms)
 
 ``` r
-fragments_list_genemapper <- peak_table_to_fragments(example_data,
-  data_format = "genemapper5",
+fragments_list_genemapper <- genemapper_table_to_fragments(example_data,
   dye_channel = "B",
   min_size_bp = 300
 )

@@ -7,8 +7,7 @@ testthat::test_that("find_alleles", {
   metadata <- trace::metadata
   # Save raw data as a fragment class
   suppressWarnings(
-    test_fragments <- peak_table_to_fragments(gm_raw,
-      data_format = "genemapper5",
+    test_fragments <- genemapper_table_to_fragments(gm_raw,
       dye_channel = "B",
       min_size_bp = 300
     )
@@ -36,8 +35,7 @@ testthat::test_that("find_alleles two alleles", {
   metadata <- trace::metadata
   # Save raw data as a fragment class
   suppressWarnings(
-    test_fragments <- peak_table_to_fragments(gm_raw,
-      data_format = "genemapper5",
+    test_fragments <- genemapper_table_to_fragments(gm_raw,
       dye_channel = "B",
       min_size_bp = 100
     )

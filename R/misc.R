@@ -1,10 +1,9 @@
 print_helper <- function(fragment,
                          exclude = NULL,
                          sample_attrs) {
-  class_name <- class(fragment)[1]
   unique_id <- fragment$unique_id
 
-  cat(paste0("\033[1;34m< ", class_name, " object >\033[0m\n"))
+  cat(paste0("\033[1;34m< ", class(fragment)[1], " object >\033[0m\n"))
   cat("\033[1;36m-----------------------------\033[0m\n")
 
   # Section: Sample Attributes
@@ -37,37 +36,42 @@ print_helper <- function(fragment,
 
   cat("\033[1;36m-----------------------------\033[0m\n")
 
-   # Check and print called alleles in private fields of fragments_repeats
-  if(class(fragment)[1] == "fragments_repeats"){
-    private_names <- ls(fragment$.__enclos_env__$private, all.names = TRUE)
-    alleles_names <- private_names[which(grepl("allele_", private_names))]
-    #should allele_2 be included? remove if is na since it's only an edge case
-    if(is.na(fragment$.__enclos_env__$private$allele_2_signal)){
-      alleles_names <- alleles_names[-grep("allele_2_", alleles_names)]
-    }
-    alleles_names <- c(alleles_names, "index_repeat")
-    for (name in alleles_names) {
-      value <- fragment$.__enclos_env__$private[[name]]
-      class_value <- class(value)
+  # Check and print called alleles in private fields of fragments
+  private_names <- ls(fragment$.__enclos_env__$private, all.names = TRUE)
+  alleles_names <- private_names[which(grepl("allele_", private_names))]
+  #should allele_2 be included? remove if is na since it's only an edge case
+  if(is.na(fragment$.__enclos_env__$private$allele_2_signal)){
+    alleles_names <- alleles_names[-grep("allele_2_", alleles_names)]
+  }
+  alleles_names <- c(alleles_names, "index_repeat")
+  for (name in alleles_names) {
+    value <- fragment$.__enclos_env__$private[[name]]
+    class_value <- class(value)
 
-      cat(sprintf("\033[1m%-30s\033[0m", name))
+    cat(sprintf("\033[1m%-30s\033[0m", name))
 
-      if (is.null(value)) {
-        cat("NULL\n")
-      } else if (is.numeric(value)) {
-        cat(format(value), "\n")
-      }
+    if (is.null(value)) {
+      cat("NULL\n")
+    } else if (is.numeric(value)) {
+      cat(format(value), "\n")
     }
   }
+  
 
   slot_names <- ls(fragment, all.names = TRUE)
   all_exclusions <- c(
     exclude,
     sample_attrs,
+    "input_method", "raw_data", "raw_ladder", "scan", "off_scale_scans",
     slot_names[which(sapply(slot_names, function(name) class(fragment[[name]]) == "function"))],
     ".__active__",
     ".__enclos_env__"
   )
+
+  if(fragment$input_method != "fsa"){
+    all_exclusions <- c(all_exclusions, "fsa", "ladder_df", "trace_bp_df")
+  }
+
   slot_names <- setdiff(slot_names, all_exclusions)
 
   for (name in slot_names) {
@@ -109,7 +113,7 @@ print_helper <- function(fragment,
 #'
 #' A convenient function to remove specific samples from a list of fragments.
 #'
-#' @param fragments_list A list of fragments_repeats objects containing fragment data.
+#' @param fragments_list A list of fragments objects containing fragment data.
 #' @param samples_to_remove A character vector containing the unique IDs of the samples to be removed.
 #'
 #' @return A modified list of fragments with the specified samples removed.
@@ -119,9 +123,8 @@ print_helper <- function(fragment,
 #' gm_raw <- trace::example_data
 #' metadata <- trace::metadata
 #'
-#' test_fragments <- peak_table_to_fragments(
+#' test_fragments <- genemapper_table_to_fragments(
 #'   gm_raw,
-#'   data_format = "genemapper5",
 #'   dye_channel = "B",
 #'   min_size_bp = 300
 #' )

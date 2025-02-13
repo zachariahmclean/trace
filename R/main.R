@@ -8,7 +8,7 @@
 #'
 #' The main function for the trace package that handles processing of samples through the pipeline ready for the calculation of repeat instability metrics.
 #'
-#' @param fragments_list A list of fragments objects containing fragment data, generated with either [read_fsa()], [peak_table_to_fragments()], or [repeat_table_to_repeats()].
+#' @param fragments_list A list of fragments objects containing fragment data, generated with either [read_fsa()], [genemapper_table_to_fragments()], or [repeat_table_to_fragments()].
 #' @param input_type Type of data input, either "fsa", "fragments", or "repeats", which are detailed below.
 #' @param metadata_data.frame metadata passed to [add_metadata()] for grouping samples for metrics calculations or batch correction.
 #' @param index_override_dataframe
@@ -56,27 +56,34 @@
   config <- load_config(config_file, ...)
 
 
-   # I think input_type is duplicative of the method used to import fragments_list
-   
-   
+  if(!is.null(metadata_data.frame)){
+    add_metadata(
+      fragments_list,
+      metadata_data.frame = metadata_data.frame,
+      unique_id = config$unique_id,
+      metrics_group_id = config$metrics_group_id,
+      metrics_baseline_control = config$metrics_baseline_control,
+      batch_run_id = config$batch_run_id,
+      batch_sample_id = config$batch_sample_id,
+      batch_sample_modal_repeat = config$batch_sample_modal_repeat
+    )
+  }
+
   sample_processed <- switch(input_type,
     fsa = trace_fsa(
       fragments_list,
       config = config,
-      metadata_data.frame = metadata_data.frame,
       index_override_dataframe = index_override_dataframe,
       ladder_df_list = ladder_df_list
     ),
     fragments = trace_fragments(
       fragments_list,
       config = config,
-      metadata_data.frame = metadata_data.frame,
       index_override_dataframe = index_override_dataframe
     ),
     repeats = trace_repeats(
       fragments_list,
       config = config,
-      metadata_data.frame = metadata_data.frame,
       index_override_dataframe = index_override_dataframe
     )
   )
@@ -115,23 +122,11 @@ load_config <- function(config_file, ...) {
 ## fsa pipeline
 trace_fsa <-  function(x,
   config,
-  metadata_data.frame,
   index_override_dataframe,
   ladder_df_list
 ) {
 
-  if(!is.null(metadata_data.frame)){
-    add_metadata(
-      x,
-      metadata_data.frame = metadata_data.frame,
-      unique_id = config$unique_id,
-      metrics_group_id = config$metrics_group_id,
-      metrics_baseline_control = config$metrics_baseline_control,
-      batch_run_id = config$batch_run_id,
-      batch_sample_id = config$batch_sample_id,
-      batch_sample_modal_repeat = config$batch_sample_modal_repeat
-    )
-  }
+  message("Finding ladders")
 
   find_ladders(
     x,
@@ -151,7 +146,9 @@ trace_fsa <-  function(x,
     fix_ladders_manual(x, ladder_df_list, config$warning_rsq_threshold)
   }
 
-  x <- find_fragments(
+  message("Finding fragments")
+
+  find_fragments(
     x,
     smoothing_window = config$smoothing_window,
     minimum_peak_signal = config$minimum_peak_signal,
@@ -160,27 +157,8 @@ trace_fsa <-  function(x,
     peakpat = config$peakpat
   )
 
- find_alleles(
-    x,
-    number_of_alleles = config$number_of_alleles,
-    peak_region_size_gap_threshold = config$peak_region_size_gap_threshold,
-    peak_region_signal_threshold_multiplier = config$peak_region_signal_threshold_multiplier
-  )
-
-  call_repeats(
-    x,
-    assay_size_without_repeat = config$assay_size_without_repeat,
-    repeat_size = config$repeat_size,
-    correction = config$correction,
-    force_whole_repeat_units = config$force_whole_repeat_units,
-    force_repeat_pattern = config$force_repeat_pattern,
-    force_repeat_pattern_size_period = config$force_repeat_pattern_size_period,
-    force_repeat_pattern_size_window = config$force_repeat_pattern_size_window
-  )
-
-  assign_index_peaks(
-    x,
-    grouped = config$grouped,
+  trace_fragments(x,
+    config = config,
     index_override_dataframe = index_override_dataframe
   )
 
@@ -190,19 +168,9 @@ trace_fsa <-  function(x,
 ## fragments pipeline
 trace_fragments <-  function(x,
   config,
-  metadata_data.frame) {
-  if(!is.null(metadata_data.frame)){
-    add_metadata(
-      x,
-      metadata_data.frame = metadata_data.frame,
-      unique_id = config$unique_id,
-      metrics_group_id = config$metrics_group_id,
-      metrics_baseline_control = config$metrics_baseline_control,
-      batch_run_id = config$batch_run_id,
-      batch_sample_id = config$batch_sample_id,
-      batch_sample_modal_repeat = config$batch_sample_modal_repeat
-    )
-  }
+  index_override_dataframe) {
+  
+  message("Finding alleles")
 
   find_alleles(
     x,
@@ -210,6 +178,8 @@ trace_fragments <-  function(x,
     peak_region_size_gap_threshold = config$peak_region_size_gap_threshold,
     peak_region_signal_threshold_multiplier = config$peak_region_signal_threshold_multiplier
   )
+
+  message("Calling repeats")
 
   call_repeats(
     x,
@@ -221,6 +191,8 @@ trace_fragments <-  function(x,
     force_repeat_pattern_size_period = config$force_repeat_pattern_size_period,
     force_repeat_pattern_size_window = config$force_repeat_pattern_size_window
   )
+
+  message("Assigning index peaks")
 
   assign_index_peaks(
     x,
@@ -234,19 +206,7 @@ trace_fragments <-  function(x,
 ## repeats pipeline
 trace_repeats <- function(x,
   config,
-  metadata_data.frame ) {
-  if(!is.null(metadata_data.frame)){
-    add_metadata(
-      x,
-      metadata_data.frame = metadata_data.frame,
-      unique_id = config$unique_id,
-      metrics_group_id = config$metrics_group_id,
-      metrics_baseline_control = config$metrics_baseline_control,
-      batch_run_id = config$batch_run_id,
-      batch_sample_id = config$batch_sample_id,
-      batch_sample_modal_repeat = config$batch_sample_modal_repeat
-    )
-  }
+  index_override_dataframe ) {
 
   message("Finding alleles")
   

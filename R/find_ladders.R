@@ -210,8 +210,8 @@ predict_bp_size <- function(
 
 
 
-ladder_fit_cor <- function(fragments_trace){
-  ladder_df <- fragments_trace$ladder_df[order(fragments_trace$ladder_df$size),]
+ladder_fit_cor <- function(fragments){
+  ladder_df <- fragments$ladder_df[order(fragments$ladder_df$size),]
   ladder_df <- ladder_df[which(!is.na(ladder_df$size)), ]
 
   # Function to calculate the fitting constants for each group of three neighboring points
@@ -231,10 +231,10 @@ ladder_fit_cor <- function(fragments_trace){
 
 
 ladder_rsq_warning_helper <- function(
-    fragments_trace,
+    fragments,
     rsq_threshold) {
   
-  cor_list <- ladder_fit_cor(fragments_trace)
+  cor_list <- ladder_fit_cor(fragments)
   rsq <- sapply(cor_list, function(x) x$rsq)
 
   if (any(rsq < rsq_threshold)) {
@@ -247,7 +247,7 @@ ladder_rsq_warning_helper <- function(
     warning(
       call. = FALSE,
       paste(
-        "sample", fragments_trace$unique_id, "has badly fitting ladder for bp sizes:",
+        "sample", fragments$unique_id, "has badly fitting ladder for bp sizes:",
         paste0(size_ranges_vector, collapse = ", ")
       )
     )
@@ -261,7 +261,7 @@ ladder_rsq_warning_helper <- function(
 #'
 #' Find the ladder peaks in and use that to call bp size
 #'
-#' @param fragments_trace list from 'read_fsa' function
+#' @param fragments_list list from 'read_fsa' function
 #' @param ladder_channel string: which channel in the fsa file contains the
 #'        ladder signal
 #' @param signal_channel string: which channel in the fsa file contains the data
@@ -285,13 +285,13 @@ ladder_rsq_warning_helper <- function(
 #' @param warning_rsq_threshold The value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold.
 #' @param show_progress_bar show progress bar
 #'
-#' @return This function modifies list of fragments_trace objects in place with the ladder assigned and base pair calculated.
+#' @return This function modifies list of fragments objects in place with the ladder assigned and base pair calculated.
 #' @export
 #'
 #' @details
-#' This function takes a list of fragments_trace files (the output from read_fsa) and identifies
+#' This function takes a list of fragments files (the output from read_fsa) and identifies
 #' the ladders in the ladder channel which is used to call the bp size. The output
-#' is a list of fragments_traces. 
+#' is a list of fragments. 
 #' 
 #' In this package, base pair (bp) sizes are assigned using a generalized additive model (GAM) with cubic regression splines. The model is fit to known ladder fragment sizes and their corresponding scan positions, capturing the relationship between scan number and bp size. Once trained, the model predicts bp sizes for all scans by interpolating between the known ladder points. This approach provides a flexible and accurate assignment of bp sizes, accommodating the slightly non-linear relationship.
 #'
@@ -318,7 +318,7 @@ ladder_rsq_warning_helper <- function(
 #' plot_ladders(fsa_list[1])
 #'
 find_ladders <- function(
-    fragments_trace,
+    fragments_list,
     ladder_channel = "DATA.105",
     signal_channel = "DATA.1",
     ladder_sizes = c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
@@ -375,16 +375,16 @@ find_ladders <- function(
   }
 
   if (show_progress_bar) {
-    pb <- utils::txtProgressBar(min = 0, max = length(fragments_trace), style = 3)
+    pb <- utils::txtProgressBar(min = 0, max = length(fragments_list), style = 3)
   }
 
-  for (i in seq_along(fragments_trace)) {
+  for (i in seq_along(fragments_list)) {
     # populate the ladder and data channels with the supplied channel name
 
-    fragments_trace[[i]]$raw_ladder <- fragments_trace[[i]]$fsa$Data[[ladder_channel]]
-    fragments_trace[[i]]$raw_data <- fragments_trace[[i]]$fsa$Data[[signal_channel]]
-    fragments_trace[[i]]$scan <- 0:(length(fragments_trace[[i]]$fsa$Data[[signal_channel]]) - 1)
-    fragments_trace[[i]]$off_scale_scans <- fragments_trace[[i]]$fsa$Data$OfSc.1
+    fragments_list[[i]]$raw_ladder <- fragments_list[[i]]$fsa$Data[[ladder_channel]]
+    fragments_list[[i]]$raw_data <- fragments_list[[i]]$fsa$Data[[signal_channel]]
+    fragments_list[[i]]$scan <- 0:(length(fragments_list[[i]]$fsa$Data[[signal_channel]]) - 1)
+    fragments_list[[i]]$off_scale_scans <- fragments_list[[i]]$fsa$Data$OfSc.1
 
     # make sure that the scan window is at least same length as length of size standards
     if (ladder_selection_window > length(ladder_sizes)) {
@@ -393,9 +393,9 @@ find_ladders <- function(
 
     # allow user to subset to particular scans
     if (!is.null(scan_subset)) {
-      fragments_trace[[i]]$raw_ladder <- fragments_trace[[i]]$raw_ladder[scan_subset[1]:scan_subset[2]]
-      fragments_trace[[i]]$raw_data <- fragments_trace[[i]]$raw_data[scan_subset[1]:scan_subset[2]]
-      fragments_trace[[i]]$scan <- fragments_trace[[i]]$scan[scan_subset[1]:scan_subset[2]]
+      fragments_list[[i]]$raw_ladder <- fragments_list[[i]]$raw_ladder[scan_subset[1]:scan_subset[2]]
+      fragments_list[[i]]$raw_data <- fragments_list[[i]]$raw_data[scan_subset[1]:scan_subset[2]]
+      fragments_list[[i]]$scan <- fragments_list[[i]]$scan[scan_subset[1]:scan_subset[2]]
 
       # set spike location since it's automatically set usually, and user may select scans to start after
       ladder_start_scan <- scan_subset[1]
@@ -403,31 +403,31 @@ find_ladders <- function(
 
     # ladder
     ladder_df <- fit_ladder(
-      ladder = fragments_trace[[i]]$raw_ladder,
-      scans = fragments_trace[[i]]$scan,
-      sample_id = fragments_trace[[i]]$unique_id
+      ladder = fragments_list[[i]]$raw_ladder,
+      scans = fragments_list[[i]]$scan,
+      sample_id = fragments_list[[i]]$unique_id
     )
 
-    fragments_trace[[i]]$ladder_df <- ladder_df
+    fragments_list[[i]]$ladder_df <- ladder_df
 
     # ladder correlation stats
     # make a warning if one of the ladder modes is bad
-    ladder_rsq_warning_helper(fragments_trace[[i]],
+    ladder_rsq_warning_helper(fragments_list[[i]],
       rsq_threshold = warning_rsq_threshold
     )
 
     predicted_size <- predict_bp_size(
       ladder_df = ladder_df,
-      scans = fragments_trace[[i]]$scan
+      scans = fragments_list[[i]]$scan
     )
 
-    fragments_trace[[i]]$trace_bp_df <- data.frame(
-      unique_id = rep(fragments_trace[[i]]$unique_id, length(fragments_trace[[i]]$scan)),
-      scan = fragments_trace[[i]]$scan,
+    fragments_list[[i]]$trace_bp_df <- data.frame(
+      unique_id = rep(fragments_list[[i]]$unique_id, length(fragments_list[[i]]$scan)),
+      scan = fragments_list[[i]]$scan,
       size = predicted_size,
-      signal = fragments_trace[[i]]$raw_data,
-      ladder_signal = fragments_trace[[i]]$raw_ladder,
-      off_scale = fragments_trace[[i]]$scan %in% fragments_trace[[i]]$off_scale_scans
+      signal = fragments_list[[i]]$raw_data,
+      ladder_signal = fragments_list[[i]]$raw_ladder,
+      off_scale = fragments_list[[i]]$scan %in% fragments_list[[i]]$off_scale_scans
     )
 
     if (show_progress_bar) {
@@ -442,21 +442,21 @@ find_ladders <- function(
 
 #' Fix ladders manually
 #'
-#' Manually assign the ladder peaks for samples in a fragments_trace_list
+#' Manually assign the ladder peaks for samples in a fragments_list
 #'
-#' @param fragments_trace_list list of fragments_trace objects
+#' @param fragments_list list of fragments objects
 #' @param ladder_df_list a list of dataframes, with the names being the unique id
 #' and the value being a dataframe. The dataframe has two columns, size (indicating
 #' the bp of the standard) and scan (the scan value of the ladder peak). It's
 #' critical that the element name in the list is the unique id of the sample.
 #' @param warning_rsq_threshold The value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold.
 #'
-#' @return This function modifies list of fragments_trace objects in place with the selected ladders fixed.
+#' @return This function modifies list of fragments objects in place with the selected ladders fixed.
 #' @export
 #'
 #' @details
-#' This function returns a fragments_trace list the same length as was supplied.
-#' It goes through each sample and either just returns the same fragments_trace
+#' This function returns a fragments list the same length as was supplied.
+#' It goes through each sample and either just returns the same fragments
 #' if the unique id doesn't match the samples that need the ladder fixed, or if
 #' it is one to fix, it will use the supplied dataframe in the ladder_df_list
 #' as the ladder. It then reruns the bp sizing methods on those samples.
@@ -494,15 +494,15 @@ find_ladders <- function(
 #'   example_list
 #' )
 #'
-fix_ladders_manual <- function(fragments_trace_list,
+fix_ladders_manual <- function(fragments_list,
                                ladder_df_list,
                                warning_rsq_threshold = 0.998) {
   samples_to_fix <- names(ladder_df_list)
-  for (i in seq_along(fragments_trace_list)) {
-    if (fragments_trace_list[[i]]$unique_id %in% samples_to_fix) {
-      message(paste("Fixing ladder for", fragments_trace_list[[i]]$unique_id))
+  for (i in seq_along(fragments_list)) {
+    if (fragments_list[[i]]$unique_id %in% samples_to_fix) {
+      message(paste("Fixing ladder for", fragments_list[[i]]$unique_id))
 
-      tmp_ladder_df <- ladder_df_list[[which(names(ladder_df_list) == fragments_trace_list[[i]]$unique_id)]]
+      tmp_ladder_df <- ladder_df_list[[which(names(ladder_df_list) == fragments_list[[i]]$unique_id)]]
 
       # do some quality control of the df user supplied
       if (!any(colnames(tmp_ladder_df) == "scan") | !any(colnames(tmp_ladder_df) == "size")) {
@@ -512,23 +512,23 @@ fix_ladders_manual <- function(fragments_trace_list,
         )
       }
 
-      fragments_trace_list[[i]]$ladder_df <- tmp_ladder_df
+      fragments_list[[i]]$ladder_df <- tmp_ladder_df
       predicted_size <- predict_bp_size(
-        fragments_trace_list[[i]]$ladder_df,
-        fragments_trace_list[[i]]$scan
+        fragments_list[[i]]$ladder_df,
+        fragments_list[[i]]$scan
       )
     
-      fragments_trace_list[[i]]$trace_bp_df <- data.frame(
-        unique_id = rep(fragments_trace_list[[i]]$unique_id, length(fragments_trace_list[[i]]$scan)),
-        scan = fragments_trace_list[[i]]$scan,
+      fragments_list[[i]]$trace_bp_df <- data.frame(
+        unique_id = rep(fragments_list[[i]]$unique_id, length(fragments_list[[i]]$scan)),
+        scan = fragments_list[[i]]$scan,
         size = predicted_size,
-        signal = fragments_trace_list[[i]]$raw_data,
-        ladder_signal = fragments_trace_list[[i]]$raw_ladder,
-        off_scale = fragments_trace_list[[i]]$scan %in% fragments_trace_list[[i]]$off_scale_scans
+        signal = fragments_list[[i]]$raw_data,
+        ladder_signal = fragments_list[[i]]$raw_ladder,
+        off_scale = fragments_list[[i]]$scan %in% fragments_list[[i]]$off_scale_scans
       )
     
       # make a warning if one of the ladder modes is bad
-      ladder_rsq_warning_helper(fragments_trace_list[[i]],
+      ladder_rsq_warning_helper(fragments_list[[i]],
         rsq_threshold = warning_rsq_threshold
       )
     }

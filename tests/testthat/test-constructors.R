@@ -1,18 +1,12 @@
-# peak_table_to_fragments -------------------------------------------------
+# genemapper_table_to_fragments -------------------------------------------------
 
-testthat::test_that("peak_table_to_fragments", {
+testthat::test_that("genemapper_table_to_fragments", {
   gm_raw <- trace::example_data
 
   suppressWarnings(
-    test_fragments <- peak_table_to_fragments(
+    test_fragments <- genemapper_table_to_fragments(
       gm_raw,
-      data_format = "genemapper5",
-      peak_size_col = "Size",
-      peak_signal_col = "Height",
-      unique_id = "Sample.File.Name",
-      dye_col = "Dye.Sample.Peak",
       dye_channel = "B",
-      allele_col = "Allele",
       min_size_bp = 300,
       max_size_bp = 1000
     )
@@ -36,7 +30,7 @@ testthat::test_that("peak_table_to_fragments", {
   # we only expect one class
   testthat::expect_true(length(unique(test_fragments_classes)) == 1)
   # everything in the list is the class we expect
-  testthat::expect_true(unique(test_fragments_classes) == "fragments_repeats")
+  testthat::expect_true(unique(test_fragments_classes) == "fragments")
   # no missing unique ids
   testthat::expect_false(any(is.na(test_fragments_ids)))
 })
@@ -46,11 +40,8 @@ testthat::test_that("peak_table_to_fragments", {
 testthat::test_that("repeat_table_to_fragments", {
   repeat_table <- trace::example_data_repeat_table
 
-  test_fragments <- repeat_table_to_repeats(
-    repeat_table,
-    repeat_col = "repeats",
-    frequency_col = "height",
-    unique_id = "unique_id"
+  test_fragments <- repeat_table_to_fragments(
+    repeat_table
   )
 
   test_sample <- test_fragments[[1]]
@@ -70,7 +61,7 @@ testthat::test_that("repeat_table_to_fragments", {
   # we only expect one class
   testthat::expect_true(length(unique(test_fragments_classes)) == 1)
   # everything in the list is the class we expect
-  testthat::expect_true(unique(test_fragments_classes) == "fragments_repeats")
+  testthat::expect_true(unique(test_fragments_classes) == "fragments")
   # no missing unique ids
   testthat::expect_false(any(is.na(test_fragments_ids)))
 })

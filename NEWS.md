@@ -2,6 +2,9 @@
 
 #renamed find_ladders() minimum_peak_signal to minimum_ladder_signal
 #relaxed peakpat to make peak calling slightly less agressive to avoid missing peaks
+#find_fragments now modifies in place
+#repeat_table_to_repeats renames to repeat_table_to_fragments. also require specific column names
+#peak_table_to_fragments split up into two import functions genemapper_table_to_fragments and generic size_table_to_fragments
 
 
 # trace 0.5.0

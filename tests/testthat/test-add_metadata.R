@@ -1,10 +1,7 @@
 # add metadata -------------------------------------------------
 
 testthat::test_that("add_metadata", {
-  test_fragments <- peak_table_to_fragments(example_data,
-    data_format = "genemapper5",
-    # peak_size_col = "size",
-    # peak_signal_col = "signal",
+  test_fragments <- genemapper_table_to_fragments(example_data,
     dye_channel = "B"
   )
 
@@ -59,8 +56,7 @@ testthat::test_that("add_metadata", {
 
 testthat::test_that("add_metadata missing", {
   suppressWarnings(
-    test_fragments <- peak_table_to_fragments(example_data,
-      data_format = "genemapper5",
+    test_fragments <- genemapper_table_to_fragments(example_data,
       dye_channel = "B",
       min_size_bp = 300
     )

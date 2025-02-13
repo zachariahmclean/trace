@@ -7,7 +7,7 @@
 plot_data_channels(fragments_list, sample_subset = NULL, n_facet_col = 1)
 }
 \arguments{
-\item{fragments_list}{A list of fragments_trace objects.}
+\item{fragments_list}{A list of fragments objects.}
 
 \item{sample_subset}{A character vector of unique ids for a subset of samples to plot}
 

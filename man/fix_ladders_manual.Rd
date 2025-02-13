@@ -5,13 +5,13 @@
 \title{Fix ladders manually}
 \usage{
 fix_ladders_manual(
-  fragments_trace_list,
+  fragments_list,
   ladder_df_list,
   warning_rsq_threshold = 0.998
 )
 }
 \arguments{
-\item{fragments_trace_list}{list of fragments_trace objects}
+\item{fragments_list}{list of fragments objects}
 
 \item{ladder_df_list}{a list of dataframes, with the names being the unique id
 and the value being a dataframe. The dataframe has two columns, size (indicating
@@ -21,14 +21,14 @@ critical that the element name in the list is the unique id of the sample.}
 \item{warning_rsq_threshold}{The value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold.}
 }
 \value{
-This function modifies list of fragments_trace objects in place with the selected ladders fixed.
+This function modifies list of fragments objects in place with the selected ladders fixed.
 }
 \description{
-Manually assign the ladder peaks for samples in a fragments_trace_list
+Manually assign the ladder peaks for samples in a fragments_list
 }
 \details{
-This function returns a fragments_trace list the same length as was supplied.
-It goes through each sample and either just returns the same fragments_trace
+This function returns a fragments list the same length as was supplied.
+It goes through each sample and either just returns the same fragments
 if the unique id doesn't match the samples that need the ladder fixed, or if
 it is one to fix, it will use the supplied dataframe in the ladder_df_list
 as the ladder. It then reruns the bp sizing methods on those samples.

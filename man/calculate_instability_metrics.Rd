@@ -13,7 +13,7 @@ calculate_instability_metrics(
 )
 }
 \arguments{
-\item{fragments_list}{A list of "fragments_repeats" objects representing fragment data.}
+\item{fragments_list}{A list of "fragments" objects representing fragment data.}
 
 \item{peak_threshold}{The threshold for peak signals to be considered in the calculations, relative to the modal peak signal of the expanded allele.}
 
@@ -27,7 +27,7 @@ calculate_instability_metrics(
 A data.frame with calculated instability metrics for each sample.
 }
 \description{
-This function computes instability metrics from a list of fragments_repeats data objects.
+This function computes instability metrics from a list of fragments data objects.
 }
 \details{
 Each of the columns in the supplied dataframe are explained below:
@@ -89,8 +89,7 @@ Each of the columns in the supplied dataframe are explained below:
 gm_raw <- trace::example_data
 metadata <- trace::metadata
 
-test_fragments <- peak_table_to_fragments(gm_raw,
-  data_format = "genemapper5",
+test_fragments <- genemapper_table_to_fragments(gm_raw,
   dye_channel = "B",
   min_size_bp = 400
 )

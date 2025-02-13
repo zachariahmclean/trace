@@ -11,7 +11,7 @@ plot_repeat_correction_model(
 )
 }
 \arguments{
-\item{fragments_list}{A list of fragments_repeats class objects obtained from the \code{\link[=call_repeats]{call_repeats()}} function when the \code{correction = "repeat"} parameter is used.}
+\item{fragments_list}{A list of fragments class objects obtained from the \code{\link[=call_repeats]{call_repeats()}} function when the \code{correction = "repeat"} parameter is used.}
 
 \item{batch_run_id_subset}{A character vector for a subset of batch_sample_id to plot. Or alternatively supply a number to select batch sample by position in alphabetical order.}
 

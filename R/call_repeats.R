@@ -427,7 +427,7 @@ model_repeat_length <- function(
 #'
 #' This function calls the repeat lengths for a list of fragments.
 #'
-#' @param fragments_list A list of fragments_repeats objects containing fragment data.
+#' @param fragments_list A list of fragments objects containing fragment data.
 #' @param assay_size_without_repeat An integer specifying the assay size without repeat for repeat calling. This is the length of the sequence flanking the repeat in the PCR product.
 #' @param repeat_size An integer specifying the repeat size for repeat calling. Default is 3.
 #' @param correction A character vector of either "batch" to carry out a batch correction from common samples across runs (known repeat length not required), or "repeat" to use samples with validated modal repeat lengths to correct the repeat length. Requires metadata to be added (see [add_metadata()]) with both "batch" and "repeat" requiring \code{"batch_run_id"}, "batch" requiring (\code{"batch_sample_id"}) and "repeat" requiring \code{"batch_sample_modal_repeat"} (but also benefits from having \code{"batch_sample_id"}).
@@ -554,7 +554,7 @@ call_repeats <- function(
   
   # check to make sure all the required inputs for the function have been given
   if (fragments_list[[1]]$.__enclos_env__$private$find_main_peaks_used == FALSE) {
-    stop(paste0(fragments_list[[1]]$unique_id, " requires main alleles to be identified before repeats can be called. Find alleles using 'find_main_peaks()' within the class, or use 'find_alleles()' to find the main peaks across a list of 'fragments_repeats' objects"),
+    stop(paste0(fragments_list[[1]]$unique_id, " requires main alleles to be identified before repeats can be called. Find alleles using 'find_main_peaks()' within the class, or use 'find_alleles()' to find the main peaks across a list of 'fragments' objects"),
       call. = FALSE
     )
   }

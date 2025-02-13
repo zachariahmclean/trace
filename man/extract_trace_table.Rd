@@ -4,10 +4,10 @@
 \alias{extract_trace_table}
 \title{Extract traces}
 \usage{
-extract_trace_table(fragments_trace_list)
+extract_trace_table(fragments_list)
 }
 \arguments{
-\item{fragments_trace_list}{a list of fragments objects}
+\item{fragments_list}{a list of fragments objects}
 }
 \value{
 A dataframe of the raw trace data. Each row representing a single scan.

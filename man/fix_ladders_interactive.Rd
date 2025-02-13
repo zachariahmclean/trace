@@ -7,7 +7,7 @@
 fix_ladders_interactive(fragment_trace_list)
 }
 \arguments{
-\item{fragment_trace_list}{A list of fragments_trace objects containing fragment data}
+\item{fragment_trace_list}{A list of fragments objects containing fragment data}
 }
 \value{
 interactive shiny app for fixing ladders

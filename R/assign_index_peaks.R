@@ -9,7 +9,7 @@
 #'
 #' Assign index peaks in preparation for calculation of instability metrics
 #'
-#' @param fragments_list A list of "fragments_repeats" class objects representing
+#' @param fragments_list A list of "fragments" class objects representing
 #' fragment data.
 #' @param grouped Logical value indicating whether samples should be grouped to
 #' share a common index peak. `FALSE` will assign the sample's own modal allele as the index peak. `TRUE` will use metadata to assign the index peak based on the modal peak of another sample (see below for more details).
@@ -18,7 +18,7 @@
 #' columns is important since the information is pulled by column position rather
 #' than column name). Closest peak in each sample is selected so the number needs to just be approximate.
 #'
-#' @return This function modifies list of fragments_repeats objects in place with index_repeat and index_signal added.
+#' @return This function modifies list of fragments objects in place with index_repeat and index_signal added.
 #' @details
 #' A key part of instability metrics is the index peak. This is the repeat
 #' length used as the reference peak for relative instability metrics calculations, like expansion index.
@@ -28,7 +28,7 @@
 #' 
 #' For mice, if just a few samples have the inherited repeat signal shorter than the expanded population, you could not worry about this and instead use the `index_override_dataframe`. This can be used to manually override these assigned index repeat values (irrespective of whether `grouped` is TRUE or FALSE).
 #'
-#' As a final option, the index peak could be manually assigned directly to a [fragments_repeats] class using the internal setter function fragments_repeats$set_index_peak().
+#' As a final option, the index peak could be manually assigned directly to a [fragments] class using the internal setter function fragments$set_index_peak().
 #'
 #' @export
 #'

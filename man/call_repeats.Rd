@@ -16,7 +16,7 @@ call_repeats(
 )
 }
 \arguments{
-\item{fragments_list}{A list of fragments_repeats objects containing fragment data.}
+\item{fragments_list}{A list of fragments objects containing fragment data.}
 
 \item{assay_size_without_repeat}{An integer specifying the assay size without repeat for repeat calling. This is the length of the sequence flanking the repeat in the PCR product.}
 

@@ -7,7 +7,7 @@
 extract_repeat_correction_summary(fragments_list)
 }
 \arguments{
-\item{fragments_list}{A list of fragments_repeats class objects obtained from the \code{\link[=call_repeats]{call_repeats()}} function when the \code{correction = "repeat"} parameter is used.}
+\item{fragments_list}{A list of fragments class objects obtained from the \code{\link[=call_repeats]{call_repeats()}} function when the \code{correction = "repeat"} parameter is used.}
 }
 \value{
 A data.frame

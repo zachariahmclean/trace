@@ -5,13 +5,13 @@
 \title{Ladder and bp sizing}
 \usage{
 find_ladders(
-  fragments_trace,
+  fragments_list,
   ladder_channel = "DATA.105",
   signal_channel = "DATA.1",
   ladder_sizes = c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490,
     500),
   ladder_start_scan = NULL,
-  minimum_peak_signal = NULL,
+  minimum_ladder_signal = NULL,
   scan_subset = NULL,
   ladder_selection_window = 5,
   max_combinations = 2500000,
@@ -20,7 +20,7 @@ find_ladders(
 )
 }
 \arguments{
-\item{fragments_trace}{list from 'read_fsa' function}
+\item{fragments_list}{list from 'read_fsa' function}
 
 \item{ladder_channel}{string: which channel in the fsa file contains the
 ladder signal}
@@ -37,7 +37,7 @@ there's a big spike right at the start. However, if your ladder peaks
 are taller than the big spike, you will need to set this starting scan
 number manually.}
 
-\item{minimum_peak_signal}{numeric: minimum signal of peak from smoothed signal.}
+\item{minimum_ladder_signal}{numeric: minimum signal of peak from smoothed signal.}
 
 \item{scan_subset}{numeric vector (length 2): filter the ladder and data signal
 between the selected scans (eg scan_subset = c(3000, 5000)).
@@ -55,15 +55,15 @@ combinations that should be tested}
 \item{show_progress_bar}{show progress bar}
 }
 \value{
-This function modifies list of fragments_trace objects in place with the ladder assigned and base pair calculated.
+This function modifies list of fragments objects in place with the ladder assigned and base pair calculated.
 }
 \description{
 Find the ladder peaks in and use that to call bp size
 }
 \details{
-This function takes a list of fragments_trace files (the output from read_fsa) and identifies
+This function takes a list of fragments files (the output from read_fsa) and identifies
 the ladders in the ladder channel which is used to call the bp size. The output
-is a list of fragments_traces.
+is a list of fragments.
 
 In this package, base pair (bp) sizes are assigned using a generalized additive model (GAM) with cubic regression splines. The model is fit to known ladder fragment sizes and their corresponding scan positions, capturing the relationship between scan number and bp size. Once trained, the model predicts bp sizes for all scans by interpolating between the known ladder points. This approach provides a flexible and accurate assignment of bp sizes, accommodating the slightly non-linear relationship.
 

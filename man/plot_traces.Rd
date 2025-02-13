@@ -16,7 +16,7 @@ plot_traces(
 )
 }
 \arguments{
-\item{fragments_list}{A list of fragments_repeats or fragments_trace objects containing fragment data.}
+\item{fragments_list}{A list of fragments or fragments objects containing fragment data.}
 
 \item{show_peaks}{If peak data are available, TRUE will plot the peaks on top of the trace as dots.}
 

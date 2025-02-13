@@ -10,13 +10,13 @@ read_fsa(files)
 \item{files}{a chr vector of fsa file names. For example, return all the fsa files in a directory with 'list.files("example_directory/", full.names = TRUE, pattern = ".fsa")'.}
 }
 \value{
-A list of fragments_trace objects
+A list of fragments objects
 }
 \description{
-Read fsa file into memory and create fragments_trace object
+Read fsa file into memory and create fragments object
 }
 \details{
-read_fsa is just a wrapper around \code{\link[seqinr:read.abif]{seqinr::read.abif()}} that reads the fsa file into memory and stores it inside a fragments_trace object. That enables you to use the next function \code{\link[=find_ladders]{find_ladders()}}.
+read_fsa is just a wrapper around \code{\link[seqinr:read.abif]{seqinr::read.abif()}} that reads the fsa file into memory and stores it inside a fragments object. That enables you to use the next function \code{\link[=find_ladders]{find_ladders()}}.
 }
 \examples{
 

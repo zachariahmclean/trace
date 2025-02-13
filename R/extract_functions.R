@@ -4,7 +4,7 @@
 #'
 #' Extract the raw trace from a list of fragments objects
 #'
-#' @param fragments_trace_list a list of fragments objects
+#' @param fragments_list a list of fragments objects
 #'
 #' @return A dataframe of the raw trace data. Each row representing a single scan.
 #' @export
@@ -16,9 +16,9 @@
 #'
 #' extracted_traces <- extract_trace_table(fsa_list)
 #'
-extract_trace_table <- function(fragments_trace_list) {
+extract_trace_table <- function(fragments_list) {
   # turn the output into a dataframe
-  plate_list <- lapply(fragments_trace_list, function(x) {
+  plate_list <- lapply(fragments_list, function(x) {
     x$trace_bp_df
   })
 
@@ -33,7 +33,7 @@ extract_trace_table <- function(fragments_trace_list) {
 #'
 #' Extract a table summarizing the ladder models
 #'
-#' @param fragments_trace_list a list of fragments trace objects
+#' @param fragments_list a list of fragments trace objects
 #' @param sort A logical statement for if the samples should be ordered by average ladder R-squared.
 #'
 #' @return a dataframe of ladder quality information
@@ -51,15 +51,15 @@ extract_trace_table <- function(fragments_trace_list) {
 #'
 #'   extract_ladder_summary(fsa_list, sort = TRUE)
 extract_ladder_summary <- function(
-    fragments_trace_list,
+    fragments_list,
     sort = FALSE){
 
   # test to make sure that fragments trace objects
-  if(any(sapply(fragments_trace_list, function(x) class(x)[1] != "fragments_trace"))){
-    stop(call. = FALSE, "Wrong objects supplied. Please supply a list of 'fragments_trace' objects")
+  if(any(sapply(fragments_list, function(x) class(x)[1] != "fragments"))){
+    stop(call. = FALSE, "Wrong objects supplied. Please supply a list of 'fragments' objects")
   }
   
-  summary_list <- lapply(fragments_trace_list, function(fragment){
+  summary_list <- lapply(fragments_list, function(fragment){
     cor_list <- ladder_fit_cor(fragment)
     rsq <- sapply(cor_list, function(x) x$rsq)
 
@@ -87,7 +87,7 @@ extract_ladder_summary <- function(
 #'
 #' Extracts modal peak information from each sample in a list of fragments.
 #'
-#' @param fragments_list A list of fragments_repeats objects containing fragment data.
+#' @param fragments_list A list of fragments objects containing fragment data.
 #'
 #' @return A dataframe containing modal peak information for each sample
 #' @export
@@ -95,8 +95,7 @@ extract_ladder_summary <- function(
 #' @examples
 #' gm_raw <- trace::example_data
 #'
-#' test_fragments <- peak_table_to_fragments(gm_raw,
-#'   data_format = "genemapper5",
+#' test_fragments <- genemapper_table_to_fragments(gm_raw,
 #'   dye_channel = "B",
 #'   min_size_bp = 400
 #' )
@@ -126,7 +125,7 @@ extract_alleles <- function(fragments_list) {
 #'
 #' Extracts peak data from each sample in a list of fragments.
 #'
-#' @param fragments_list A list of fragments_repeats objects containing fragment data.
+#' @param fragments_list A list of fragments objects containing fragment data.
 #'
 #' @return A dataframe containing peak data for each sample
 #' @export
@@ -135,8 +134,7 @@ extract_alleles <- function(fragments_list) {
 #' gm_raw <- trace::example_data
 #' metadata <- trace::metadata
 #'
-#' test_fragments <- peak_table_to_fragments(gm_raw,
-#'   data_format = "genemapper5",
+#' test_fragments <- genemapper_table_to_fragments(gm_raw,
 #'   dye_channel = "B",
 #'   min_size_bp = 400
 #' )
@@ -196,7 +194,7 @@ extract_fragments <- function(fragments_list) {
 #'
 #' Extracts a table summarizing the model used to correct repeat length
 #'
-#' @param fragments_list A list of fragments_repeats class objects obtained from the [call_repeats()] function when the `correction = "repeat"` parameter is used.
+#' @param fragments_list A list of fragments class objects obtained from the [call_repeats()] function when the `correction = "repeat"` parameter is used.
 #' @export
 #' @return A data.frame
 #' @details

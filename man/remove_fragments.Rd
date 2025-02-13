@@ -7,7 +7,7 @@
 remove_fragments(fragments_list, samples_to_remove)
 }
 \arguments{
-\item{fragments_list}{A list of fragments_repeats objects containing fragment data.}
+\item{fragments_list}{A list of fragments objects containing fragment data.}
 
 \item{samples_to_remove}{A character vector containing the unique IDs of the samples to be removed.}
 }
@@ -21,9 +21,8 @@ A convenient function to remove specific samples from a list of fragments.
 gm_raw <- trace::example_data
 metadata <- trace::metadata
 
-test_fragments <- peak_table_to_fragments(
+test_fragments <- genemapper_table_to_fragments(
   gm_raw,
-  data_format = "genemapper5",
   dye_channel = "B",
   min_size_bp = 300
 )

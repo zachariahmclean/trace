@@ -7,7 +7,7 @@
 extract_fragments(fragments_list)
 }
 \arguments{
-\item{fragments_list}{A list of fragments_repeats objects containing fragment data.}
+\item{fragments_list}{A list of fragments objects containing fragment data.}
 }
 \value{
 A dataframe containing peak data for each sample
@@ -19,8 +19,7 @@ Extracts peak data from each sample in a list of fragments.
 gm_raw <- trace::example_data
 metadata <- trace::metadata
 
-test_fragments <- peak_table_to_fragments(gm_raw,
-  data_format = "genemapper5",
+test_fragments <- genemapper_table_to_fragments(gm_raw,
   dye_channel = "B",
   min_size_bp = 400
 )

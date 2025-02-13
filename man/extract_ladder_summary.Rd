@@ -4,10 +4,10 @@
 \alias{extract_ladder_summary}
 \title{Extract ladder summary}
 \usage{
-extract_ladder_summary(fragments_trace_list, sort = FALSE)
+extract_ladder_summary(fragments_list, sort = FALSE)
 }
 \arguments{
-\item{fragments_trace_list}{a list of fragments trace objects}
+\item{fragments_list}{a list of fragments trace objects}
 
 \item{sort}{A logical statement for if the samples should be ordered by average ladder R-squared.}
 }

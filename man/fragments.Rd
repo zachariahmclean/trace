@@ -7,12 +7,14 @@
 An R6 Class representing a fragments object.
 }
 \details{
-This is the parent class of both fragments_trace and fragments_repeats object. The idea is that shared fields and methods are both inherited from this object, but it is not itself directly used.
+This is the parent class of both fragments and fragments object. The idea is that shared fields and methods are both inherited from this object, but it is not itself directly used.
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{unique_id}}{unique id of the sample usually the file name}
+
+\item{\code{unique_id}}{pathway used to import data (either 'fsa', 'size', or 'repeats')}
 
 \item{\code{metrics_group_id}}{sample grouping for metrics calculations. Associated with \code{add_metadata()}.}
 
@@ -23,6 +25,24 @@ This is the parent class of both fragments_trace and fragments_repeats object. T
 \item{\code{batch_sample_id}}{An id for the sample used as size standard for repeat calculation. Associated with \code{add_metadata()}.}
 
 \item{\code{batch_sample_modal_repeat}}{Validated repeat length for the modal repeat repeat in that sample. Associated with \code{add_metadata()}.}
+
+\item{\code{fsa}}{The whole fsa file, output from seqinr::read.abif()}
+
+\item{\code{raw_ladder}}{The raw data from the ladder channel}
+
+\item{\code{raw_data}}{The raw data from the sample channel}
+
+\item{\code{scan}}{The scan number}
+
+\item{\code{off_scale_scans}}{vector indicating which scales were too big and off scale. Note can be in any channel}
+
+\item{\code{ladder_df}}{A dataframe of the identified ladder from \code{find_ladders()}. Scan is the scan number of peak and size is the associated bp size.}
+
+\item{\code{trace_bp_df}}{A dataframe of bp size for every scan from \code{find_ladders()}.}
+
+\item{\code{peak_table_df}}{A dataframe containing the fragment peak level information.}
+
+\item{\code{repeat_table_df}}{A dataframe containing the fragment peak level information with the repeat size added. May or may not be the same as peak_table_df depending on what options are chosen in \code{call_repeats}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -32,6 +52,13 @@ This is the parent class of both fragments_trace and fragments_repeats object. T
 \item \href{#method-fragments-new}{\code{fragments$new()}}
 \item \href{#method-fragments-print}{\code{fragments$print()}}
 \item \href{#method-fragments-plot_trace}{\code{fragments$plot_trace()}}
+\item \href{#method-fragments-plot_ladder}{\code{fragments$plot_ladder()}}
+\item \href{#method-fragments-plot_data_channels}{\code{fragments$plot_data_channels()}}
+\item \href{#method-fragments-get_allele_peak}{\code{fragments$get_allele_peak()}}
+\item \href{#method-fragments-set_allele_peak}{\code{fragments$set_allele_peak()}}
+\item \href{#method-fragments-get_index_peak}{\code{fragments$get_index_peak()}}
+\item \href{#method-fragments-set_index_peak}{\code{fragments$set_index_peak()}}
+\item \href{#method-fragments-plot_fragments}{\code{fragments$plot_fragments()}}
 \item \href{#method-fragments-clone}{\code{fragments$clone()}}
 }
 }
@@ -41,7 +68,7 @@ This is the parent class of both fragments_trace and fragments_repeats object. T
 \subsection{Method \code{new()}}{
 initialization function that is not used since the child classes are the main object of this package.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{fragments$new(unique_id)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{fragments$new(unique_id, input_method, object)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -81,7 +108,7 @@ plot the trace data
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{show_peaks}}{A logical to say if the called peaks should be plotted on top of the trace. Only valid for fragments_repeats objects.}
+\item{\code{show_peaks}}{A logical to say if the called peaks should be plotted on top of the trace. Only valid for fragments objects.}
 
 \item{\code{x_axis}}{Either "size" or "repeats" to indicate what should be plotted on the x-axis.}
 
@@ -97,6 +124,122 @@ plot the trace data
 }
 \subsection{Returns}{
 A base R plot
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-fragments-plot_ladder"></a>}}
+\if{latex}{\out{\hypertarget{method-fragments-plot_ladder}{}}}
+\subsection{Method \code{plot_ladder()}}{
+plot the ladder data
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{fragments$plot_ladder(xlim = NULL, ylim = NULL, plot_title = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{xlim}}{numeric vector length two specifying the x axis limits}
+
+\item{\code{ylim}}{numeric vector length two specifying the y axis limits}
+
+\item{\code{plot_title}}{A character string for setting the plot title. Defaults to the unique id of the object}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A base R plot
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-fragments-plot_data_channels"></a>}}
+\if{latex}{\out{\hypertarget{method-fragments-plot_data_channels}{}}}
+\subsection{Method \code{plot_data_channels()}}{
+plot the raw data channels in the fsa file. It identifies every channel that has "DATA" in its name.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{fragments$plot_data_channels()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A base R plot
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-fragments-get_allele_peak"></a>}}
+\if{latex}{\out{\hypertarget{method-fragments-get_allele_peak}{}}}
+\subsection{Method \code{get_allele_peak()}}{
+This returns a list with the allele information for this object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{fragments$get_allele_peak()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-fragments-set_allele_peak"></a>}}
+\if{latex}{\out{\hypertarget{method-fragments-set_allele_peak}{}}}
+\subsection{Method \code{set_allele_peak()}}{
+This sets a single allele size/repeat. It searches through the appropriate peak table and finds the closest peak to the value that's provided.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{fragments$set_allele_peak(allele, unit, value)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{allele}}{Either \code{1} or \code{2}, indicating which allele information should be set. Allele 1 is the only one used for repeat instability metrics calculations.}
+
+\item{\code{unit}}{Either "size" or "repeats" to indicate if the value you're providing is bp size or repeat length.}
+
+\item{\code{value}}{Numeric vector (length one) of the size/repeat length to set.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-fragments-get_index_peak"></a>}}
+\if{latex}{\out{\hypertarget{method-fragments-get_index_peak}{}}}
+\subsection{Method \code{get_index_peak()}}{
+This returns a list with the index peak information for this object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{fragments$get_index_peak()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-fragments-set_index_peak"></a>}}
+\if{latex}{\out{\hypertarget{method-fragments-set_index_peak}{}}}
+\subsection{Method \code{set_index_peak()}}{
+This sets the index repeat length. It searches through the repeat table and finds the closest peak to the value that's provided.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{fragments$set_index_peak(value)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{value}}{Numeric vector (length one) of the repeat length to set as index peak.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-fragments-plot_fragments"></a>}}
+\if{latex}{\out{\hypertarget{method-fragments-plot_fragments}{}}}
+\subsection{Method \code{plot_fragments()}}{
+This plots the peak/repeat table as a histogram
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{fragments$plot_fragments(ylim = NULL, xlim = NULL, plot_title = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{ylim}}{numeric vector length two specifying the y axis limits}
+
+\item{\code{xlim}}{numeric vector length two specifying the x axis limits}
+
+\item{\code{plot_title}}{A character string for setting the plot title. Defaults to the unique id of the object}
+}
+\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}

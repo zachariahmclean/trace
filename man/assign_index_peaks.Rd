@@ -11,7 +11,7 @@ assign_index_peaks(
 )
 }
 \arguments{
-\item{fragments_list}{A list of "fragments_repeats" class objects representing
+\item{fragments_list}{A list of "fragments" class objects representing
 fragment data.}
 
 \item{grouped}{Logical value indicating whether samples should be grouped to
@@ -23,7 +23,7 @@ columns is important since the information is pulled by column position rather
 than column name). Closest peak in each sample is selected so the number needs to just be approximate.}
 }
 \value{
-This function modifies list of fragments_repeats objects in place with index_repeat and index_signal added.
+This function modifies list of fragments objects in place with index_repeat and index_signal added.
 }
 \description{
 Assign index peaks in preparation for calculation of instability metrics
@@ -37,7 +37,7 @@ If \code{grouped} is set to \code{TRUE}, this function groups the samples by the
 
 For mice, if just a few samples have the inherited repeat signal shorter than the expanded population, you could not worry about this and instead use the \code{index_override_dataframe}. This can be used to manually override these assigned index repeat values (irrespective of whether \code{grouped} is TRUE or FALSE).
 
-As a final option, the index peak could be manually assigned directly to a \link{fragments_repeats} class using the internal setter function fragments_repeats$set_index_peak().
+As a final option, the index peak could be manually assigned directly to a \link{fragments} class using the internal setter function fragments$set_index_peak().
 }
 \examples{
 

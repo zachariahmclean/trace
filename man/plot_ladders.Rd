@@ -5,7 +5,7 @@
 \title{Plot ladder}
 \usage{
 plot_ladders(
-  fragments_trace_list,
+  fragments_list,
   n_facet_col = 1,
   sample_subset = NULL,
   xlim = NULL,
@@ -13,7 +13,7 @@ plot_ladders(
 )
 }
 \arguments{
-\item{fragments_trace_list}{A list of fragments_trace objects containing fragment data.}
+\item{fragments_list}{A list of fragments objects containing fragment data.}
 
 \item{n_facet_col}{A numeric value indicating the number of columns for faceting in the plot.}
 

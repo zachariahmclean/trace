@@ -59,7 +59,7 @@ ladder_sizes <- c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450,
 
 find_ladders(
   # main parameters to set, see help documentation for more info
-  fragments_trace = fsa_raw,
+  fragments_list = fsa_raw,
   ladder_channel = "DATA.105",
   signal_channel = "DATA.1",
   ladder_sizes = ladder_sizes,
@@ -81,7 +81,7 @@ find_ladders(
 ```{r Find peaks}
 fragments_list <- find_fragments(
   # main parameters to set, see help documentation for more info
-  fragments_trace_list = fsa_raw,
+  fragments_list = fsa_raw,
   min_bp_size = 300,
   # advanced parameters for fine tuning
   max_bp_size = 1000,

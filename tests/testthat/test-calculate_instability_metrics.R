@@ -8,8 +8,7 @@ testthat::test_that("percentiles", {
 
   # Save raw data as a fragment class
 
-  test_fragments <- peak_table_to_fragments(test_df,
-    data_format = "genemapper5",
+  test_fragments <- genemapper_table_to_fragments(test_df,
     dye_channel = "B",
     min_size_bp = 350
   )
@@ -55,8 +54,7 @@ testthat::test_that("percentiles", {
 
 testthat::test_that("calculate metrics", {
   suppressWarnings(
-    test_fragments <- peak_table_to_fragments(example_data,
-      data_format = "genemapper5",
+    test_fragments <- genemapper_table_to_fragments(example_data,
       dye_channel = "B",
       min_size_bp = 400
     )

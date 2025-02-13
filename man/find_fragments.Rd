@@ -5,7 +5,7 @@
 \title{Find fragment peaks}
 \usage{
 find_fragments(
-  fragments_trace_list,
+  fragments_list,
   smoothing_window = 21,
   minimum_peak_signal = 20,
   min_bp_size = 100,
@@ -14,7 +14,7 @@ find_fragments(
 )
 }
 \arguments{
-\item{fragments_trace_list}{A list of fragments_trace objects containing fragment data.}
+\item{fragments_list}{A list of fragments objects containing fragment data.}
 
 \item{smoothing_window}{numeric: signal smoothing window size passed to pracma::savgol()}
 
@@ -26,18 +26,18 @@ find_fragments(
 
 \item{...}{pass additional arguments to pracma::findpeaks(), or change the default arguments
 we set. minimum_peak_signal above is passed to pracma::findpeaks() as minpeakheight, and
-peakpat has been set to '[+]\{6,\}[0]*[-]\{6,\}' so that peaks with flat tops are
+peakpat has been set to '[+]\{5,\}[0]*[-]\{5,\}' so that peaks with flat tops are
 still called, see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks}
 }
 \value{
-a list of fragments_repeats objects.
+a list of fragments objects.
 }
 \description{
-Find fragment peaks in continuous trace data and convert to fragments_repeats
+Find fragment peaks in continuous trace data and convert to fragments
 class.
 }
 \details{
-\code{\link[=find_fragments]{find_fragments()}} takes in a list of fragments_trace objects and returns a list of new fragments_repeats objects.
+\code{\link[=find_fragments]{find_fragments()}} takes in a list of fragments objects and returns a list of new fragments objects.
 
 This function is basically a wrapper around pracma::findpeaks. As mentioned above,
 the default arguments arguments of pracma::findpeaks can be changed by passing them

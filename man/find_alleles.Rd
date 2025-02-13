@@ -21,7 +21,7 @@ find_alleles(
 \item{peak_region_signal_threshold_multiplier}{Multiplier for the peak signal threshold. The peak_region_signal_threshold_multiplier parameter allows adjusting the threshold for identifying peak regions based on peak signals. Increasing this multiplier value will result in higher thresholds, making it more stringent to consider peaks as part of a peak region. Conversely, reducing the multiplier value will make the criteria less strict, potentially leading to more peaks being grouped into peak regions. It's important to note that this parameter's optimal value depends on the characteristics of the data and the specific analysis goals. Choosing an appropriate value for this parameter can help in accurately identifying meaningful peak regions in the data.}
 }
 \value{
-This function modifies list of fragments_repeats objects in place with alleles added.
+This function modifies list of fragments objects in place with alleles added.
 }
 \description{
 This function identifies main allele within each fragment object.

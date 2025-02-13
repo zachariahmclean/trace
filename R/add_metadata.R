@@ -58,8 +58,7 @@ transfer_metadata_helper <- function(old_fragment,
 #' gm_raw <- trace::example_data
 #' metadata <- trace::metadata
 #'
-#' test_fragments <- peak_table_to_fragments(gm_raw,
-#'   data_format = "genemapper5",
+#' test_fragments <- genemapper_table_to_fragments(gm_raw,
 #'   dye_channel = "B",
 #'   min_size_bp = 300
 #' )

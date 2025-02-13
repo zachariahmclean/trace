@@ -120,9 +120,8 @@ plot_traces(fragments_list[1],
 
 Alternatively, this is where you would use data exported from Genemapper if you would rather use the Genemapper bp sizing and peak identification algorithms. However, this is not recommended as some of the functionality of this package would not be accessible (mainly in `call_repeats()`, with `batch_correction` and repeat calling algorithms)
 
-```{r peak_table_to_fragments,warning=FALSE}
-fragments_list_genemapper <- peak_table_to_fragments(example_data,
-  data_format = "genemapper5",
+```{r genemapper_table_to_fragments,warning=FALSE}
+fragments_list_genemapper <- genemapper_table_to_fragments(example_data,
   dye_channel = "B",
   min_size_bp = 300
 )

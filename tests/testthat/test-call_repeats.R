@@ -3,8 +3,7 @@
 testthat::test_that("call_repeats", {
 
 suppressWarnings(
-  test_fragments <- peak_table_to_fragments(example_data,
-    data_format = "genemapper5",
+  test_fragments <- genemapper_table_to_fragments(example_data,
     dye_channel = "B",
     min_size_bp = 300
 )
@@ -35,7 +34,7 @@ suppressWarnings(
   }
 
 
-  testthat::expect_true(all(unique(test_repeats_class) == "fragments_repeats"))
+  testthat::expect_true(all(unique(test_repeats_class) == "fragments"))
 
 
   # force_whole_repeat_units

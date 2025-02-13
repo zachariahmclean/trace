@@ -19,15 +19,12 @@ test_that("main trace", {
 
    frag_list <- trace_main(fsa_list, ladder_df_list = example_list)
 
-  
-   
-
 })
 
 
 test_that("main fragments", {
 
-  fsa_list <- peak_table_to_fragments(example_data, data_format = "genemapper5")
+  fsa_list <- genemapper_table_to_fragments(example_data)
 
   frag_list <- trace_main(fsa_list)
 

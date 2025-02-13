@@ -4,8 +4,7 @@ test_that("index assignment", {
   # Save raw data as a fragment class
 
   suppressWarnings(
-    test_fragments <- peak_table_to_fragments(gm_raw,
-      data_format = "genemapper5",
+    test_fragments <- genemapper_table_to_fragments(gm_raw,
       dye_channel = "B",
       min_size_bp = 400
     )
@@ -83,8 +82,7 @@ testthat::test_that("calculate metrics", {
   # Save raw data as a fragment class
 
   suppressWarnings(
-    test_fragments <- peak_table_to_fragments(gm_raw,
-      data_format = "genemapper5",
+    test_fragments <- genemapper_table_to_fragments(gm_raw,
       dye_channel = "B",
       min_size_bp = 400
     )
@@ -142,8 +140,7 @@ testthat::test_that("test situation where some samples have NA in grouped", {
   # Save raw data as a fragment class
 
   suppressWarnings(
-    test_fragments <- peak_table_to_fragments(gm_raw,
-      data_format = "genemapper5",
+    test_fragments <- genemapper_table_to_fragments(gm_raw,
       dye_channel = "B",
       min_size_bp = 400
     )

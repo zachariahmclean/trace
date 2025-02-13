@@ -8,7 +8,7 @@
 #' @param peak_region_size_gap_threshold Gap threshold for identifying peak regions. The peak_region_size_gap_threshold is a parameter used to determine the maximum allowed gap between peak sizes within a peak region. Adjusting this parameter affects the size range of peaks that can be grouped together in a region. A smaller value makes it more stringent, while a larger value groups peaks with greater size differences, leading to broader peak regions that may encompass wider size ranges.
 #' @param peak_region_signal_threshold_multiplier Multiplier for the peak signal threshold. The peak_region_signal_threshold_multiplier parameter allows adjusting the threshold for identifying peak regions based on peak signals. Increasing this multiplier value will result in higher thresholds, making it more stringent to consider peaks as part of a peak region. Conversely, reducing the multiplier value will make the criteria less strict, potentially leading to more peaks being grouped into peak regions. It's important to note that this parameter's optimal value depends on the characteristics of the data and the specific analysis goals. Choosing an appropriate value for this parameter can help in accurately identifying meaningful peak regions in the data.
 #'
-#' @return This function modifies list of fragments_repeats objects in place with alleles added.
+#' @return This function modifies list of fragments objects in place with alleles added.
 #'
 #' @details This function finds the main alleles for each fragment in the list by identifying clusters of peaks ("peak regions") with the highest signal intensities. This is based on the idea that PCR amplicons of repeats have clusters of peaks (from somatic mosaicism and PCR artifacts) that help differentiate the main allele of interest from capillary electrophoresis noise/contamination.
 #'
@@ -79,9 +79,9 @@ find_alleles <- function(
 
 
     # first select if working off repeat size or bp size, and return warning if going off repeats
-    fragment_signal <- if (is.null(fragment$repeat_table_df)) fragment$peak_table_df$signal else fragment$repeat_table_df$signal
-    fragment_sizes <- if (is.null(fragment$repeat_table_df)) fragment$peak_table_df$size else fragment$repeat_table_df$repeats
-    if (!is.null(fragment$repeat_table_df)){
+    fragment_signal <- if (!is.null(fragment$peak_table_df)) fragment$peak_table_df$signal else fragment$repeat_table_df$signal
+    fragment_sizes <- if (!is.null(fragment$peak_table_df)) fragment$peak_table_df$size else fragment$repeat_table_df$repeats
+    if (is.null(fragment$peak_table_df) & peak_region_size_gap_threshold == 6){
       warning(call. = FALSE, "Alleles were called on repeat size. The default peak_region_size_gap_threshold is set expecting bp size, so may need to be decreased (eg, 6 / 3 repeats = 2 for the value in repeat units). This is probably only relevant if selecting two alleles.")
     }
 

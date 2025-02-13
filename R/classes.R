@@ -5,12 +5,15 @@
 #' An R6 Class representing a fragments object.
 #'
 #' @details
-#' This is the parent class of both fragments_trace and fragments_repeats object. The idea is that shared fields and methods are both inherited from this object, but it is not itself directly used.
+#' This is the parent class of both fragments and fragments object. The idea is that shared fields and methods are both inherited from this object, but it is not itself directly used.
 #' 
 fragments <- R6::R6Class("fragments",
   public = list(
     #' @field unique_id unique id of the sample usually the file name
     unique_id = NA_character_,
+
+    #' @field unique_id pathway used to import data (either 'fsa', 'size', or 'repeats')
+    input_method = NA_character_,
 
     #' @field metrics_group_id sample grouping for metrics calculations. Associated with `add_metadata()`.
     metrics_group_id = NA_character_,
@@ -26,69 +29,6 @@ fragments <- R6::R6Class("fragments",
 
     #' @field batch_sample_modal_repeat Validated repeat length for the modal repeat repeat in that sample. Associated with `add_metadata()`.
     batch_sample_modal_repeat = NA_real_,
-
-    #' @description
-    #' initialization function that is not used since the child classes are the main object of this package.
-    #' @param unique_id unique_id
-    initialize = function(unique_id) {
-      if (length(unique_id) != 1) stop("Fragments must have a single unique id", call. = FALSE)
-      self$unique_id <- unique_id
-    },
-    #' @description
-    #' A function to print informative information to the console
-    print = function() {
-      print_helper(self,
-        sample_attrs = c("unique_id",  "metrics_group_id", "metrics_baseline_control","batch_run_id", "batch_sample_id", "batch_sample_modal_repeat")
-      )
-    },
-    #' @description
-    #' plot the trace data
-    #' @param show_peaks A logical to say if the called peaks should be plotted on top of the trace. Only valid for fragments_repeats objects.
-    #' @param x_axis Either "size" or "repeats" to indicate what should be plotted on the x-axis.
-    #' @param xlim numeric vector length two specifying the x axis limits
-    #' @param ylim numeric vector length two specifying the y axis limits
-    #' @param signal_color_threshold A threshold value to colour the peaks relative to the tallest peak. 
-    #' @param plot_title A character string for setting the plot title. Defaults to the unique id of the object
-    #' @return A base R plot
-    plot_trace = function(show_peaks = TRUE,
-                          x_axis = NULL,
-                          ylim = NULL,
-                          xlim = NULL,
-                          signal_color_threshold = 0.05,
-                          plot_title = NULL) {
-      plot_trace_helper(
-        fragments = self,
-        show_peaks = show_peaks,
-        x_axis = x_axis,
-        ylim = ylim,
-        xlim = xlim,
-        signal_color_threshold = signal_color_threshold,
-        plot_title = plot_title)
-
-    }
-  ),
-  private = list(
-    min_bp_size = NULL,
-    max_bp_size = NULL
-  )
-)
-
-#' fragments_trace object
-#'
-#' @description
-#' An R6 Class representing a fragments_trace object.
-#'
-#' @details
-#' The idea behind this class is to store data for processing of the continuous trace-level information from an fsa file towards peak level data.
-#' 
-#' It also contains methods for plotting the ladder and traces
-#' 
-fragments_trace <- R6::R6Class(
-  "fragments_trace",
-  inherit = fragments,
-  public = list(
-    #' @field unique_id unique id of the sample usually the file name
-    unique_id = NULL,
 
     #' @field fsa The whole fsa file, output from seqinr::read.abif()
     fsa = NULL,
@@ -111,17 +51,55 @@ fragments_trace <- R6::R6Class(
     #' @field trace_bp_df A dataframe of bp size for every scan from `find_ladders()`.
     trace_bp_df = NULL,
 
+    #' @field peak_table_df A dataframe containing the fragment peak level information.
+    peak_table_df = NULL,
+
+    #' @field repeat_table_df A dataframe containing the fragment peak level information with the repeat size added. May or may not be the same as peak_table_df depending on what options are chosen in `call_repeats`.
+    repeat_table_df = NULL,
+
     #' @description
-    #' Create a new fragments_trace.
-    #' @param unique_id usually the file name
-    #' @param fsa_file output from seqinr::read.abif()
-    #' @return A new `fragments_trace` object.
-    initialize = function(
-      unique_id, 
-      fsa_file) {
-        if (length(unique_id) != 1) stop("Fragments must have a single unique id", call. = FALSE)
-        self$unique_id <- unique_id
-        self$fsa <- fsa_file
+    #' initialization function that is not used since the child classes are the main object of this package.
+    #' @param unique_id unique_id
+    initialize = function(unique_id, input_method, object) {
+      self$unique_id <- unique_id
+      self$input_method <- input_method
+      switch(input_method,
+        fsa = self$fsa <- object,
+        size = self$peak_table_df <- object,
+        repeats = self$repeat_table_df <- object
+      )
+    },
+    #' @description
+    #' A function to print informative information to the console
+    print = function() {
+      print_helper(self,
+        sample_attrs = c("unique_id",  "metrics_group_id", "metrics_baseline_control","batch_run_id", "batch_sample_id", "batch_sample_modal_repeat")
+      )
+    },
+    #' @description
+    #' plot the trace data
+    #' @param show_peaks A logical to say if the called peaks should be plotted on top of the trace. Only valid for fragments objects.
+    #' @param x_axis Either "size" or "repeats" to indicate what should be plotted on the x-axis.
+    #' @param xlim numeric vector length two specifying the x axis limits
+    #' @param ylim numeric vector length two specifying the y axis limits
+    #' @param signal_color_threshold A threshold value to colour the peaks relative to the tallest peak. 
+    #' @param plot_title A character string for setting the plot title. Defaults to the unique id of the object
+    #' @return A base R plot
+    plot_trace = function(show_peaks = TRUE,
+                          x_axis = NULL,
+                          ylim = NULL,
+                          xlim = NULL,
+                          signal_color_threshold = 0.05,
+                          plot_title = NULL) {
+      plot_trace_helper(
+        fragments = self,
+        show_peaks = show_peaks,
+        x_axis = x_axis,
+        ylim = ylim,
+        xlim = xlim,
+        signal_color_threshold = signal_color_threshold,
+        plot_title = plot_title)
+
     },
     #' @description
     #' plot the ladder data
@@ -129,48 +107,17 @@ fragments_trace <- R6::R6Class(
     #' @param ylim numeric vector length two specifying the y axis limits
     #' @param plot_title A character string for setting the plot title. Defaults to the unique id of the object
     #' @return A base R plot
-    plot_ladder = function(xlim = NULL, ylim = NULL,
-                           plot_title = NULL) {
+    plot_ladder = function(xlim = NULL, ylim = NULL, plot_title = NULL) {
       plot_ladder_helper(
-        self, xlim = xlim, ylim = ylim,
-        plot_title = plot_title)
+      self, xlim = xlim, ylim = ylim,
+      plot_title = plot_title)
     },
     #' @description
     #' plot the raw data channels in the fsa file. It identifies every channel that has "DATA" in its name.
     #' @return A base R plot
     plot_data_channels = function(){
       plot_data_channels_helper(self)
-    }
-  )
-)
-
-
-
-#' fragments_repeats object
-#'
-#' @description
-#' An R6 Class representing a fragments_repeats object.
-#'
-#' @details
-#' The idea behind this class is to store data for processing of the peak level data towards calculation of repeat instability metrics.
-#' 
-#' It contains important setters and getters for alleles and index peaks. It's very important that the exactly correct size and repeat value is set for the alleles and index peak. This is used for subsetting etc, so if it's not exactly correct many functions would break.
-#' 
-#' It also contains methods for plotting the ladder and traces (if available).
-#' 
-fragments_repeats <- R6::R6Class(
-  "fragments_repeats",
-  inherit = fragments,
-  public = list(
-    #' @field trace_bp_df A dataframe of bp size for every scan from `find_ladders()`.
-    trace_bp_df = NULL,
-
-    #' @field peak_table_df A dataframe containing the fragment peak level information.
-    peak_table_df = NULL,
-
-    #' @field repeat_table_df A dataframe containing the fragment peak level information with the repeat size added. May or may not be the same as peak_table_df depending on what options are chosen in `call_repeats`.
-    repeat_table_df = NULL,
-
+    },
     #' @description
     #' This returns a list with the allele information for this object.
     get_allele_peak = function(){
@@ -285,8 +232,14 @@ fragments_repeats <- R6::R6Class(
                             plot_title = plot_title)
 
     }
+
+
   ),
   private = list(
+    # Fragments settings
+    min_bp_size = NULL,
+    max_bp_size = NULL,
+
     # allele data
     allele_size = NA_real_,
     allele_repeat = NA_real_,
@@ -313,5 +266,6 @@ fragments_repeats <- R6::R6Class(
 
     # metrics calculation data
     metrics_qc_message = NA_character_
+
   )
 )

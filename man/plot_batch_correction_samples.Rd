@@ -7,7 +7,7 @@
 plot_batch_correction_samples(fragments_list, selected_sample, xlim = NULL)
 }
 \arguments{
-\item{fragments_list}{A list of fragments_repeats objects containing fragment data. must have trace information.}
+\item{fragments_list}{A list of fragments objects containing fragment data. must have trace information.}
 
 \item{selected_sample}{A character vector of batch_sample_id for a subset of samples to plot. Or alternatively supply a number to select batch sample by position in alphabetical order.}
 

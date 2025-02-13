@@ -5,10 +5,10 @@
 
 #' Find fragment peaks
 #'
-#' Find fragment peaks in continuous trace data and convert to fragments_repeats
+#' Find fragment peaks in continuous trace data and convert to fragments
 #' class.
 #'
-#' @param fragments_trace_list A list of fragments_trace objects containing fragment data.
+#' @param fragments_list A list of fragments objects containing fragment data.
 #' @param smoothing_window numeric: signal smoothing window size passed to pracma::savgol()
 #' @param minimum_peak_signal numeric: minimum signal of the raw trace. To have no minimum signal set as "-Inf". 
 #' @param min_bp_size numeric: minimum bp size of peaks to consider
@@ -19,7 +19,7 @@
 #' still called, see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
 #'
 #'
-#' @return a list of fragments_repeats objects.
+#' @return a list of fragments objects.
 #' @export
 #'
 #' @importFrom pracma findpeaks
@@ -27,7 +27,7 @@
 #'
 #' @details
 #' 
-#' [find_fragments()] takes in a list of fragments_trace objects and returns a list of new fragments_repeats objects.
+#' [find_fragments()] takes in a list of fragments objects and returns a list of new fragments objects.
 #' 
 #' This function is basically a wrapper around pracma::findpeaks. As mentioned above,
 #' the default arguments arguments of pracma::findpeaks can be changed by passing them
@@ -51,7 +51,7 @@
 #'   xlim = c(400, 550), ylim = c(0, 1200)
 #' )
 find_fragments <- function(
-    fragments_trace_list,
+    fragments_list,
     smoothing_window = 21,
     minimum_peak_signal = 20,
     min_bp_size = 100,
@@ -108,21 +108,16 @@ find_fragments <- function(
     return(df2)
   }
 
-  fragments_list <- lapply(fragments_trace_list, function(x) {
+  fragments_list <- lapply(fragments_list, function(x) {
     # find peak table
     df <- find_fragment_peaks(x$trace_bp_df, ...)
     df$unique_id <- rep(x$unique_id, nrow(df))
     df <- df[which(df$size > min_bp_size & df$size < max_bp_size), ]
-
-    # generate new class
-    new_fragments_repeats <- fragments_repeats$new(unique_id = x$unique_id)
-    new_fragments_repeats$trace_bp_df <- x$trace_bp_df
-    new_fragments_repeats$peak_table_df <- df
-    new_fragments_repeats <- transfer_metadata_helper(x, new_fragments_repeats)
-    new_fragments_repeats$.__enclos_env__$private$min_bp_size <- min_bp_size
-    new_fragments_repeats$.__enclos_env__$private$max_bp_size <- max_bp_size
-
-    return(new_fragments_repeats)
+    x$peak_table_df <- df
+    x$.__enclos_env__$private$min_bp_size <- min_bp_size
+    x$.__enclos_env__$private$max_bp_size <- max_bp_size
+    
+    return(x)
   })
 
   return(fragments_list)
