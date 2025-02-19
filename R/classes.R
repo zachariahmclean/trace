@@ -12,7 +12,7 @@ fragments <- R6::R6Class("fragments",
     #' @field unique_id unique id of the sample usually the file name
     unique_id = NA_character_,
 
-    #' @field unique_id pathway used to import data (either 'fsa', 'size', or 'repeats')
+    #' @field input_method pathway used to import data (either 'fsa', 'size', or 'repeats')
     input_method = NA_character_,
 
     #' @field metrics_group_id sample grouping for metrics calculations. Associated with `add_metadata()`.
@@ -60,6 +60,8 @@ fragments <- R6::R6Class("fragments",
     #' @description
     #' initialization function that is not used since the child classes are the main object of this package.
     #' @param unique_id unique_id
+    #' @param input_method pathway used to import data (either 'fsa', 'size', or 'repeats')
+    #' @param object object to be inserted into either 'fsa', 'peak_table_df', or 'repeat_table_df'
     initialize = function(unique_id, input_method, object) {
       self$unique_id <- unique_id
       self$input_method <- input_method

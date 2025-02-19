@@ -6,6 +6,9 @@ test_that("main trace", {
 
   frag_list <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 
+})
+
+test_that("ladder fixing", {
 
   # ladder fixing
   fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
@@ -24,8 +27,8 @@ test_that("main trace", {
 
 test_that("main fragments", {
 
-  fsa_list <- genemapper_table_to_fragments(example_data)
+  fragment_list <- genemapper_table_to_fragments(example_data, dye_channel = "B")
 
-  frag_list <- trace_main(fsa_list)
+  frag_list <- trace_main(fragment_list)
 
 })

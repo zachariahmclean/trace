@@ -434,6 +434,8 @@ find_ladders <- function(
       utils::setTxtProgressBar(pb, i)
     }
   }
+  # make sure progress bar ends on new line
+  cat("\n")
 
   invisible()
 }

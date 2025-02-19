@@ -8,11 +8,14 @@
 #'
 #' The main function for the trace package that handles processing of samples through the pipeline ready for the calculation of repeat instability metrics.
 #'
-#' @param fragments_list A list of fragments objects containing fragment data, generated with either [read_fsa()], [genemapper_table_to_fragments()], or [repeat_table_to_fragments()].
-#' @param input_type Type of data input, either "fsa", "fragments", or "repeats", which are detailed below.
+#' @param fragments_list A list of fragments objects containing fragment data, generated with either [read_fsa()], [size_table_to_fragments()], [genemapper_table_to_fragments()], or [repeat_table_to_fragments()].
 #' @param metadata_data.frame metadata passed to [add_metadata()] for grouping samples for metrics calculations or batch correction.
-#' @param index_override_dataframe
-#' @param ladder_df_list
+#' @param index_override_dataframe index_override_dataframe A data.frame to manually set index peaks. See [assign_index_peaks()].
+#' @param ladder_df_list a list of dataframes, with the names being the unique id
+#'                       and the value being a dataframe. The dataframe has two columns, size (indicating
+#'                       the bp of the standard) and scan (the scan value of the ladder peak). It's
+#'                       critical that the element name in the list is the unique id of the sample. 
+#'                       Either manually figure out what scan the ladder peaks should be and generate the list, or use [fix_ladders_interactive()] to interactively generate the ladder_df_list.
 #' @param config_file A YAML file containing a full list of parameters that can be adjusted for the pipeline if many need to be changed. Use the following command to make a copy of the YAML file: `file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")`.
 #' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`.
 #'
@@ -27,7 +30,7 @@
 #' 
 #' repeats pipeline: [add_metadata()] (only if metadata_data.frame supplied), [find_alleles()], [assign_index_peaks()].
 #' 
-#' 
+#' @importFrom  yaml read_yaml
 #' @export
 #' 
 #' @examples
@@ -44,7 +47,6 @@
 #'
  trace_main <- function(
   fragments_list, 
-  input_type = "fsa",
   metadata_data.frame = NULL,
   index_override_dataframe = NULL,
   ladder_df_list = NULL,
@@ -54,7 +56,13 @@
    
   # Import config file if not supplied by user
   config <- load_config(config_file, ...)
-
+   
+  # set input type
+  input_type <- sapply(fragments_list, function(x) x$input_method)
+  input_type <- unique(input_type)
+  if(length(input_type) > 1){
+    stop(call. = FALSE, "'fragments_list' must be imported using the same method. Use either generated with either read_fsa(), size_table_to_fragments(), genemapper_table_to_fragments(), or [repeat_table_to_fragments().")
+  }
 
   if(!is.null(metadata_data.frame)){
     add_metadata(
@@ -76,7 +84,7 @@
       index_override_dataframe = index_override_dataframe,
       ladder_df_list = ladder_df_list
     ),
-    fragments = trace_fragments(
+    size = trace_fragments(
       fragments_list,
       config = config,
       index_override_dataframe = index_override_dataframe
@@ -210,12 +218,12 @@ trace_repeats <- function(x,
 
   message("Finding alleles")
   
-  # there's an issue that the default peak_region_size_gap_threshold in the config file is for fragments
-  # if the user hasn't uploaded their own value, change it to 2 (for two repeats)
-  if(is.null(config_file)){
-    config$peak_region_size_gap_threshold <- 2
-    message("overriding peak_region_size_gap_threshold to 2")
-  }
+  # # there's an issue that the default peak_region_size_gap_threshold in the config file is for fragments
+  # # if the user hasn't uploaded their own value, change it to 2 (for two repeats)
+  # if(is.null(config_file)){
+  #   config$peak_region_size_gap_threshold <- 2
+  #   message("overriding peak_region_size_gap_threshold to 2")
+  # }
 
   find_alleles(
     x,

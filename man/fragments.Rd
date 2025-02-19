@@ -14,7 +14,7 @@ This is the parent class of both fragments and fragments object. The idea is tha
 \describe{
 \item{\code{unique_id}}{unique id of the sample usually the file name}
 
-\item{\code{unique_id}}{pathway used to import data (either 'fsa', 'size', or 'repeats')}
+\item{\code{input_method}}{pathway used to import data (either 'fsa', 'size', or 'repeats')}
 
 \item{\code{metrics_group_id}}{sample grouping for metrics calculations. Associated with \code{add_metadata()}.}
 
@@ -75,6 +75,10 @@ initialization function that is not used since the child classes are the main ob
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{unique_id}}{unique_id}
+
+\item{\code{input_method}}{pathway used to import data (either 'fsa', 'size', or 'repeats')}
+
+\item{\code{object}}{object to be inserted into either 'fsa', 'peak_table_df', or 'repeat_table_df'}
 }
 \if{html}{\out{</div>}}
 }

@@ -6,7 +6,6 @@
 \usage{
 trace_main(
   fragments_list,
-  input_type = "fsa",
   metadata_data.frame = NULL,
   index_override_dataframe = NULL,
   ladder_df_list = NULL,
@@ -15,11 +14,17 @@ trace_main(
 )
 }
 \arguments{
-\item{fragments_list}{A list of fragments objects containing fragment data, generated with either \code{\link[=read_fsa]{read_fsa()}}, \code{\link[=genemapper_table_to_fragments]{genemapper_table_to_fragments()}}, or \code{\link[=repeat_table_to_fragments]{repeat_table_to_fragments()}}.}
-
-\item{input_type}{Type of data input, either "fsa", "fragments", or "repeats", which are detailed below.}
+\item{fragments_list}{A list of fragments objects containing fragment data, generated with either \code{\link[=read_fsa]{read_fsa()}}, \code{\link[=size_table_to_fragments]{size_table_to_fragments()}}, \code{\link[=genemapper_table_to_fragments]{genemapper_table_to_fragments()}}, or \code{\link[=repeat_table_to_fragments]{repeat_table_to_fragments()}}.}
 
 \item{metadata_data.frame}{metadata passed to \code{\link[=add_metadata]{add_metadata()}} for grouping samples for metrics calculations or batch correction.}
+
+\item{index_override_dataframe}{index_override_dataframe A data.frame to manually set index peaks. See \code{\link[=assign_index_peaks]{assign_index_peaks()}}.}
+
+\item{ladder_df_list}{a list of dataframes, with the names being the unique id
+and the value being a dataframe. The dataframe has two columns, size (indicating
+the bp of the standard) and scan (the scan value of the ladder peak). It's
+critical that the element name in the list is the unique id of the sample.
+Either manually figure out what scan the ladder peaks should be and generate the list, or use \code{\link[=fix_ladders_interactive]{fix_ladders_interactive()}} to interactively generate the ladder_df_list.}
 
 \item{config_file}{A YAML file containing a full list of parameters that can be adjusted for the pipeline if many need to be changed. Use the following command to make a copy of the YAML file: \code{file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")}.}
 
