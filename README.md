@@ -202,10 +202,7 @@ fragments_list_genemapper <- genemapper_table_to_fragments(example_data,
 Metadata can be incorporated to allow additional functionality in
 `call_repeats()` (batch or repeat correction) and `assign_index_peaks()`
 (assigning index peak from another sample). Prepare a file (eg
-spreadsheet saved as .csv) with the following columns. If you use the
-specified column names, it will be automatically parsed by
-`add_metadata()`, otherwise you will need to match up which column name
-belongs to which metadata category (as done below in `add_metadata()`):
+spreadsheet saved as .csv) with the following columns:
 
 | Metadata table column | Functionality metadata is associated with | Description |
 |----|----|----|
@@ -220,13 +217,7 @@ belongs to which metadata category (as done below in `add_metadata()`):
 
 add_metadata(
   fragments_list = fragments_list,
-  metadata_data.frame = metadata,
-  unique_id = "unique_id",
-  metrics_group_id = "metrics_group_id",
-  metrics_baseline_control = "metrics_baseline_control",
-  batch_run_id = "batch_run_id",
-  batch_sample_id = "batch_sample_id",
-  batch_sample_modal_repeat = "batch_sample_modal_repeat"
+  metadata_data.frame = metadata
 )
 ```
 

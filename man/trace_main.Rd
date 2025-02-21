@@ -26,7 +26,7 @@ the bp of the standard) and scan (the scan value of the ladder peak). It's
 critical that the element name in the list is the unique id of the sample.
 Either manually figure out what scan the ladder peaks should be and generate the list, or use \code{\link[=fix_ladders_interactive]{fix_ladders_interactive()}} to interactively generate the ladder_df_list.}
 
-\item{config_file}{A YAML file containing a full list of parameters that can be adjusted for the pipeline if many need to be changed. Use the following command to make a copy of the YAML file: \code{file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")}.}
+\item{config_file}{The file path to a YAML file containing a full list of parameters. This provides a central place to adjust parameters for the pipeline. Use the following command to make a copy of the YAML file: \code{file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")}.}
 
 \item{...}{additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the \code{config_file}.}
 }

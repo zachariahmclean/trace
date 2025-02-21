@@ -4,55 +4,26 @@
 \alias{find_ladders}
 \title{Ladder and bp sizing}
 \usage{
-find_ladders(
-  fragments_list,
-  ladder_channel = "DATA.105",
-  signal_channel = "DATA.1",
-  ladder_sizes = c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490,
-    500),
-  ladder_start_scan = NULL,
-  minimum_ladder_signal = NULL,
-  scan_subset = NULL,
-  ladder_selection_window = 5,
-  max_combinations = 2500000,
-  warning_rsq_threshold = 0.998,
-  show_progress_bar = TRUE
-)
+find_ladders(fragments_list, config_file = NULL, ...)
 }
 \arguments{
 \item{fragments_list}{list from 'read_fsa' function}
 
-\item{ladder_channel}{string: which channel in the fsa file contains the
-ladder signal}
+\item{config_file}{The file path to a YAML file containing a full list of parameters. This provides a central place to adjust parameters for the pipeline. Use the following command to make a copy of the YAML file: \code{file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")}.}
 
-\item{signal_channel}{string: which channel in the fsa file contains the data
-signal}
-
-\item{ladder_sizes}{numeric vector: bp sizes of ladder used in fragment analysis.
-defaults to GeneScan™ 500 LIZ™}
-
-\item{ladder_start_scan}{numeric: indicate the scan number to start looking for
-ladder peaks. Usually this can be automatically found (when set to NULL) since
-there's a big spike right at the start. However, if your ladder peaks
-are taller than the big spike, you will need to set this starting scan
-number manually.}
-
-\item{minimum_ladder_signal}{numeric: minimum signal of peak from smoothed signal.}
-
-\item{scan_subset}{numeric vector (length 2): filter the ladder and data signal
-between the selected scans (eg scan_subset = c(3000, 5000)).
-to pracma::savgol().}
-
-\item{ladder_selection_window}{numeric: in the ladder assigning algorithm,
-the we iterate through the scans in blocks and test their linear fit ( We can assume that the ladder is linear over a short distance)
-This value defines how large that block of peaks should be.}
-
-\item{max_combinations}{numeric: what is the maximum number of ladder
-combinations that should be tested}
-
-\item{warning_rsq_threshold}{The value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold.}
-
-\item{show_progress_bar}{show progress bar}
+\item{...}{additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the \code{config_file}. These parameters include:
+\itemize{
+\item \code{ladder_channel}: string, which channel in the fsa file contains the ladder signal. Default: \code{"DATA.105"}.
+\item \code{signal_channel}: string, which channel in the fsa file contains the data signal. Default: \code{"DATA.1"}.
+\item \code{ladder_sizes}: numeric vector, bp sizes of ladder used in fragment analysis. Default: \code{c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500)}.
+\item \code{ladder_start_scan}: numeric, indicate the scan number to start looking for ladder peaks. Usually this can be automatically found (when set to NULL). Default: \code{NULL}.
+\item \code{minimum_peak_signal}: numeric, minimum signal of peak from smoothed signal. Default: \code{NULL}.
+\item \code{scan_subset}: numeric vector (length 2), filter the ladder and data signal between the selected scans (e.g., \code{scan_subset = c(3000, 5000)}). Default: \code{NULL}.
+\item \code{ladder_selection_window}: numeric, in the ladder assigning algorithm, the we iterate through the scans in blocks and test their linear fit (We can assume that the ladder is linear over a short distance). This value defines how large that block of peaks should be. Default: \code{5}.
+\item \code{max_combinations}: numeric, what is the maximum number of ladder combinations that should be tested. Default: \code{2500000}.
+\item \code{warning_rsq_threshold}: numeric, the value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold. Default: \code{0.998}.
+\item \code{show_progress_bar}: logical, show progress bar. Default: \code{TRUE}.
+}}
 }
 \value{
 This function modifies list of fragments objects in place with the ladder assigned and base pair calculated.

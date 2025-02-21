@@ -4,10 +4,13 @@
 #' This function identifies main allele within each fragment object.
 #'
 #' @param fragments_list A list of fragment objects containing peak data.
-#' @param number_of_alleles Number of alleles to be returned for each fragment. Must either be 1 or 2. Being able to identify two alleles is for cases when you are analyze different human samples with a normal and expanded alleles and you can't do the preferred option of simply ignoring the normal allele in [find_fragments()] (eg setting the min_bp_size above the normal allele bp size).
-#' @param peak_region_size_gap_threshold Gap threshold for identifying peak regions. The peak_region_size_gap_threshold is a parameter used to determine the maximum allowed gap between peak sizes within a peak region. Adjusting this parameter affects the size range of peaks that can be grouped together in a region. A smaller value makes it more stringent, while a larger value groups peaks with greater size differences, leading to broader peak regions that may encompass wider size ranges.
-#' @param peak_region_signal_threshold_multiplier Multiplier for the peak signal threshold. The peak_region_signal_threshold_multiplier parameter allows adjusting the threshold for identifying peak regions based on peak signals. Increasing this multiplier value will result in higher thresholds, making it more stringent to consider peaks as part of a peak region. Conversely, reducing the multiplier value will make the criteria less strict, potentially leading to more peaks being grouped into peak regions. It's important to note that this parameter's optimal value depends on the characteristics of the data and the specific analysis goals. Choosing an appropriate value for this parameter can help in accurately identifying meaningful peak regions in the data.
-#'
+#' @param config_file The file path to a YAML file containing a full list of parameters. This provides a central place to adjust parameters for the pipeline. Use the following command to make a copy of the YAML file: `file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")`.
+#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`. These parameters include:
+#'   \itemize{
+#'     \item `number_of_alleles` Number of alleles to be returned for each fragment. Must either be 1 or 2. Being able to identify two alleles is for cases when you are analyze different human samples with a normal and expanded alleles and you can't do the preferred option of simply ignoring the normal allele in [find_fragments()] (eg setting the min_bp_size above the normal allele bp size). Default: `1`.
+#'     \item `peak_region_size_gap_threshold` Gap threshold for identifying peak regions. The peak_region_size_gap_threshold is a parameter used to determine the maximum allowed gap between peak sizes within a peak region. Adjusting this parameter affects the size range of peaks that can be grouped together in a region. A smaller value makes it more stringent, while a larger value groups peaks with greater size differences, leading to broader peak regions that may encompass wider size ranges. Default: `6`.
+#'     \item `peak_region_signal_threshold_multiplier` Multiplier for the peak signal threshold. The peak_region_signal_threshold_multiplier parameter allows adjusting the threshold for identifying peak regions based on peak signals. Increasing this multiplier value will result in higher thresholds, making it more stringent to consider peaks as part of a peak region. Conversely, reducing the multiplier value will make the criteria less strict, potentially leading to more peaks being grouped into peak regions. It's important to note that this parameter's optimal value depends on the characteristics of the data and the specific analysis goals. Choosing an appropriate value for this parameter can help in accurately identifying meaningful peak regions in the data. Default: `1`.
+#'    }
 #' @return This function modifies list of fragments objects in place with alleles added.
 #'
 #' @details This function finds the main alleles for each fragment in the list by identifying clusters of peaks ("peak regions") with the highest signal intensities. This is based on the idea that PCR amplicons of repeats have clusters of peaks (from somatic mosaicism and PCR artifacts) that help differentiate the main allele of interest from capillary electrophoresis noise/contamination.
@@ -29,19 +32,17 @@
 #'
 #' find_alleles(
 #'   fragments_list,
-#'   peak_region_size_gap_threshold = 6,
 #'   peak_region_signal_threshold_multiplier = 1
 #' )
 find_alleles <- function(
     fragments_list,
-    number_of_alleles = 1,
-    peak_region_size_gap_threshold = 6,
-    peak_region_signal_threshold_multiplier = 1) {
+    config_file = NULL,
+     ...) {
   # internal helper functions
   find_peak_regions <- function(signal, size) {
     
     peak_regions <- rep(NA_real_, length(signal))
-    mean_signal <- mean(signal) * peak_region_signal_threshold_multiplier
+    mean_signal <- mean(signal) * config$peak_region_signal_threshold_multiplier
     # loop over each fragment and check to see if it's within the thresholds
     for (i in seq_along(signal)) {
       if (signal[i] < mean_signal || i == 1 || i == length(signal)) {
@@ -51,7 +52,7 @@ find_alleles <- function(
       } else {
         # check to see if peaks before it are within the size threshold
         current_size <- size[i]
-        valid_lower_peaks <- which(size < current_size & size > current_size - peak_region_size_gap_threshold & signal > mean_signal)
+        valid_lower_peaks <- which(size < current_size & size > current_size - config$peak_region_size_gap_threshold & signal > mean_signal)
         unique_regions <- unique(na.omit(peak_regions))
         if (length(valid_lower_peaks) > 0) {
           if (length(unique_regions) > 0) {
@@ -71,6 +72,8 @@ find_alleles <- function(
 
     return(peak_regions)
   }
+ 
+  config <- load_config(config_file, ...)
 
   main_peaks <- lapply(fragments_list, function(fragment) {
     # the main idea here is that PCR generates clusters of peaks around the main alleles.
@@ -81,7 +84,7 @@ find_alleles <- function(
     # first select if working off repeat size or bp size, and return warning if going off repeats
     fragment_signal <- if (!is.null(fragment$peak_table_df)) fragment$peak_table_df$signal else fragment$repeat_table_df$signal
     fragment_sizes <- if (!is.null(fragment$peak_table_df)) fragment$peak_table_df$size else fragment$repeat_table_df$repeats
-    if (is.null(fragment$peak_table_df) & peak_region_size_gap_threshold == 6){
+    if (is.null(fragment$peak_table_df) & config$peak_region_size_gap_threshold == 6){
       warning(call. = FALSE, "Alleles were called on repeat size. The default peak_region_size_gap_threshold is set expecting bp size, so may need to be decreased (eg, 6 / 3 repeats = 2 for the value in repeat units). This is probably only relevant if selecting two alleles.")
     }
 
@@ -115,7 +118,7 @@ find_alleles <- function(
       warning(paste0(fragment$unique_id, ": No main alleles identified"))
     }
 
-    if(number_of_alleles == 1){
+    if(config$number_of_alleles == 1){
       top_regional_peaks_positions <-
         top_regional_peaks_positions[order(fragment_signal[top_regional_peaks_positions], decreasing = TRUE)][1]
       
@@ -135,7 +138,7 @@ find_alleles <- function(
     # do a first pass and if only one significant peak region found when we expect two, see if there are two significant maxima in the region
     # this is for human patient data and to identify alleles close in size and homozygous alleles
 
-    if(number_of_alleles == 2){
+    if(config$number_of_alleles == 2){
       if(length(top_regional_peaks_positions) == 1){
         region_positions <- which(peak_regions == 1)
         region_maxima <- all_peaks[which(all_peaks[, 2] %in% region_positions), 2]
@@ -166,7 +169,7 @@ find_alleles <- function(
         fragment$set_allele_peak(allele = 1, unit = "repeats", value = fragment_sizes[top_regional_peaks_positions[2]])
         fragment$set_allele_peak(allele = 2, unit = "repeats", value = fragment_sizes[top_regional_peaks_positions[1]]) # smaller of the size
       }
-    } else if(number_of_alleles != 1){
+    } else if(config$number_of_alleles != 1){
       stop(call. = FALSE, "invalid 'number_of_alleles', must either be 1 or 2")
     }
 

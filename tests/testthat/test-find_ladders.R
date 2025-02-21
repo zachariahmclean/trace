@@ -1,9 +1,11 @@
 testthat::test_that("find ladder peaks", {
 
-  test_processed <- process_ladder_signal(cell_line_fsa_list[[1]]$fsa$Data$DATA.105,
-    scans = 0:(length(cell_line_fsa_list[[1]]$fsa$Data$DATA.105) - 1),
-    ladder_start_scan = 1000,
-    smoothing_window = 21
+  test_processed <- data.frame(signal = cell_line_fsa_list[[1]]$fsa$Data$DATA.105, scan = 0:(length(cell_line_fsa_list[[1]]$fsa$Data$DATA.105) - 1))
+  test_processed <- test_processed[which(test_processed$scan >= which.max(test_processed$signal)), ]
+  test_processed$detrended_signal <- detrend_signal(test_processed$signal)
+  test_processed$smoothed_signal <- pracma::savgol(
+    test_processed$detrended_signal,
+    21
   )
 
 
@@ -14,20 +16,20 @@ testthat::test_that("find ladder peaks", {
     test_processed,
     length(ladder_sizes),
     minimum_ladder_signal = NULL,
-    sample_id = names(file_list[1])
+    sample_id = names(cell_line_fsa_list[1])
   )
 
   testthat::expect_true(length(test_ladder_peaks) >= length(ladder_sizes))
 
 
-  test_ladder_peaks_32 <- find_ladder_peaks(
+  test_ladder_peaks_20 <- find_ladder_peaks(
     test_processed,
-    n_reference_sizes = 32,
+    n_reference_sizes = 20,
     minimum_ladder_signal = NULL,
-    sample_id = names(file_list[1])
+    sample_id = names(cell_line_fsa_list[1])
   )
 
-  testthat::expect_true(length(test_ladder_peaks_32) == 32)
+  testthat::expect_true(length(test_ladder_peaks_20) == 20)
 })
 
 

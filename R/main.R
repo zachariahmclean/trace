@@ -16,7 +16,7 @@
 #'                       the bp of the standard) and scan (the scan value of the ladder peak). It's
 #'                       critical that the element name in the list is the unique id of the sample. 
 #'                       Either manually figure out what scan the ladder peaks should be and generate the list, or use [fix_ladders_interactive()] to interactively generate the ladder_df_list.
-#' @param config_file A YAML file containing a full list of parameters that can be adjusted for the pipeline if many need to be changed. Use the following command to make a copy of the YAML file: `file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")`.
+#' @param config_file The file path to a YAML file containing a full list of parameters. This provides a central place to adjust parameters for the pipeline. Use the following command to make a copy of the YAML file: `file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")`.
 #' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`.
 #'
 #' @return A list of fragments objects ready for calculation of instability metrics using [calculate_instability_metrics()]
@@ -65,15 +65,11 @@
   }
 
   if(!is.null(metadata_data.frame)){
+
+
     add_metadata(
       fragments_list,
-      metadata_data.frame = metadata_data.frame,
-      unique_id = config$unique_id,
-      metrics_group_id = config$metrics_group_id,
-      metrics_baseline_control = config$metrics_baseline_control,
-      batch_run_id = config$batch_run_id,
-      batch_sample_id = config$batch_sample_id,
-      batch_sample_modal_repeat = config$batch_sample_modal_repeat
+      metadata_data.frame = metadata_data.frame
     )
   }
 
@@ -102,6 +98,14 @@
 
 # Helper function to load the configuration file
 load_config <- function(config_file, ...) {
+
+  # check if config file has already been established previously as is 'trace_config' class and return early. 
+  # This is for use in main function
+  if("trace_config" %in% class(config_file)){
+    return(config_file)
+  }
+
+  # read in default config if not supplied
   if (is.null(config_file)) {
     config_file <- system.file("extdata/trace_config.yaml", package = "trace")
   }
@@ -122,6 +126,9 @@ load_config <- function(config_file, ...) {
 	  }
   }
 
+  # set config as S3 class
+  class(config) <- "trace_config"
+
   return(config)
 }
 
@@ -138,16 +145,7 @@ trace_fsa <-  function(x,
 
   find_ladders(
     x,
-    ladder_channel = config$ladder_channel,
-    signal_channel = config$signal_channel,
-    ladder_sizes = config$ladder_sizes,
-    ladder_start_scan = config$ladder_start_scan,
-    minimum_ladder_signal = config$minimum_ladder_signal,
-    scan_subset = config$scan_subset,
-    ladder_selection_window = config$ladder_selection_window,
-    max_combinations = config$max_combinations,
-    warning_rsq_threshold = config$warning_rsq_threshold,
-    show_progress_bar = config$show_progress_bar
+    config
   )
 
   if(!is.null(ladder_df_list)){

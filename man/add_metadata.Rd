@@ -4,33 +4,12 @@
 \alias{add_metadata}
 \title{Add Metadata to Fragments List}
 \usage{
-add_metadata(
-  fragments_list,
-  metadata_data.frame,
-  unique_id = "unique_id",
-  metrics_group_id = "metrics_group_id",
-  metrics_baseline_control = "metrics_baseline_control",
-  batch_run_id = "batch_run_id",
-  batch_sample_id = "batch_sample_id",
-  batch_sample_modal_repeat = "batch_sample_modal_repeat"
-)
+add_metadata(fragments_list, metadata_data.frame)
 }
 \arguments{
 \item{fragments_list}{A list of fragment objects to which metadata will be added.}
 
-\item{metadata_data.frame}{A data frame containing the metadata information.}
-
-\item{unique_id}{(required) A character string indicating the column name for unique sample identifiers in the metadata.}
-
-\item{metrics_group_id}{(optional) A character string indicating the column name for sample group identifiers in the metadata. This is for the logical grouping of samples for metrics calculations (see \code{\link[=assign_index_peaks]{assign_index_peaks()}}). To skip, provide NA.}
-
-\item{metrics_baseline_control}{(optional) A character string indicating the column name for baseline control indicators in the metadata. This is to identify the baseline control samples for grouping of samples for metrics calculations (see \code{\link[=assign_index_peaks]{assign_index_peaks()}}). To skip, provide NA.}
-
-\item{batch_run_id}{(optional) A character string indicating the column name for the batch run identifiers in the metadata. This is for either batch correction or repeat correction in \code{\link[=call_repeats]{call_repeats()}}. To skip, provide NA.}
-
-\item{batch_sample_id}{(optional) A character string indicating the column name for an id of the size standard. For example, a sample code. This is for either batch correction or repeat correction in \code{\link[=call_repeats]{call_repeats()}}. To skip, provide NA.}
-
-\item{batch_sample_modal_repeat}{(optional) A character string indicating column name for the validated modal repeat length of size standard sample. This is for either repeat correction in \code{\link[=call_repeats]{call_repeats()}}. To skip, provide NA.}
+\item{metadata_data.frame}{A data frame containing the metadata information. Dataframe must have the column names 'unique_id', 'metrics_group_id', 'metrics_baseline_control', 'batch_run_id', 'batch_sample_id', 'batch_sample_modal_repeat'.}
 }
 \value{
 This function modifies list of fragments objects in place with metadata added.
@@ -39,7 +18,7 @@ This function modifies list of fragments objects in place with metadata added.
 This function adds metadata information to a list of fragments.
 }
 \details{
-This function adds specified metadata attributes to each fragment in the list. It matches the unique sample identifiers from the fragments list with those in the metadata data frame. To skip any of the optional columns, make parameter NA.
+This function adds specified metadata attributes to each fragment in the list. It matches the unique sample identifiers from the fragments list with those in the metadata data frame. This metadata is only required if using the functionality described below. All columns are required even if they are empty.
 
 There are two key things metadata are required for. First is the grouping of samples (metrics_group_id & metrics_baseline_control) for the calculation of metrics and is used in \code{\link[=assign_index_peaks]{assign_index_peaks()}}. For example, specifying a sample where the modal allele is the inherited repeat length (eg a mouse tail sample) or sample(s) at the start of a time-course experiment. This is indicated with a TRUE in the metrics_baseline_control column of the metadata. Samples are then grouped together with the metrics_group_id column of the metadata. Multiple samples can be metrics_baseline_control, which can be helpful for the average repeat gain metric to have a more accurate representation of the average repeat at the start of the experiment.
 
@@ -61,26 +40,6 @@ test_fragments <- genemapper_table_to_fragments(gm_raw,
 
 add_metadata(
   fragments_list = test_fragments,
-  metadata_data.frame = metadata,
-  unique_id = "unique_id",
-  metrics_group_id = "metrics_group_id",
-  metrics_baseline_control = "metrics_baseline_control",
-  batch_run_id = "batch_run_id",
-  batch_sample_id = "batch_sample_id",
-  batch_sample_modal_repeat = "batch_sample_modal_repeat"
+  metadata_data.frame = metadata
 )
-
-# skip unwanted metadata by using NA
-
-add_metadata(
-  fragments_list = test_fragments,
-  metadata_data.frame = metadata,
-  unique_id = "unique_id",
-  metrics_group_id = "metrics_group_id",
-  metrics_baseline_control = "metrics_baseline_control",
-  batch_run_id = NA,
-  batch_sample_id = NA,
-  batch_sample_modal_repeat = NA
-)
-
 }

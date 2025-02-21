@@ -5,7 +5,8 @@
 #find_fragments now modifies in place
 #repeat_table_to_repeats renames to repeat_table_to_fragments. also require specific column names
 #peak_table_to_fragments split up into two import functions genemapper_table_to_fragments and generic size_table_to_fragments
-
+#metadata now more rigid and requires all the columns with a specific name
+peakpat added to find_fragments as argument
 
 # trace 0.5.0
 

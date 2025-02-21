@@ -97,13 +97,7 @@ fragments_list <- find_fragments(
 add_metadata(
   # main parameters to set, see help documentation for more info
   fragments_list = fragments_list,
-  metadata_data.frame = metadata,
-  unique_id = "unique_id",
-  metrics_group_id = "metrics_group_id",
-  metrics_baseline_control = "metrics_baseline_control",
-  batch_run_id = "batch_run_id",
-  batch_sample_id = "batch_sample_id",
-  batch_sample_modal_repeat = NA
+  metadata_data.frame = metadata
  )
 
 ```

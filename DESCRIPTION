@@ -31,7 +31,8 @@ Imports:
     seqinr,
     shiny,
     stats,
-    utils
+    utils,
+    yaml
 VignetteBuilder: knitr
 Depends: 
     R (>= 3.5)

@@ -13,19 +13,6 @@ detrend_signal <- function(x, bins = 50) {
   return(x_detrended)
 }
 
-process_ladder_signal <- function(ladder,
-                                  scans,
-                                  ladder_start_scan,
-                                  smoothing_window) {
-  ladder_df <- data.frame(signal = ladder, scan = scans)
-  ladder_df <- ladder_df[which(ladder_df$scan >= ladder_start_scan), ]
-  ladder_df$detrended_signal <- detrend_signal(ladder_df$signal)
-  ladder_df$smoothed_signal <- pracma::savgol(
-    ladder_df$detrended_signal,
-    smoothing_window
-  )
-  return(ladder_df)
-}
 
 find_ladder_peaks <- function(ladder_df,
                               n_reference_sizes,
@@ -262,28 +249,20 @@ ladder_rsq_warning_helper <- function(
 #' Find the ladder peaks in and use that to call bp size
 #'
 #' @param fragments_list list from 'read_fsa' function
-#' @param ladder_channel string: which channel in the fsa file contains the
-#'        ladder signal
-#' @param signal_channel string: which channel in the fsa file contains the data
-#'        signal
-#' @param ladder_sizes numeric vector: bp sizes of ladder used in fragment analysis.
-#'        defaults to GeneScan™ 500 LIZ™
-#' @param ladder_start_scan numeric: indicate the scan number to start looking for
-#'        ladder peaks. Usually this can be automatically found (when set to NULL) since
-#'        there's a big spike right at the start. However, if your ladder peaks
-#'        are taller than the big spike, you will need to set this starting scan
-#'        number manually.
-#' @param minimum_ladder_signal numeric: minimum signal of peak from smoothed signal.
-#' @param scan_subset numeric vector (length 2): filter the ladder and data signal
-#'        between the selected scans (eg scan_subset = c(3000, 5000)).
-#'        to pracma::savgol().
-#' @param max_combinations numeric: what is the maximum number of ladder
-#'        combinations that should be tested
-#' @param ladder_selection_window numeric: in the ladder assigning algorithm,
-#'        the we iterate through the scans in blocks and test their linear fit ( We can assume that the ladder is linear over a short distance)
-#'        This value defines how large that block of peaks should be.
-#' @param warning_rsq_threshold The value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold.
-#' @param show_progress_bar show progress bar
+#' @param config_file The file path to a YAML file containing a full list of parameters. This provides a central place to adjust parameters for the pipeline. Use the following command to make a copy of the YAML file: `file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")`.
+#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`. These parameters include:
+#'   \itemize{
+#'     \item `ladder_channel`: string, which channel in the fsa file contains the ladder signal. Default: `"DATA.105"`.
+#'     \item `signal_channel`: string, which channel in the fsa file contains the data signal. Default: `"DATA.1"`.
+#'     \item `ladder_sizes`: numeric vector, bp sizes of ladder used in fragment analysis. Default: `c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500)`.
+#'     \item `ladder_start_scan`: numeric, indicate the scan number to start looking for ladder peaks. Usually this can be automatically found (when set to NULL). Default: `NULL`.
+#'     \item `minimum_peak_signal`: numeric, minimum signal of peak from smoothed signal. Default: `NULL`.
+#'     \item `scan_subset`: numeric vector (length 2), filter the ladder and data signal between the selected scans (e.g., `scan_subset = c(3000, 5000)`). Default: `NULL`.
+#'     \item `ladder_selection_window`: numeric, in the ladder assigning algorithm, the we iterate through the scans in blocks and test their linear fit (We can assume that the ladder is linear over a short distance). This value defines how large that block of peaks should be. Default: `5`.
+#'     \item `max_combinations`: numeric, what is the maximum number of ladder combinations that should be tested. Default: `2500000`.
+#'     \item `warning_rsq_threshold`: numeric, the value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold. Default: `0.998`.
+#'     \item `show_progress_bar`: logical, show progress bar. Default: `TRUE`.
+#'   }
 #'
 #' @return This function modifies list of fragments objects in place with the ladder assigned and base pair calculated.
 #' @export
@@ -318,28 +297,22 @@ ladder_rsq_warning_helper <- function(
 #' plot_ladders(fsa_list[1])
 #'
 find_ladders <- function(
-    fragments_list,
-    ladder_channel = "DATA.105",
-    signal_channel = "DATA.1",
-    ladder_sizes = c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
-    ladder_start_scan = NULL,
-    minimum_ladder_signal = NULL,
-    scan_subset = NULL,
-    ladder_selection_window = 5,
-    max_combinations = 2500000,
-    warning_rsq_threshold = 0.998,
-    show_progress_bar = TRUE) {
+  fragments_list,
+  config_file = NULL,
+  ...) {
+  # load config
+  config <- load_config(config_file, ...)
 
   fit_ladder <- function(
       ladder,
       scans,
       sample_id) {
-    if (is.null(ladder_start_scan)) {
-      ladder_start_scan <- which.max(ladder) + 50
+    if (is.null(config$ladder_start_scan)) {
+      config$ladder_start_scan <- which.max(ladder) + 50
     }
 
     ladder_df <- data.frame(signal = ladder, scan = scans)
-    ladder_df <- ladder_df[which(ladder_df$scan >= ladder_start_scan), ]
+    ladder_df <- ladder_df[which(ladder_df$scan >= config$ladder_start_scan), ]
     ladder_df$detrended_signal <- detrend_signal(ladder_df$signal)
     ladder_df$smoothed_signal <- pracma::savgol(
       ladder_df$detrended_signal,
@@ -348,16 +321,16 @@ find_ladders <- function(
 
     ladder_peaks <- find_ladder_peaks(
       ladder_df = ladder_df,
-      n_reference_sizes = length(ladder_sizes),
-      minimum_ladder_signal = minimum_ladder_signal,
+      n_reference_sizes = length(config$ladder_sizes),
+      minimum_ladder_signal = config$minimum_ladder_signal,
       sample_id = sample_id
     )
 
     peaks_fit_df <- ladder_iteration(
-      reference_sizes = rev(ladder_sizes), # start away from the spike going backwards
+      reference_sizes = rev(config$ladder_sizes), # start away from the spike going backwards
       observed_sizes = rev(ladder_peaks),
-      choose = ladder_selection_window,
-      max_combinations = max_combinations
+      choose = config$ladder_selection_window,
+      max_combinations = config$max_combinations
     )
 
     peaks_not_fit <- ladder_peaks[which(!ladder_peaks %in% peaks_fit_df$scan)]
@@ -374,31 +347,31 @@ find_ladders <- function(
     return(combined_ladder_peaks)
   }
 
-  if (show_progress_bar) {
+  if (config$show_progress_bar) {
     pb <- utils::txtProgressBar(min = 0, max = length(fragments_list), style = 3)
   }
 
   for (i in seq_along(fragments_list)) {
     # populate the ladder and data channels with the supplied channel name
 
-    fragments_list[[i]]$raw_ladder <- fragments_list[[i]]$fsa$Data[[ladder_channel]]
-    fragments_list[[i]]$raw_data <- fragments_list[[i]]$fsa$Data[[signal_channel]]
-    fragments_list[[i]]$scan <- 0:(length(fragments_list[[i]]$fsa$Data[[signal_channel]]) - 1)
+    fragments_list[[i]]$raw_ladder <- fragments_list[[i]]$fsa$Data[[config$ladder_channel]]
+    fragments_list[[i]]$raw_data <- fragments_list[[i]]$fsa$Data[[config$signal_channel]]
+    fragments_list[[i]]$scan <- 0:(length(fragments_list[[i]]$fsa$Data[[config$signal_channel]]) - 1)
     fragments_list[[i]]$off_scale_scans <- fragments_list[[i]]$fsa$Data$OfSc.1
 
     # make sure that the scan window is at least same length as length of size standards
-    if (ladder_selection_window > length(ladder_sizes)) {
-      ladder_selection_window <- length(ladder_sizes)
+    if (config$ladder_selection_window > length(config$ladder_sizes)) {
+      config$ladder_selection_window <- length(config$ladder_sizes)
     }
 
     # allow user to subset to particular scans
-    if (!is.null(scan_subset)) {
-      fragments_list[[i]]$raw_ladder <- fragments_list[[i]]$raw_ladder[scan_subset[1]:scan_subset[2]]
-      fragments_list[[i]]$raw_data <- fragments_list[[i]]$raw_data[scan_subset[1]:scan_subset[2]]
-      fragments_list[[i]]$scan <- fragments_list[[i]]$scan[scan_subset[1]:scan_subset[2]]
+    if (!is.null(config$scan_subset)) {
+      fragments_list[[i]]$raw_ladder <- fragments_list[[i]]$raw_ladder[config$scan_subset[1]:config$scan_subset[2]]
+      fragments_list[[i]]$raw_data <- fragments_list[[i]]$raw_data[config$scan_subset[1]:config$scan_subset[2]]
+      fragments_list[[i]]$scan <- fragments_list[[i]]$scan[config$scan_subset[1]:config$scan_subset[2]]
 
       # set spike location since it's automatically set usually, and user may select scans to start after
-      ladder_start_scan <- scan_subset[1]
+      config$ladder_start_scan <- config$scan_subset[1]
     }
 
     # ladder
@@ -413,7 +386,7 @@ find_ladders <- function(
     # ladder correlation stats
     # make a warning if one of the ladder modes is bad
     ladder_rsq_warning_helper(fragments_list[[i]],
-      rsq_threshold = warning_rsq_threshold
+      rsq_threshold = config$warning_rsq_threshold
     )
 
     predicted_size <- predict_bp_size(
@@ -430,7 +403,7 @@ find_ladders <- function(
       off_scale = fragments_list[[i]]$scan %in% fragments_list[[i]]$off_scale_scans
     )
 
-    if (show_progress_bar) {
+    if (config$show_progress_bar) {
       utils::setTxtProgressBar(pb, i)
     }
   }
