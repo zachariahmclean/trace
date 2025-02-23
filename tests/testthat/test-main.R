@@ -176,3 +176,25 @@ test_that("main repeats", {
 
 
 })
+
+test_that("main error",{
+  wrong_metadata <- metadata
+  colnames(wrong_metadata)[1] <- "splunique_id"
+
+  fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+  
+  test_error <- tryCatch(
+    trace_main(fsa_list, metadata_data.frame = wrong_metadata),
+  error = function(e) e
+)
+
+expect_true("error" %in% class(test_error))
+
+  
+#warning
+  
+# fsa_list <- lapply(cell_line_fsa_list[1:10], function(x) x$clone())
+
+# frag_list <- trace_main(fsa_list, metadata_data.frame = metadata)
+  
+})

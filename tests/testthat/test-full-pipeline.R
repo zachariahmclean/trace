@@ -34,24 +34,24 @@ testthat::test_that("full pipeline", {
   # dev.off()
 
 
-  fragments_list <- find_fragments(fsa_list,
+  find_fragments(fsa_list,
     minimum_peak_signal = 20,
     min_bp_size = 300
   )
 
 add_metadata(
-    fragments_list = fragments_list,
+  fsa_list,
     metadata_data.frame = metadata
   )
 
 find_alleles(
-    fragments_list = fragments_list
+  fsa_list
   )
 
   suppressMessages(
     suppressWarnings(
       call_repeats(
-        fragments_list = fragments_list,
+        fsa_list,
       )
     )
   )
@@ -67,7 +67,7 @@ find_alleles(
   suppressMessages(
     suppressWarnings(
       assign_index_peaks(
-        fragments_list,
+        fsa_list,
         grouped = TRUE
       )
     )
@@ -76,7 +76,7 @@ find_alleles(
   suppressMessages(
     suppressWarnings(
       test_metrics_grouped <- calculate_instability_metrics(
-        fragments_list = fragments_list,
+        fsa_list,
         peak_threshold = 0.05,
         window_around_index_peak = c(-40, 40)
       )

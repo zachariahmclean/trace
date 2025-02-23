@@ -350,20 +350,20 @@ plot_ladders <- function(
 #'
 #' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
-#' fragments_list <- find_fragments(fsa_list,
+#' find_fragments(fsa_list,
 #'   min_bp_size = 300
 #' )
 #'
 #' find_alleles(
-#'   fragments_list
+#'   fsa_list
 #' )
 #'
 #' # Simple conversion from bp size to repeat size
 #' call_repeats(
-#'   fragments_list
+#'   fsa_list
 #' )
 #'
-#' plot_traces(fragments_list, xlim = c(105, 150))
+#' plot_traces(fsa_list, xlim = c(105, 150))
 #'
 plot_traces <- function(
     fragments_list,
@@ -488,26 +488,26 @@ plot_fragments <- function(
 #'
 #' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
-#' fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
+#' find_fragments(fsa_list, min_bp_size = 300)
 #'
 #' test_alleles <- find_alleles(
-#'   fragments_list 
+#'   fsa_list 
 #' )
 #' 
 #' add_metadata(
-#'   fragments_list,
+#'   fsa_list,
 #'   metadata
 #' )
 #'
 #'
 #' call_repeats(
-#'   fragments_list = fragments_list,
+#'   fsa_list,
 #'   correction = "batch"
 #' )
 #'
 #' # traces of bp size shows traces at different sizes
 #' plot_batch_correction_samples(
-#'   fragments_list,
+#'   fsa_list,
 #'   selected_sample = "S-21-212", xlim = c(100, 120)
 #' )
 #'
@@ -728,26 +728,26 @@ plot_data_channels <- function(
 #'
 #' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
-#' fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
+#' find_fragments(fsa_list, min_bp_size = 300)
 #'
-#' test_alleles <- find_alleles(
-#'   fragments_list 
+#' find_alleles(
+#'   fsa_list 
 #' )
 #' 
 #' add_metadata(
-#'   fragments_list,
+#'   fsa_list,
 #'   metadata
 #' )
 #'
 #'
 #' call_repeats(
-#'   fragments_list = fragments_list,
+#'   fsa_list,
 #'   correction = "repeat"
 #' )
 #'
 #' # traces of bp size shows traces at different sizes
 #' plot_repeat_correction_model(
-#'   fragments_list,
+#'   fsa_list,
 #'   batch_run_id_subset = "20230414"
 #' )
 #'

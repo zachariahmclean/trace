@@ -38,42 +38,52 @@
 #' )
 add_metadata <- function(
     fragments_list,
-    metadata_data.frame) {
-  
-  # validate / sanatise inputs
-  # quality of inputs
-  # Does this lapply ever fail?
-  
+    metadata_data.frame) {  
+  # prepare output file
+  output <- trace_output$new("add_metadata")
+
   # make sure df has the required columns
   if(!all(c(
     "unique_id", "metrics_group_id", "metrics_baseline_control", 
     "batch_run_id", "batch_sample_id", "batch_sample_modal_repeat"
   ) %in% names(metadata_data.frame))){
-    stop(call. = FALSE, "Dataframe must have the column names 'unique_id', 'metrics_group_id', 'metrics_baseline_control', 'batch_run_id', 'batch_sample_id', 'batch_sample_modal_repeat'")
-    }
+    output$set_status(
+      "error", 
+      "Dataframe must have the column names 'unique_id', 'metrics_group_id', 'metrics_baseline_control', 'batch_run_id', 'batch_sample_id', 'batch_sample_modal_repeat'"
+    )
+    return(output)
+  }
 
   ## check if user has any duplicated unique ids
   supplied_ids <- metadata_data.frame[, "unique_id", drop = TRUE]
   if (anyDuplicated(supplied_ids) != 0) {
-    stop("The metadata must have one row per unique sample id",
-      call. = FALSE
+    output$set_status(
+      "error", 
+      "The metadata must have one row per unique sample id"
     )
+    return(output)
   }
+
   ## Give warning if samples don't have metadata
-  not_in_metadata <- which(!names(fragments_list) %in% supplied_ids)
+  not_in_metadata <- supplied_ids[which(!supplied_ids %in% names(fragments_list))]
   if (length(not_in_metadata) > 0) {
-    warning(
+    output$set_status(
+      "warning", 
       paste0(
         "The following samples do not have a corresponding unique id in the metadata: ",
-        paste0(names(fragments_list)[not_in_metadata], collapse = ", ")
-      ),
-      call. = FALSE
+        paste0(not_in_metadata, collapse = ", ")
+      )
     )
   }
 
-
-  # need to make sure table is dataframe (an not a tibble)
-  if(class(metadata_data.frame)[1] == 'tbl_df'){
+  # need to make sure table is dataframe (and not a tibble)
+  if(!"data.frame" %in% class(metadata_data.frame)){
+    output$set_status(
+      "error", 
+      "'metadata_data.frame' must be a data.frame object"
+    )
+    return(output)
+  } else if('tbl_df' %in% class(metadata_data.frame)){
     metadata_data.frame <- as.data.frame(metadata_data.frame)
     }
   
@@ -98,6 +108,6 @@ add_metadata <- function(
     }
   )
 
-  invisible()
+  return(output)
 }
 

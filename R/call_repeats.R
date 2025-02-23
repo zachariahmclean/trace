@@ -476,68 +476,68 @@ model_repeat_length <- function(
 #'
 #' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
-#' fragments_list <- find_fragments(
+#' find_fragments(
 #'   fsa_list,
 #'   min_bp_size = 300
 #' )
 #'
-#' find_alleles(fragments_list)
+#' find_alleles(fsa_list)
 #' 
-#' add_metadata(fragments_list,
+#' add_metadata(fsa_list,
 #'    metadata[c(16:19), ]
 #' )
 #'
 #' # Simple conversion from bp size to repeat size
 #' call_repeats(
-#'   fragments_list,
+#'   fsa_list,
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
 #'
-#' plot_traces(fragments_list[1], xlim = c(120, 170))
+#' plot_traces(fsa_list[1], xlim = c(120, 170))
 #'
 #' # Use force_whole_repeat_units algorithm to make sure called
 #' # repeats are the exact number of bp apart
 #'
 #' call_repeats(
-#'   fragments_list,
+#'   fsa_list,
 #'   force_whole_repeat_units = TRUE,
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
 #'
-#' plot_traces(fragments_list[1], xlim = c(120, 170))
+#' plot_traces(fsa_list[1], xlim = c(120, 170))
 #'
 #' 
 #' # apply batch correction
 #' call_repeats(
-#'   fragments_list,
+#'   fsa_list,
 #'   correction = "batch",
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
 #' 
-#' plot_traces(fragments_list[1], xlim = c(120, 170))
+#' plot_traces(fsa_list[1], xlim = c(120, 170))
 #' 
 #' # apply repeat correction
 #' call_repeats(
-#'   fragments_list,
+#'   fsa_list,
 #'   correction = "repeat",
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
 #' 
-#' plot_traces(fragments_list[1], xlim = c(120, 170))
+#' plot_traces(fsa_list[1], xlim = c(120, 170))
 #'
 #' #ensure only periodic peaks are called
 #' call_repeats(
-#'   fragments_list,
+#'   fsa_list,
 #'   force_repeat_pattern_size_period = 2.75,
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
 #'
-#' plot_traces(fragments_list[1], xlim = c(120, 170))
+#' plot_traces(fsa_list[1], xlim = c(120, 170))
 #' 
 call_repeats <- function(
     fragments_list,

@@ -38,13 +38,13 @@
 #'
 #' find_ladders(fsa_list)
 #'
-#' fragments_list <- find_fragments(fsa_list,
+#' find_fragments(fsa_list,
 #'   min_bp_size = 300
 #' )
 #'
 #'
 #' # Manually inspect the ladders
-#' plot_traces(fragments_list,
+#' plot_traces(fsa_list,
 #'   show_peaks = TRUE, n_facet_col = 1,
 #'   xlim = c(400, 550), ylim = c(0, 1200)
 #' )
@@ -95,11 +95,29 @@ find_fragments <- function(
   # load config
   config <- load_config(config_file, ...)
 
+  # prepare output file
+  output <- trace_output$new("find_fragments")
+
+
+  # NEED TO VALIDATE INPUTS
+  #SMOOTHING WINDOW MUST BE ODD integer greater than 1
+
   fragments_list <- lapply(fragments_list, function(x) {
     # find peak table
-    df <- find_fragment_peaks(x$trace_bp_df)
+    df <- tryCatch(
+      find_fragment_peaks(x$trace_bp_df),
+      error = function(e) e
+    )
+    if("error" %in% class(df)){
+      output$set_status(
+        "error", 
+        paste0("There was an error finding fragments for ", x$unique_id, ":\n", df$message)
+      )
+      return(output)
+    }
+
     df$unique_id <- rep(x$unique_id, nrow(df))
-    df <- df[which(df$size > config$min_bp_size & df$size < config$max_bp_size), ]
+    df <- df[which(df$size > config$min_bp_size & df$size < config$max_bp_size), ,drop = FALSE]
     x$peak_table_df <- df
     x$.__enclos_env__$private$min_bp_size <- config$min_bp_size
     x$.__enclos_env__$private$max_bp_size <- config$max_bp_size
@@ -107,6 +125,6 @@ find_fragments <- function(
     return(x)
   })
 
-  return(fragments_list)
+  return(output)
 }
 

@@ -40,3 +40,29 @@ testthat::test_that("add_metadata", {
 
   })
 
+
+  testthat::test_that("add_metadata wrong col name", {
+    test_fragments <- genemapper_table_to_fragments(example_data,
+      dye_channel = "B"
+    )
+
+    wrong_metadata <- metadata
+    colnames(wrong_metadata)[1] <- "splunique_id"
+  
+  metadata_output <- add_metadata(
+    fragments_list = test_fragments,
+    metadata_data.frame = wrong_metadata
+  )
+
+  test_error <- tryCatch(
+      print(metadata_output),
+    error = function(e) e
+  )
+  
+  expect_true("trace_output" %in% class(metadata_output))
+  expect_true("error" %in% class(test_error))
+    
+  })
+  
+  
+  

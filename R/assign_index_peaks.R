@@ -38,28 +38,28 @@
 #'
 #' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
-#' fragments_list <- find_fragments(fsa_list,
+#' find_fragments(fsa_list,
 #'   min_bp_size = 300
 #' )
 #'
 #' find_alleles(
-#'   fragments_list
+#'   fsa_list
 #' )
 #' call_repeats(
-#'   fragments_list
+#'   fsa_list
 #' )
 #'
 #' add_metadata(
-#'   fragments_list,
+#'   fsa_list,
 #'   metadata_data.frame = trace::metadata
 #' )
 #'
 #'assign_index_peaks(
-#'   fragments_list,
+#'   fsa_list,
 #'   grouped = TRUE
 #' )
 #'
-#' plot_traces(fragments_list[1], xlim = c(100,150))
+#' plot_traces(fsa_list[1], xlim = c(100,150))
 #'
 #'
 #'

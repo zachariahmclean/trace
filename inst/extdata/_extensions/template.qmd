@@ -29,14 +29,14 @@ This document is a quarto file, which is a mix of written text and code that can
 ## folder where fsa files live. If they are across several folders, point to the upper directory and use option recursive in list.files
 fsa_folder <- ""
 fsa_file_list = list.files(fsa_folder, full.names = TRUE, pattern = ".fsa")
-fsa_raw <- read_fsa(fsa_file_list)
+fsa_list <- read_fsa(fsa_file_list)
 
 ## import metadata file. You may need to change the function below to read in your type of file. eg readxl::read_excel() for excel file. See add_metadata() for more info on what's required
 metadata <- read.csv("")
 
 # or uncomment out the lines below to run an example
 ## note: to make this example render without errors, comment out the inputs above in this chunk
-# fsa_raw <- lapply(cell_line_fsa_list, function(x) x$clone())
+# fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 # metadata <- trace::metadata
 
 ```
@@ -45,7 +45,7 @@ metadata <- read.csv("")
 
 
 ```{r}
-plot_data_channels(fsa_raw[1])
+plot_data_channels(fsa_list[1])
 
 ```
 
@@ -59,7 +59,7 @@ ladder_sizes <- c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450,
 
 find_ladders(
   # main parameters to set, see help documentation for more info
-  fragments_list = fsa_raw,
+  fragments_list = fsa_list,
   ladder_channel = "DATA.105",
   signal_channel = "DATA.1",
   ladder_sizes = ladder_sizes,
@@ -79,9 +79,9 @@ find_ladders(
 # Find peaks
 
 ```{r Find peaks}
-fragments_list <- find_fragments(
+find_fragments(
   # main parameters to set, see help documentation for more info
-  fragments_list = fsa_raw,
+  fragments_list = fsa_list,
   min_bp_size = 300,
   # advanced parameters for fine tuning
   max_bp_size = 1000,
@@ -96,7 +96,7 @@ fragments_list <- find_fragments(
 
 add_metadata(
   # main parameters to set, see help documentation for more info
-  fragments_list = fragments_list,
+  fragments_list = fsa_list,
   metadata_data.frame = metadata
  )
 
@@ -107,7 +107,7 @@ add_metadata(
 ```{r Find alleles}
 find_alleles(
   # main parameters to set, see help documentation for more info
-  fragments_list = fragments_list,
+  fragments_list = fsa_list,
   # advanced parameters for fine tuning
   peak_region_size_gap_threshold = 6,
   peak_region_signal_threshold_multiplier = 1)
@@ -118,7 +118,7 @@ find_alleles(
 ```{r Find repeats}
 call_repeats(
   # main parameters to set, see help documentation for more info
-  fragments_list = fragments_list,
+  fragments_list = fsa_list,
   assay_size_without_repeat = 87,
   repeat_size = 3,
   force_whole_repeat_units = TRUE,
@@ -136,7 +136,7 @@ call_repeats(
 ```{r Assign index peaks}
 assign_index_peaks(
   # main parameters to set, see help documentation for more info
-  fragments_list = fragments_list,
+  fragments_list = fsa_list,
   grouped = TRUE,
   # advanced parameters for fine tuning
   index_override_dataframe = NULL
@@ -149,7 +149,7 @@ assign_index_peaks(
 
 ```{r Calculate instability metrics}
 metrics_df <- calculate_instability_metrics(
-  fragments_list = fragments_list,
+  fragments_list = fsa_list,
   peak_threshold = 0.05,
   window_around_index_peak = c(-50, 50)
 )
@@ -172,13 +172,13 @@ This code generates a PDF file of all the ladders with a customisable plot title
 
 ```{r ladders}
 
-ladder_info <- extract_ladder_summary(fsa_raw)
+ladder_info <- extract_ladder_summary(fsa_list)
 
 # Create a PDF to save plots
 pdf("outputs/ladders.pdf", height = 5, width = 10)
 
 # Loop through each ladder in the subset
-for (ladder in fsa_raw) {
+for (ladder in fsa_list) {
   plot_title <- paste0(
     ladder$unique_id, "\n",
     "avg_rsq: ", round(ladder_info[which(ladder_info$unique_id == ladder$unique_id), "avg_rsq"], 4)
@@ -202,18 +202,18 @@ dev.off()
 pdf("outputs/traces.pdf", height = 5, width = 10)
   
 # Loop through each repeat in the subset
-for (i in seq_along(fragments_list)) {
+for (i in seq_along(fsa_list)) {
   
   # Plot trace with title and sample name
-  fragments_list[[i]]$plot_trace(
+  fsa_list[[i]]$plot_trace(
     xlim = c(80, 250)
   )
   
   # Add text annotation for allele_repeat
   text(
-    x = fragments_list[[i]]$get_allele_peak()$allele_repeat, 
-    y = fragments_list[[i]]$get_allele_peak()$allele_signal * 1.02, 
-    labels = round(fragments_list[[i]]$get_allele_peak()$allele_repeat)
+    x = fsa_list[[i]]$get_allele_peak()$allele_repeat, 
+    y = fsa_list[[i]]$get_allele_peak()$allele_signal * 1.02, 
+    labels = round(fsa_list[[i]]$get_allele_peak()$allele_repeat)
   )
 }
   
@@ -226,11 +226,11 @@ dev.off()
 
 ## processed repeats object as RDS file
 
-This can be useful for downstream aggregation of experiments. For example, we could read in the fragments_list back into R in another script to calculate instability metrics.
+This can be useful for downstream aggregation of experiments. For example, we could read in the fsa_list back into R in another script to calculate instability metrics.
 
 ```{r saveRDS}
 
-saveRDS(fragments_list,
+saveRDS(fsa_list,
         file = "outputs/processed_repeats_fragments_list.rds")
 ```
 

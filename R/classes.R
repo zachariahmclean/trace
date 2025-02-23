@@ -289,8 +289,8 @@ trace_output <- R6::R6Class("trace_output",
       if(self$status == "error"){
         stop(paste0(self$module, " error: ", self$error_message), call. = FALSE)
       } else if(self$status == "warning"){
+        cat(paste0("\033[1;34m< ", self$module, " warning >\033[0m\n"))
         lapply(self$warning_message, function(message){
-          cat(paste0("\033[1;34m< ", self$module, " warning >\033[0m\n"))
           cat(paste0("\033[1;34m", message, "\033[0m\n"))
         })
       }

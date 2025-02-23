@@ -13,7 +13,7 @@ testthat::test_that("find_fragments", {
   )
 
   suppressWarnings(
-    peak_list <- find_fragments(fsa_list,
+    find_fragments(fsa_list,
       minimum_peak_signal = 20,
       min_bp_size = 100
     )
@@ -21,12 +21,12 @@ testthat::test_that("find_fragments", {
 
 
 
-  # plot_traces(peak_list[which(names(peak_list) =="20230413_B03.fsa")],
+  # plot_traces(fsa_list[which(names(fsa_list) =="20230413_B03.fsa")],
   #             xlim = c(450,650),
   #             ylim = c(0, 1000))
 
 
-  extracted_fragments <- extract_fragments(peak_list)
+  extracted_fragments <- extract_fragments(fsa_list)
 
 
   tall_peaks <- extracted_fragments[which(extracted_fragments$size > 500 & extracted_fragments$signal > 700), ]

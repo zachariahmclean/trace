@@ -207,25 +207,25 @@ extract_fragments <- function(fragments_list) {
 #'
 #' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
-#' fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
+#' find_fragments(fsa_list, min_bp_size = 300)
 #'
 #' test_alleles <- find_alleles(
-#'   fragments_list 
+#'   fsa_list 
 #' )
 #' 
 #' add_metadata(
-#'   fragments_list,
+#'   fsa_list,
 #'   metadata
 #' )
 #'
 #'
 #' call_repeats(
-#'   fragments_list = fragments_list,
+#'   fragments_list = fsa_list,
 #'   correction = "repeat"
 #' )
 #'
 #' # finally extract repeat correction summary
-#' extract_repeat_correction_summary(fragments_list)
+#' extract_repeat_correction_summary(fsa_list)
 #'
 #'
 extract_repeat_correction_summary <- function(

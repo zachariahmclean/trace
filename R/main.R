@@ -66,11 +66,11 @@
 
   if(!is.null(metadata_data.frame)){
 
-
-    add_metadata(
+    add_metadata_status <- add_metadata(
       fragments_list,
       metadata_data.frame = metadata_data.frame
     )
+    print(add_metadata_status)
   }
 
   sample_processed <- switch(input_type,
@@ -142,15 +142,18 @@ trace_fsa <-  function(x,
 ) {
   message("Finding ladders")
 
-  find_ladders(x, config)
+  find_ladders_status <- find_ladders(x, config)
+  print(find_ladders_status)
 
   if(!is.null(ladder_df_list)){
-    fix_ladders_manual(x, ladder_df_list, config$warning_rsq_threshold)
+    fix_ladders_manual_status <- fix_ladders_manual(x, ladder_df_list, config$warning_rsq_threshold)
+    print(fix_ladders_manual_status)
   }
 
   message("Finding fragments")
 
-  find_fragments(x, config)
+  find_fragments_status <- find_fragments(x, config)
+  print(find_fragments_status)
 
   trace_fragments(x,
     config = config,
@@ -167,7 +170,8 @@ trace_fragments <-  function(x,
   
   message("Finding alleles")
 
-  find_alleles(x,config)
+  find_alleles_status <- find_alleles(x,config)
+  print(find_alleles_status)
 
   message("Calling repeats")
 
@@ -194,7 +198,8 @@ trace_repeats <- function(x,
   #   message("overriding peak_region_size_gap_threshold to 2")
   # }
 
-  find_alleles(x, config)
+  find_alleles_status <- find_alleles(x, config)
+  print(find_alleles_status)
 
   message("Assigning index peaks")
 

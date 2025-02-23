@@ -300,8 +300,6 @@ find_ladders <- function(
   fragments_list,
   config_file = NULL,
   ...) {
-  # load config
-  config <- load_config(config_file, ...)
 
   fit_ladder <- function(
       ladder,
@@ -347,12 +345,90 @@ find_ladders <- function(
     return(combined_ladder_peaks)
   }
 
+  # load config
+  config <- load_config(config_file, ...)
+
+  # prepare output
+  output <- trace_output$new("find_ladders")
+
+  # validate inputs
+  for (param in c("ladder_channel", "signal_channel" )) {
+    if(length(config[[param]]) != 1 && !is.character(config[[param]])){
+      output$set_status(
+        "error", 
+        paste0(param, " parameter must be a character type and length = 1")
+      )
+      return(output)
+    }
+  }
+
+  if(length(config[["ladder_sizes"]]) <2 && !is.numeric(config[["ladder_sizes"]])){
+    output$set_status(
+      "error", 
+      paste0("ladder_sizes", " parameter must be a character type and length > 2")
+    )
+    return(output)
+  }
+
+  for (param in c("ladder_start_scan", "minimum_ladder_signal" )) {
+    if(!is.null(config[[param]])){
+      if(length(config[[param]]) != 1 && !is.numeric(config[[param]])){
+        output$set_status(
+          "error", 
+          paste0(param, " parameter must be a numeric type and length = 1")
+        )
+        return(output)
+      }
+    }
+  }
+
+  if(!is.null(config[["scan_subset"]])){
+    if(length(config[["scan_subset"]]) != 2 && !is.numeric(config[["scan_subset"]])){
+      output$set_status(
+        "error", 
+        paste0("scan_subset", " parameter must be a numeric type and length = 2")
+      )
+      return(output)
+    }
+  }
+
+  for (param in c("ladder_selection_window", "max_combinations", "warning_rsq_threshold")) {
+    if(length(config[[param]]) != 1 && !is.numeric(config[[param]])){
+      output$set_status(
+        "error", 
+        paste0(param, " parameter must be a numeric type and length = 1")
+      )
+      return(output)
+    }
+  }
+
+  if(length(config[["show_progress_bar"]]) != 1 && !is.logical(config[["show_progress_bar"]])){
+    output$set_status(
+      "error", 
+      paste0("show_progress_bar", " parameter must be a logical type and length = 1")
+    )
+    return(output)
+  }
+
+  # run code
+
   if (config$show_progress_bar) {
     pb <- utils::txtProgressBar(min = 0, max = length(fragments_list), style = 3)
   }
 
   for (i in seq_along(fragments_list)) {
     # populate the ladder and data channels with the supplied channel name
+    ## check first tp mae sure that name is actually in the object
+
+    for (channel in c(config$ladder_channel, config$signal_channel)) {
+      if(!channel %in% names(fragments_list[[i]]$fsa$Data)){
+        output$set_status(
+          "error", 
+          paste0(channel, " not detected as a channel in fsa")
+        )
+        return(output)
+      }
+    }
 
     fragments_list[[i]]$raw_ladder <- fragments_list[[i]]$fsa$Data[[config$ladder_channel]]
     fragments_list[[i]]$raw_data <- fragments_list[[i]]$fsa$Data[[config$signal_channel]]
@@ -375,19 +451,40 @@ find_ladders <- function(
     }
 
     # ladder
-    ladder_df <- fit_ladder(
-      ladder = fragments_list[[i]]$raw_ladder,
-      scans = fragments_list[[i]]$scan,
-      sample_id = fragments_list[[i]]$unique_id
+    ladder_df <- tryCatch(
+      fit_ladder(
+        ladder = fragments_list[[i]]$raw_ladder,
+        scans = fragments_list[[i]]$scan,
+        sample_id = fragments_list[[i]]$unique_id
+      ),
+      error = function(e) e
     )
+    if("error" %in% class(ladder_df)){
+      output$set_status(
+        "error", 
+        paste0("There was an issue fitting the ladder for ", fragments_list[[i]]$unique_id,":\n",
+                ladder_df$message
+      )
+      )
+      return(output)
+    }
 
     fragments_list[[i]]$ladder_df <- ladder_df
 
     # ladder correlation stats
     # make a warning if one of the ladder modes is bad
-    ladder_rsq_warning_helper(fragments_list[[i]],
-      rsq_threshold = config$warning_rsq_threshold
+    rsq_warning <- tryCatch(
+      ladder_rsq_warning_helper(fragments_list[[i]],
+        rsq_threshold = config$warning_rsq_threshold
+      ),
+      warning = function(w) w
     )
+    if("warning" %in% class(rsq_warning)){
+      output$set_status(
+        "warning", 
+        rsq_warning$message
+      )
+    }
 
     predicted_size <- predict_bp_size(
       ladder_df = ladder_df,
@@ -407,10 +504,22 @@ find_ladders <- function(
       utils::setTxtProgressBar(pb, i)
     }
   }
-  # make sure progress bar ends on new line
-  cat("\n")
+  
+  # if too many messages, change to just say many samples have bad ladders
+  if(output$status == "warning" && length(output$warning_message) > 10){
+    output$warning_message = NULL
+    output$set_status(
+      "warning", 
+      "Many samples appear to have badly fitting ladders based on the warning_rsq_threshold. Use extract_ladder_summary() to get a summary of the ladder fits."
+    )
+  }
 
-  invisible()
+  if (config$show_progress_bar) {
+    # make sure progress bar ends on new line
+    cat("\n")
+  }
+  
+  return(output)
 }
 
 
@@ -472,6 +581,10 @@ find_ladders <- function(
 fix_ladders_manual <- function(fragments_list,
                                ladder_df_list,
                                warning_rsq_threshold = 0.998) {
+  # prepare output file
+  output <- trace_output$new("fix_ladders_manual")
+
+  
   samples_to_fix <- names(ladder_df_list)
   for (i in seq_along(fragments_list)) {
     if (fragments_list[[i]]$unique_id %in% samples_to_fix) {
@@ -480,11 +593,14 @@ fix_ladders_manual <- function(fragments_list,
       tmp_ladder_df <- ladder_df_list[[which(names(ladder_df_list) == fragments_list[[i]]$unique_id)]]
 
       # do some quality control of the df user supplied
-      if (!any(colnames(tmp_ladder_df) == "scan") | !any(colnames(tmp_ladder_df) == "size")) {
-        stop(
-          call. = FALSE,
-          "Dataframe must contain columns 'size' and 'scan'"
-        )
+      for (col in c("scan", "size")) {
+        if(!col %in% colnames(tmp_ladder_df)){
+          output$set_status(
+            "error", 
+            "Dataframe must contain column names 'size' and 'scan'"
+          )
+          return(output)
+        }
       }
 
       fragments_list[[i]]$ladder_df <- tmp_ladder_df
@@ -503,11 +619,20 @@ fix_ladders_manual <- function(fragments_list,
       )
     
       # make a warning if one of the ladder modes is bad
-      ladder_rsq_warning_helper(fragments_list[[i]],
-        rsq_threshold = warning_rsq_threshold
+      rsq_warning <- tryCatch(
+        ladder_rsq_warning_helper(fragments_list[[i]],
+          rsq_threshold = warning_rsq_threshold
+        ),
+        warning = function(w) w
       )
+      if("warning" %in% class(rsq_warning)){
+        output$set_status(
+          "warning", 
+          rsq_warning$message
+        )
+      }
     }
   }
 
-  invisible()
+  return(output)
 }

@@ -25,13 +25,13 @@
 #'
 #' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
-#' fragments_list <- find_fragments(fsa_list,
+#' find_fragments(fsa_list,
 #'   min_bp_size = 300
 #' )
 #'
 #'
 #' find_alleles(
-#'   fragments_list,
+#'   fsa_list,
 #'   peak_region_signal_threshold_multiplier = 1
 #' )
 find_alleles <- function(
@@ -72,8 +72,14 @@ find_alleles <- function(
 
     return(peak_regions)
   }
+
+
+  # NEED TO VALIDATE INPUTS
  
   config <- load_config(config_file, ...)
+
+  # prepare output file
+  output <- trace_output$new("find_alleles")
 
   main_peaks <- lapply(fragments_list, function(fragment) {
     # the main idea here is that PCR generates clusters of peaks around the main alleles.
@@ -85,8 +91,12 @@ find_alleles <- function(
     fragment_signal <- if (!is.null(fragment$peak_table_df)) fragment$peak_table_df$signal else fragment$repeat_table_df$signal
     fragment_sizes <- if (!is.null(fragment$peak_table_df)) fragment$peak_table_df$size else fragment$repeat_table_df$repeats
     if (is.null(fragment$peak_table_df) & config$peak_region_size_gap_threshold == 6){
-      #NEED TO MOVE THIS OUT OF HERE SO WARNING IS NOT REPEATED EACH TIME
-      warning(call. = FALSE, "Alleles were called on repeat size. The default peak_region_size_gap_threshold is set expecting bp size, so may need to be decreased (eg, 6 / 3 repeats = 2 for the value in repeat units). This is probably only relevant if selecting two alleles.")
+      if(!any( sapply(output$warning_message, function(x) grep("Alleles were called on repeat size", x)) )){
+        output$set_status(
+          "warning", 
+          "Alleles were called on repeat size. The default peak_region_size_gap_threshold is set expecting bp size, so may need to be decreased (eg, 6 / 3 repeats = 2 for the value in repeat units). This is probably only relevant if selecting two alleles."
+        )
+      }      
     }
 
     # Find peak regions
@@ -112,11 +122,6 @@ find_alleles <- function(
         # not sure if this will happen, just dealing with a possible case
         top_regional_peaks_positions[i] <- region_positions[which.max(fragment_signal[region_positions])][1]
       }
-    }
-
-    # Now we need to pick the tallest of the candidates
-    if (length(top_regional_peaks_positions) == 0) {
-      warning(paste0(fragment$unique_id, ": No main alleles identified"))
     }
 
     if(config$number_of_alleles == 1){
@@ -177,6 +182,8 @@ find_alleles <- function(
     return(fragment)
   })
 
-  invisible()
+  # NEED TO WRITE A WARNING IF NO ALLELES WERE IDENTIFIED
+
+  return(output)
 }
 
