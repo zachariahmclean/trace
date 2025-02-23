@@ -271,3 +271,37 @@ fragments <- R6::R6Class("fragments",
 
   )
 )
+
+
+# module output class ---------------------------------------------------------
+
+trace_output <- R6::R6Class("trace_output",
+  public = list(
+    module = NA_character_,
+    status = "okay",
+    error_message = NA_character_,
+    warning_message = NULL, # list since could be multiple warnings
+    initialize = function(module_name) {
+      self$module <- module_name
+      invisible(self)
+    },
+    print = function() {
+      if(self$status == "error"){
+        stop(paste0(self$module, " error: ", self$error_message), call. = FALSE)
+      } else if(self$status == "warning"){
+        lapply(self$warning_message, function(message){
+          cat(paste0("\033[1;34m< ", self$module, " warning >\033[0m\n"))
+          cat(paste0("\033[1;34m", message, "\033[0m\n"))
+        })
+      }
+    },
+    set_status = function(status, message){
+      self$status <- status
+      switch (status,
+        error = self$error_message <- message,
+        warning = self$warning_message <- c(self$warning_message, list(message)),
+      )
+      invisible(self)
+    }
+  )
+)

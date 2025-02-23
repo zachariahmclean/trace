@@ -68,8 +68,8 @@
 #'
 assign_index_peaks <- function(
     fragments_list,
-    index_override_dataframe = NULL,
     config_file = NULL,
+    index_override_dataframe = NULL,
     ...) {
   # load config
   config <- load_config(config_file, ...)

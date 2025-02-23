@@ -102,21 +102,21 @@ load_config <- function(config_file, ...) {
   # check if config file has already been established previously as is 'trace_config' class and return early. 
   # This is for use in main function
   if("trace_config" %in% class(config_file)){
-    return(config_file)
-  }
+    config <- config_file
+  } else{
+    # read in default config if not supplied
+    if (is.null(config_file)) {
+      config_file <- system.file("extdata/trace_config.yaml", package = "trace")
+    }
 
-  # read in default config if not supplied
-  if (is.null(config_file)) {
-    config_file <- system.file("extdata/trace_config.yaml", package = "trace")
+    # read in config and flatten
+    config_nested <- yaml::read_yaml(config_file)
+    config <- list()
+    for (i in seq_along(config_nested)) {
+      config <- c(config, config_nested[[i]])
+    }
   }
-
-  # read in config and flatten
-  config_nested <- yaml::read_yaml(config_file)
-  config <- list()
-  for (i in seq_along(config_nested)) {
-    config <- c(config, config_nested[[i]])
-  }
-
+  
   # override config file with user supplied arguments
   user_args <- list(...)
 
@@ -140,13 +140,9 @@ trace_fsa <-  function(x,
   index_override_dataframe,
   ladder_df_list
 ) {
-
   message("Finding ladders")
 
-  find_ladders(
-    x,
-    config
-  )
+  find_ladders(x, config)
 
   if(!is.null(ladder_df_list)){
     fix_ladders_manual(x, ladder_df_list, config$warning_rsq_threshold)
@@ -154,14 +150,7 @@ trace_fsa <-  function(x,
 
   message("Finding fragments")
 
-  find_fragments(
-    x,
-    smoothing_window = config$smoothing_window,
-    minimum_peak_signal = config$minimum_peak_signal,
-    min_bp_size = config$min_bp_size,
-    max_bp_size = config$max_bp_size,
-    peakpat = config$peakpat
-  )
+  find_fragments(x, config)
 
   trace_fragments(x,
     config = config,
@@ -178,33 +167,15 @@ trace_fragments <-  function(x,
   
   message("Finding alleles")
 
-  find_alleles(
-    x,
-    number_of_alleles = config$number_of_alleles,
-    peak_region_size_gap_threshold = config$peak_region_size_gap_threshold,
-    peak_region_signal_threshold_multiplier = config$peak_region_signal_threshold_multiplier
-  )
+  find_alleles(x,config)
 
   message("Calling repeats")
 
-  call_repeats(
-    x,
-    assay_size_without_repeat = config$assay_size_without_repeat,
-    repeat_size = config$repeat_size,
-    correction = config$correction,
-    force_whole_repeat_units = config$force_whole_repeat_units,
-    force_repeat_pattern = config$force_repeat_pattern,
-    force_repeat_pattern_size_period = config$force_repeat_pattern_size_period,
-    force_repeat_pattern_size_window = config$force_repeat_pattern_size_window
-  )
+  call_repeats(x, config)
 
   message("Assigning index peaks")
 
-  assign_index_peaks(
-    x,
-    grouped = config$grouped,
-    index_override_dataframe = config$index_override_dataframe
-  )
+  assign_index_peaks(x, config, index_override_dataframe = config$index_override_dataframe)
 
   return(x)
 }
@@ -223,19 +194,11 @@ trace_repeats <- function(x,
   #   message("overriding peak_region_size_gap_threshold to 2")
   # }
 
-  find_alleles(
-    x,
-    number_of_alleles = config$number_of_alleles,
-    peak_region_size_gap_threshold = config$peak_region_size_gap_threshold,
-    peak_region_signal_threshold_multiplier = config$peak_region_signal_threshold_multiplier
-  )
+  find_alleles(x, config)
 
   message("Assigning index peaks")
-  assign_index_peaks(
-    x,
-    grouped = config$grouped,
-    index_override_dataframe = config$index_override_dataframe
-  )
+
+  assign_index_peaks(x, config, index_override_dataframe = config$index_override_dataframe)
 
   return(x)
 }
