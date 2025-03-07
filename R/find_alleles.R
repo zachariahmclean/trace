@@ -81,7 +81,7 @@ find_alleles <- function(
   # prepare output file
   output <- trace_output$new("find_alleles")
 
-  main_peaks <- lapply(fragments_list, function(fragment) {
+  lapply(fragments_list, function(fragment) {
     # the main idea here is that PCR generates clusters of peaks around the main alleles.
     # find the cluster of peaks and pick the tallest within each cluster
     # then of those clusters, pick out the tallest of them all
@@ -182,8 +182,17 @@ find_alleles <- function(
     return(fragment)
   })
 
-  # NEED TO WRITE A WARNING IF NO ALLELES WERE IDENTIFIED
-
+  # give warning for samples with no alleles called
+  no_alleles <- names(fragments_list)[sapply(fragments_list, function(x) is.na(x$get_allele_peak()$allele_signal))]
+  if(length(no_alleles) > 0){
+    output$set_status(
+      "warning", 
+      paste(
+        "Alleles were not called for the following samples:",
+        paste0(no_alleles, collapse = ", ")
+      )
+    )
+  }
   return(output)
 }
 
