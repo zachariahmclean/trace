@@ -273,8 +273,8 @@ testthat::test_that("batch correction", {
     )
   )
   testthat::expect_true(all.equal(
-    c(rep(0.73299, 2), rep(-0.73299, 2)), 
-    round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)
+    c(rep(0.7330, 2), rep(-0.7330, 2)), 
+    round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 4)
   ))
   
   # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(100, 115))

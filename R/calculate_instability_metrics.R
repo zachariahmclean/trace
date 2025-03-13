@@ -262,7 +262,6 @@ calculate_instability_metrics <- function(
     fragments_repeats$.__enclos_env__$private$metrics_qc_message <- NA_character_
 
 
-
     # filter dataset to user supplied thresholds
     size_filtered_df <- repeat_table_subset(
       repeat_table_df = fragments_repeats$repeat_table_df,
@@ -276,8 +275,8 @@ calculate_instability_metrics <- function(
     if(!is.null(fragments_repeats$.__enclos_env__$private$index_samples) && length(fragments_repeats$.__enclos_env__$private$index_samples) > 0){
 
       # filter for index samples with data
-      not_na_allele <- sapply(fragments$.__enclos_env__$private$index_samples, function(x) !is.na(x[[1]]))
-      index_sample_list_filtered <- fragments$.__enclos_env__$private$index_samples[not_na_allele]
+      not_na_allele <- sapply(fragments_repeats$.__enclos_env__$private$index_samples, function(x) !is.na(x[[1]]))
+      index_sample_list_filtered <- fragments_repeats$.__enclos_env__$private$index_samples[not_na_allele]
 
       if(length(index_sample_list_filtered) > 0){
         index_sample_list_filtered <- lapply(index_sample_list_filtered, function(x){
