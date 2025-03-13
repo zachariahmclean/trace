@@ -262,7 +262,6 @@ calculate_instability_metrics <- function(
     fragments_repeats$.__enclos_env__$private$metrics_qc_message <- NA_character_
 
 
-
     # filter dataset to user supplied thresholds
     size_filtered_df <- repeat_table_subset(
       repeat_table_df = fragments_repeats$repeat_table_df,
@@ -274,37 +273,47 @@ calculate_instability_metrics <- function(
 
     # filter and calculate index samples if they exist
     if(!is.null(fragments_repeats$.__enclos_env__$private$index_samples) && length(fragments_repeats$.__enclos_env__$private$index_samples) > 0){
-      index_sample_list_filtered <- lapply(fragments_repeats$.__enclos_env__$private$index_samples, function(x){
-        list(
-          x[[1]],
-          repeat_table_subset(
-            repeat_table_df = x[[2]],
-            allele_signal = x[[2]][which(x[[2]]$repeats == x[[1]]), "signal"],
-            index_repeat = x[[1]],
-            peak_threshold = peak_threshold,
-            window_around_index_peak = window_around_index_peak
+
+      # filter for index samples with data
+      not_na_allele <- sapply(fragments_repeats$.__enclos_env__$private$index_samples, function(x) !is.na(x[[1]]))
+      index_sample_list_filtered <- fragments_repeats$.__enclos_env__$private$index_samples[not_na_allele]
+
+      if(length(index_sample_list_filtered) > 0){
+        index_sample_list_filtered <- lapply(index_sample_list_filtered, function(x){
+          list(
+            x[[1]],
+            repeat_table_subset(
+              repeat_table_df = x[[2]],
+              allele_signal = x[[2]][which(x[[2]]$repeats == x[[1]]), "signal"],
+              index_repeat = x[[1]],
+              peak_threshold = peak_threshold,
+              window_around_index_peak = window_around_index_peak
+            )
           )
-        )
-      })
-
-
-      control_weighted_mean_repeat <- sapply(index_sample_list_filtered, function(x){
-        weighted.mean(x[[2]]$repeats, x[[2]]$signal)
-      })
-      index_weighted_mean_repeat <- median(control_weighted_mean_repeat, na.rm = TRUE)
-
-      control_instability_index <- sapply(index_sample_list_filtered, function(x){
-        instability_index(
-          # can use the modal as the index peak since these are the index samples
-          repeats = x[[2]]$repeats,
-          signals = x[[2]]$signal,
-          index_peak_signal = x[[2]][which(x[[2]]$repeats == x[[1]]), "signal"],
-          index_peak_repeat = x[[1]],
-          peak_threshold = peak_threshold,
-          abs_sum = FALSE
-        )
-      })
-      index_instability_index <- median(control_instability_index, na.rm = TRUE)
+        })
+  
+  
+        control_weighted_mean_repeat <- sapply(index_sample_list_filtered, function(x){
+          weighted.mean(x[[2]]$repeats, x[[2]]$signal)
+        })
+        index_weighted_mean_repeat <- median(control_weighted_mean_repeat, na.rm = TRUE)
+  
+        control_instability_index <- sapply(index_sample_list_filtered, function(x){
+          instability_index(
+            # can use the modal as the index peak since these are the index samples
+            repeats = x[[2]]$repeats,
+            signals = x[[2]]$signal,
+            index_peak_signal = x[[2]][which(x[[2]]$repeats == x[[1]]), "signal"],
+            index_peak_repeat = x[[1]],
+            peak_threshold = peak_threshold,
+            abs_sum = FALSE
+          )
+        })
+        index_instability_index <- median(control_instability_index, na.rm = TRUE)
+      } else{
+        index_weighted_mean_repeat <- NA
+        index_instability_index <- NA
+      }
     } else{
       index_weighted_mean_repeat <- NA
       index_instability_index <- NA
