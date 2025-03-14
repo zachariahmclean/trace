@@ -5,11 +5,12 @@
 test_that("{shinytest2} recording: fix_ladder-checkbox", {
   # Don't run these tests on the CRAN build servers
   skip_on_cran()
-
+  config <- load_config()
   fsa_list <- lapply(trace::cell_line_fsa_list[1:2], function(x) x$clone())
 
 
   find_ladders(fsa_list,
+    config,
     ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
     max_combinations = 2500000,
     ladder_selection_window = 8,

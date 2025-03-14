@@ -4,12 +4,12 @@
 \alias{find_ladders}
 \title{Ladder and bp sizing}
 \usage{
-find_ladders(fragments_list, config_file = NULL, ...)
+find_ladders(fragments_list, config, ...)
 }
 \arguments{
 \item{fragments_list}{list from 'read_fsa' function}
 
-\item{config_file}{The file path to a YAML file containing a full list of parameters. This provides a central place to adjust parameters for the pipeline. Use the following command to make a copy of the YAML file: \code{file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")}.}
+\item{config}{A trace_config object generated using \code{\link[=load_config]{load_config()}}.}
 
 \item{...}{additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the \code{config_file}. These parameters include:
 \itemize{
@@ -48,8 +48,9 @@ Each ladder should be manually inspected to make sure that is has been correctly
 \examples{
 
 fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
+config <- load_config()
 
-find_ladders(fsa_list, show_progress_bar = FALSE)
+find_ladders(fsa_list, config, show_progress_bar = FALSE)
 
 # Manually inspect the ladders
 plot_ladders(fsa_list[1])

@@ -9,7 +9,7 @@
 #' class.
 #'
 #' @param fragments_list A list of fragments objects containing fragment data.
-#' @param config_file The file path to a YAML file containing a full list of parameters. This provides a central place to adjust parameters for the pipeline. Use the following command to make a copy of the YAML file: `file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")`.
+#' @param config A trace_config object generated using [load_config()].
 #' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`. These parameters include:
 #'   \itemize{
 #'    \item `smoothing_window` numeric, signal smoothing window size passed to pracma::savgol(). Default: `21`.
@@ -35,10 +35,12 @@
 #'
 #' @examples
 #' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
+#' config <- load_config()
 #'
-#' find_ladders(fsa_list)
+#' find_ladders(fsa_list, config)
 #'
 #' find_fragments(fsa_list,
+#'   config,
 #'   min_bp_size = 300
 #' )
 #'
@@ -50,7 +52,7 @@
 #' )
 find_fragments <- function(
     fragments_list,
-    config_file = NULL,
+    config,
     ...) {
   find_fragment_peaks <- function(trace_bp_df) {
     smoothed_signal <- pracma::savgol(
@@ -93,7 +95,7 @@ find_fragments <- function(
   }
 
   # load config
-  config <- load_config(config_file, ...)
+  config <- update_config(config, ...)
 
   # prepare output file
   output <- trace_output$new("find_fragments")

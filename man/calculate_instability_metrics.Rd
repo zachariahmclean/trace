@@ -86,45 +86,13 @@ Each of the columns in the supplied dataframe are explained below:
 }
 }
 \examples{
-gm_raw <- trace::example_data
-metadata <- trace::metadata
+fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+# import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+test_fragments <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 
-test_fragments <- genemapper_table_to_fragments(gm_raw,
-  dye_channel = "B",
-  min_size_bp = 400
-)
-
-add_metadata(
-  fragments_list = test_fragments,
-  metadata_data.frame = metadata
-)
-
-find_alleles(
-  fragments_list = test_fragments,
-  peak_region_size_gap_threshold = 6,
-  peak_region_signal_threshold_multiplier = 1
-)
-
-
-call_repeats(
-  fragments_list = test_fragments,
-  assay_size_without_repeat = 87,
-  repeat_size = 3
-)
-
-assign_index_peaks(
-  fragments_list = test_fragments,
-  grouped = TRUE
-)
-
-
-# grouped metrics
-# uses t=0 samples as indicated in metadata
 test_metrics_grouped <- calculate_instability_metrics(
   fragments_list = test_fragments,
   peak_threshold = 0.05,
-  window_around_index_peak = c(-40, 40),
-  percentile_range = c(0.5, 0.75, 0.9, 0.95),
-  repeat_range = c(2, 5, 10, 20)
+  window_around_index_peak = c(-40, 40)
 )
 }

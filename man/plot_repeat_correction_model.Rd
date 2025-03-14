@@ -28,27 +28,9 @@ This function makes plots for the model used to correct samples for each \code{b
 }
 \examples{
 
-
-fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
-
-find_ladders(fsa_list, show_progress_bar = FALSE)
-
-fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
-
-test_alleles <- find_alleles(
-  fragments_list 
-)
-
-add_metadata(
-  fragments_list,
-  metadata
-)
-
-
-call_repeats(
-  fragments_list = fragments_list,
-  correction = "repeat"
-)
+fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+# import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+fragments_list <- trace_main(fsa_list, metadata_data.frame = metadata, correction = "repeat")
 
 # traces of bp size shows traces at different sizes
 plot_repeat_correction_model(

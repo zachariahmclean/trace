@@ -4,7 +4,7 @@
 #' This function identifies main allele within each fragment object.
 #'
 #' @param fragments_list A list of fragment objects containing peak data.
-#' @param config_file The file path to a YAML file containing a full list of parameters. This provides a central place to adjust parameters for the pipeline. Use the following command to make a copy of the YAML file: `file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")`.
+#' @param config A trace_config object generated using [load_config()].
 #' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`. These parameters include:
 #'   \itemize{
 #'     \item `number_of_alleles` Number of alleles to be returned for each fragment. Must either be 1 or 2. Being able to identify two alleles is for cases when you are analyze different human samples with a normal and expanded alleles and you can't do the preferred option of simply ignoring the normal allele in [find_fragments()] (eg setting the min_bp_size above the normal allele bp size). Default: `1`.
@@ -22,21 +22,24 @@
 #'
 #' @examples
 #' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
+#' config <- load_config()
 #'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
+#' find_ladders(fsa_list, config, show_progress_bar = FALSE)
 #'
 #' find_fragments(fsa_list,
+#'   config,
 #'   min_bp_size = 300
 #' )
 #'
 #'
 #' find_alleles(
 #'   fsa_list,
+#'   config,
 #'   peak_region_signal_threshold_multiplier = 1
 #' )
 find_alleles <- function(
     fragments_list,
-    config_file = NULL,
+    config,
      ...) {
   # internal helper functions
   find_peak_regions <- function(signal, size) {
@@ -76,7 +79,7 @@ find_alleles <- function(
 
   # NEED TO VALIDATE INPUTS
  
-  config <- load_config(config_file, ...)
+  config <- update_config(config, ...)
 
   # prepare output file
   output <- trace_output$new("find_alleles")

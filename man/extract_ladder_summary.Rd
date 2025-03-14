@@ -22,9 +22,9 @@ The ladder peaks are assigned using a custom algorithm that maximizes the fit of
 }
 \examples{
 
-  fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+# import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+test_fragments <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 
-  find_ladders(fsa_list, show_progress_bar = FALSE)
-
-  extract_ladder_summary(fsa_list, sort = TRUE)
+  extract_ladder_summary(test_fragments, sort = TRUE)
 }

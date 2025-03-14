@@ -121,7 +121,6 @@ print_helper <- function(fragment,
 #'
 #' @examples
 #' gm_raw <- trace::example_data
-#' metadata <- trace::metadata
 #'
 #' test_fragments <- genemapper_table_to_fragments(
 #'   gm_raw,
@@ -149,66 +148,3 @@ remove_fragments <- function(
   )
   return(samples_removed)
 }
-
-
-
-# qmd templates -----------------------------------------------------------
-
-
-#' Generate a Quarto file that has the instability pipeline preset
-#'
-#' @param file_name Name of file to create
-#' @param correction select either "none", "batch" or "repeat" to indicate if the functionality for correcting repeat size using size standards across batches be included in the pipeline. See [add_metadata()] & [call_repeats()] for more info.
-#' @param samples_grouped Indicates if the functionality for grouping samples for metrics calculations should be included in the pipeline. See [add_metadata()] & [assign_index_peaks()] for more info.
-#'
-#' @return A Quarto template file for repeat instability analysis
-#' @export
-#'
-#' @importFrom utils file.edit
-#'
-#' @examples
-#'
-#' if (interactive()) {
-#'    generate_trace_template("test")
-#' }
-#'
-#'
-generate_trace_template <- function(
-  file_name = NULL,
-  correction = "batch",
-  samples_grouped = TRUE) {
-
-if (is.null(file_name)) {
-  stop("You must provide a valid file_name")
-}
-
-source_file <- system.file("extdata/_extensions/template.qmd", package = "trace")
-
-if (!file.exists(source_file)) {
-  stop(paste("Source file does not exist:", source_file))
-}
-
-template_content <- readLines(source_file)
-
-if (correction == "none") {
-  template_content <- gsub('correction = "batch"', 'correction = "none"', template_content)
-  template_content <- gsub('batch_run_id = "batch_run_id"', 'batch_run_id = NA', template_content)
-  template_content <- gsub('batch_sample_id = "batch_sample_id"', 'batch_sample_id = NA', template_content)
-} else if(correction == "repeat"){
-  template_content <- gsub('correction = "batch"', 'correction = "repeat"', template_content)
-  template_content <- gsub('batch_sample_modal_repeat = NA', 'batch_sample_modal_repeat = "batch_sample_modal_repeat"', template_content)
-} else if (correction != "batch"){
-  stop(call. = FALSE,
-    "Invalid 'correction' option")
-}
-
-if (!samples_grouped) {
-  template_content <- gsub('grouped = TRUE', 'grouped = FALSE', template_content)
-  template_content <- gsub('metrics_group_id = "metrics_group_id"', 'metrics_group_id = NA', template_content)
-  template_content <- gsub('metrics_baseline_control = "metrics_baseline_control"', 'metrics_baseline_control = NA', template_content)
-}
-
-writeLines(template_content, paste0(file_name, ".qmd"))
-file.edit(paste0(file_name, ".qmd"))
-}
-

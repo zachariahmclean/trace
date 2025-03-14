@@ -19,7 +19,6 @@ A convenient function to remove specific samples from a list of fragments.
 }
 \examples{
 gm_raw <- trace::example_data
-metadata <- trace::metadata
 
 test_fragments <- genemapper_table_to_fragments(
   gm_raw,

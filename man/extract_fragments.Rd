@@ -16,29 +16,10 @@ A dataframe containing peak data for each sample
 Extracts peak data from each sample in a list of fragments.
 }
 \examples{
-gm_raw <- trace::example_data
-metadata <- trace::metadata
+fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+# import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+test_fragments <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 
-test_fragments <- genemapper_table_to_fragments(gm_raw,
-  dye_channel = "B",
-  min_size_bp = 400
-)
-
-add_metadata(
-  fragments_list = test_fragments,
-  metadata_data.frame = metadata
-)
-
-find_alleles(
-  fragments_list = test_fragments
-)
-
-call_repeats(
-  fragments_list = test_fragments,
-  assay_size_without_repeat = 87,
-  repeat_size = 3
-)
-
-extract_alleles(test_fragments)
+extract_fragments(test_fragments)
 
 }

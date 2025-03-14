@@ -31,9 +31,6 @@ ladder_df_list <- readRDS('path/to/exported/data.rds')
 test_ladders_fixed <- fix_ladders_manual(test_ladders_broken, ladder_df_list)
 }
 \examples{
-fsa_list <- lapply(cell_line_fsa_list["20230413_A08.fsa"], function(x) x$clone())
-
-find_ladders(fsa_list, show_progress_bar = FALSE)
 
 # to create an example, lets brake one of the ladders
 brake_ladder_list <-  list(
@@ -44,16 +41,12 @@ brake_ladder_list <-  list(
    )
  )
 
-fix_ladders_manual(
-  fsa_list,
-  brake_ladder_list
-)
-
-plot_ladders(fsa_list)
-
+fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+# import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+test_fragments <- trace_main(fsa_list, ladder_df_list = brake_ladder_list)
 
 if (interactive()) {
-  fix_ladders_interactive(fsa_list)
+  fix_ladders_interactive(test_fragments)
 }
 
 # once you have corrected your ladders in the app, 

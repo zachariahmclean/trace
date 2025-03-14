@@ -428,7 +428,7 @@ model_repeat_length <- function(
 #' This function calls the repeat lengths for a list of fragments.
 #'
 #' @param fragments_list A list of fragments objects containing fragment data.
-#' @param config_file The file path to a YAML file containing a full list of parameters. This provides a central place to adjust parameters for the pipeline. Use the following command to make a copy of the YAML file: `file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")`.
+#' @param config A trace_config object generated using [load_config()].
 #' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`. These parameters include:
 #'   \itemize{
 #'     \item `assay_size_without_repeat` An integer specifying the assay size without repeat for repeat calling. This is the length of the sequence flanking the repeat in the PCR product. Default: `87`.
@@ -473,15 +473,17 @@ model_repeat_length <- function(
 #' @examples
 #'
 #' fsa_list <- lapply(cell_line_fsa_list[c(16:19)], function(x) x$clone())
+#' config <- load_config()
 #'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
+#' find_ladders(fsa_list, config, show_progress_bar = FALSE)
 #'
 #' find_fragments(
 #'   fsa_list,
+#'   config,
 #'   min_bp_size = 300
 #' )
 #'
-#' find_alleles(fsa_list)
+#' find_alleles(fsa_list, config)
 #' 
 #' add_metadata(fsa_list,
 #'    metadata[c(16:19), ]
@@ -490,6 +492,7 @@ model_repeat_length <- function(
 #' # Simple conversion from bp size to repeat size
 #' call_repeats(
 #'   fsa_list,
+#'   config,
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
@@ -501,6 +504,7 @@ model_repeat_length <- function(
 #'
 #' call_repeats(
 #'   fsa_list,
+#'   config,
 #'   force_whole_repeat_units = TRUE,
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
@@ -512,6 +516,7 @@ model_repeat_length <- function(
 #' # apply batch correction
 #' call_repeats(
 #'   fsa_list,
+#'   config,
 #'   correction = "batch",
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
@@ -522,6 +527,7 @@ model_repeat_length <- function(
 #' # apply repeat correction
 #' call_repeats(
 #'   fsa_list,
+#'   config,
 #'   correction = "repeat",
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
@@ -532,6 +538,7 @@ model_repeat_length <- function(
 #' #ensure only periodic peaks are called
 #' call_repeats(
 #'   fsa_list,
+#'   config,
 #'   force_repeat_pattern_size_period = 2.75,
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
@@ -541,11 +548,11 @@ model_repeat_length <- function(
 #' 
 call_repeats <- function(
     fragments_list,
-    config_file = NULL,
+    config,
     ...) {
   
   # load config
-  config <- load_config(config_file, ...)
+  config <- update_config(config, ...)
  
   ### in this function, we are doing three key things
       #### 1) use force_repeat_pattern to find repeats and generate a new repeat table dataframe

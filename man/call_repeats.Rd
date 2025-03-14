@@ -4,33 +4,23 @@
 \alias{call_repeats}
 \title{Call Repeats for Fragments}
 \usage{
-call_repeats(
-  fragments_list,
-  assay_size_without_repeat = 87,
-  repeat_size = 3,
-  correction = "none",
-  force_whole_repeat_units = FALSE,
-  force_repeat_pattern = FALSE,
-  force_repeat_pattern_size_period = repeat_size * 0.93,
-  force_repeat_pattern_size_window = 0.5
-)
+call_repeats(fragments_list, config, ...)
 }
 \arguments{
 \item{fragments_list}{A list of fragments objects containing fragment data.}
 
-\item{assay_size_without_repeat}{An integer specifying the assay size without repeat for repeat calling. This is the length of the sequence flanking the repeat in the PCR product.}
+\item{config}{A trace_config object generated using \code{\link[=load_config]{load_config()}}.}
 
-\item{repeat_size}{An integer specifying the repeat size for repeat calling. Default is 3.}
-
-\item{correction}{A character vector of either "batch" to carry out a batch correction from common samples across runs (known repeat length not required), or "repeat" to use samples with validated modal repeat lengths to correct the repeat length. Requires metadata to be added (see \code{\link[=add_metadata]{add_metadata()}}) with both "batch" and "repeat" requiring \code{"batch_run_id"}, "batch" requiring (\code{"batch_sample_id"}) and "repeat" requiring \code{"batch_sample_modal_repeat"} (but also benefits from having \code{"batch_sample_id"}).}
-
-\item{force_whole_repeat_units}{A logical value specifying if the peaks should be forced to be whole repeat units apart. Usually the peaks are slightly under the whole repeat unit if left unchanged.}
-
-\item{force_repeat_pattern}{A logical value specifying if the peaks should be re called to fit the specific repeat unit pattern. This requires trace information so you must have started with fsa files.}
-
-\item{force_repeat_pattern_size_period}{A numeric value to set the peak periodicity bp size. In fragment analysis, the peaks are usually slightly below the actual repeat unit size, so you can use this value to fine tune what the periodicity should be.}
-
-\item{force_repeat_pattern_size_window}{A numeric value for the size window when assigning the peak. The algorithm jumps to the predicted scan for the next peak. This value opens a window of the given base pair size neighboring scans to pick the tallest in.}
+\item{...}{additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the \code{config_file}. These parameters include:
+\itemize{
+\item \code{assay_size_without_repeat} An integer specifying the assay size without repeat for repeat calling. This is the length of the sequence flanking the repeat in the PCR product. Default: \code{87}.
+\item \code{repeat_size} An integer specifying the repeat size for repeat calling. Default: \code{3}.
+\item \code{correction} A character vector of either "batch" to carry out a batch correction from common samples across runs (known repeat length not required), or "repeat" to use samples with validated modal repeat lengths to correct the repeat length. Requires metadata to be added (see \code{\link[=add_metadata]{add_metadata()}}) with both "batch" and "repeat" requiring \code{"batch_run_id"}, "batch" requiring (\code{"batch_sample_id"}) and "repeat" requiring \code{"batch_sample_modal_repeat"} (but also benefits from having \code{"batch_sample_id"}). Default: \code{"none"}.
+\item \code{force_whole_repeat_units} A logical value specifying if the peaks should be forced to be whole repeat units apart. Usually the peaks are slightly under the whole repeat unit if left unchanged. Default: \code{FALSE}.
+\item \code{force_repeat_pattern} A logical value specifying if the peaks should be re called to fit the specific repeat unit pattern. This requires trace information so you must have started with fsa files. Default: \code{FALSE}.
+\item \code{force_repeat_pattern_size_period} A numeric value to set the peak periodicity bp size. In fragment analysis, the peaks are usually slightly below the actual repeat unit size, so you can use this value to fine tune what the periodicity should be (eg 3*0.93 = 2.79). Default: \code{2.79}.
+\item \code{force_repeat_pattern_size_window} A numeric value for the size window when assigning the peak. The algorithm jumps to the predicted scan for the next peak. This value opens a window of the given base pair size neighboring scans to pick the tallest in. Default: \code{0.5}.
+}}
 }
 \value{
 This function modifies list of fragments objects in place with repeats added.
@@ -65,72 +55,78 @@ This parameter re-calls the peaks based on specified (\code{force_repeat_pattern
 \examples{
 
 fsa_list <- lapply(cell_line_fsa_list[c(16:19)], function(x) x$clone())
+config <- load_config()
 
-find_ladders(fsa_list, show_progress_bar = FALSE)
+find_ladders(fsa_list, config, show_progress_bar = FALSE)
 
-fragments_list <- find_fragments(
+find_fragments(
   fsa_list,
+  config,
   min_bp_size = 300
 )
 
-find_alleles(fragments_list)
+find_alleles(fsa_list, config)
 
-add_metadata(fragments_list,
+add_metadata(fsa_list,
    metadata[c(16:19), ]
 )
 
 # Simple conversion from bp size to repeat size
 call_repeats(
-  fragments_list,
+  fsa_list,
+  config,
   assay_size_without_repeat = 87,
   repeat_size = 3
 )
 
-plot_traces(fragments_list[1], xlim = c(120, 170))
+plot_traces(fsa_list[1], xlim = c(120, 170))
 
 # Use force_whole_repeat_units algorithm to make sure called
 # repeats are the exact number of bp apart
 
 call_repeats(
-  fragments_list,
+  fsa_list,
+  config,
   force_whole_repeat_units = TRUE,
   assay_size_without_repeat = 87,
   repeat_size = 3
 )
 
-plot_traces(fragments_list[1], xlim = c(120, 170))
+plot_traces(fsa_list[1], xlim = c(120, 170))
 
 
 # apply batch correction
 call_repeats(
-  fragments_list,
+  fsa_list,
+  config,
   correction = "batch",
   assay_size_without_repeat = 87,
   repeat_size = 3
 )
 
-plot_traces(fragments_list[1], xlim = c(120, 170))
+plot_traces(fsa_list[1], xlim = c(120, 170))
 
 # apply repeat correction
 call_repeats(
-  fragments_list,
+  fsa_list,
+  config,
   correction = "repeat",
   assay_size_without_repeat = 87,
   repeat_size = 3
 )
 
-plot_traces(fragments_list[1], xlim = c(120, 170))
+plot_traces(fsa_list[1], xlim = c(120, 170))
 
 #ensure only periodic peaks are called
 call_repeats(
-  fragments_list,
-  force_repeat_pattern = TRUE,
+  fsa_list,
+  config,
   force_repeat_pattern_size_period = 2.75,
   assay_size_without_repeat = 87,
   repeat_size = 3
 )
 
-plot_traces(fragments_list[1], xlim = c(120, 170))
+plot_traces(fsa_list[1], xlim = c(120, 170))
 
 }
 \seealso{

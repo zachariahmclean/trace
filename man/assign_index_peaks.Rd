@@ -6,21 +6,22 @@
 \usage{
 assign_index_peaks(
   fragments_list,
-  grouped = FALSE,
-  index_override_dataframe = NULL
+  config,
+  index_override_dataframe = NULL,
+  ...
 )
 }
 \arguments{
-\item{fragments_list}{A list of "fragments" class objects representing
-fragment data.}
+\item{fragments_list}{A list of "fragments" class objects representing fragment data.}
 
-\item{grouped}{Logical value indicating whether samples should be grouped to
-share a common index peak. \code{FALSE} will assign the sample's own modal allele as the index peak. \code{TRUE} will use metadata to assign the index peak based on the modal peak of another sample (see below for more details).}
+\item{config}{A trace_config object generated using \code{\link[=load_config]{load_config()}}.}
 
-\item{index_override_dataframe}{A data.frame to manually set index peaks.
-Column 1: unique sample IDs, Column 2: desired index peaks (the order of the
-columns is important since the information is pulled by column position rather
-than column name). Closest peak in each sample is selected so the number needs to just be approximate.}
+\item{index_override_dataframe}{A data.frame to manually set index peaks. Column 1: unique sample IDs, Column 2: desired index peaks (the order of the columns is important since the information is pulled by column position rather than column name). Closest peak in each sample is selected so the number needs to just be approximate. Default: \code{NULL}.}
+
+\item{...}{additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the \code{config_file}. These parameters include:
+\itemize{
+\item \code{grouped} Logical value indicating whether samples should be grouped to share a common index peak. \code{FALSE} will assign the sample's own modal allele as the index peak. \code{TRUE} will use metadata to assign the index peak based on the modal peak of another sample (see below for more details). Default: \code{FALSE}.
+}}
 }
 \value{
 This function modifies list of fragments objects in place with index_repeat and index_signal added.
@@ -43,31 +44,35 @@ As a final option, the index peak could be manually assigned directly to a \link
 
 
 fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+config <- load_config()
 
-find_ladders(fsa_list, show_progress_bar = FALSE)
+add_metadata(
+  fsa_list,
+  metadata_data.frame = trace::metadata
+)
 
-fragments_list <- find_fragments(fsa_list,
+find_ladders(fsa_list, config, show_progress_bar = FALSE)
+
+find_fragments(fsa_list, config,
   min_bp_size = 300
 )
 
 find_alleles(
-  fragments_list
+  fsa_list,
+  config
 )
 call_repeats(
-  fragments_list
-)
-
-add_metadata(
-  fragments_list,
-  metadata_data.frame = trace::metadata
+  fsa_list,
+  config
 )
 
 assign_index_peaks(
-  fragments_list,
+  fsa_list,
+  config,
   grouped = TRUE
 )
 
-plot_traces(fragments_list[1], xlim = c(100,150))
+plot_traces(fsa_list[1], xlim = c(100,150))
 
 
 

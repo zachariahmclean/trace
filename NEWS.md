@@ -6,7 +6,14 @@
 #repeat_table_to_repeats renames to repeat_table_to_fragments. also require specific column names
 #peak_table_to_fragments split up into two import functions genemapper_table_to_fragments and generic size_table_to_fragments
 #metadata now more rigid and requires all the columns with a specific name
-peakpat added to find_fragments as argument
+peakpat added to find_fragments as argument (fix this so it's simpler and just scans per peak)
+Changed individual functions to require a config file
+
+
+
+# trace 0.6.0
+
+-   Fixed bug in `calculate_instability_metrics()` with missing index samples
 
 # trace 0.5.0
 

@@ -30,15 +30,16 @@
 #' 
 #' repeats pipeline: [add_metadata()] (only if metadata_data.frame supplied), [find_alleles()], [assign_index_peaks()].
 #' 
-#' @importFrom  yaml read_yaml
 #' @export
 #' 
 #' @examples
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 #' 
 #' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-#' fragments_list <- trace_main(cell_line_fsa_list, grouped = TRUE, metadata_data.frame = metadata)
+#' fragments_list <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
+#' 
 #' metrics <- calculate_instability_metrics(
-#'   fragments_list = fragments_list,
+#'   fragments_list,
 #'   peak_threshold = 0.05,
 #'   window_around_index_peak = c(-40, 40),
 #'   percentile_range = c(0.5, 0.75, 0.9, 0.95),
@@ -55,7 +56,8 @@
 ){
    
   # Import config file if not supplied by user
-  config <- load_config(config_file, ...)
+  config <- load_config(config_file)
+  config <- update_config(config, ...)
    
   # set input type
   input_type <- sapply(fragments_list, function(x) x$input_method)
@@ -94,45 +96,6 @@
  
   return(sample_processed)
  }
-
-
-# Helper function to load the configuration file
-load_config <- function(config_file, ...) {
-
-  # check if config file has already been established previously as is 'trace_config' class and return early. 
-  # This is for use in main function
-  if("trace_config" %in% class(config_file)){
-    config <- config_file
-  } else{
-    # read in default config if not supplied
-    if (is.null(config_file)) {
-      config_file <- system.file("extdata/trace_config.yaml", package = "trace")
-    }
-
-    # read in config and flatten
-    config_nested <- yaml::read_yaml(config_file)
-    config <- list()
-    for (i in seq_along(config_nested)) {
-      config <- c(config, config_nested[[i]])
-    }
-  }
-  
-  # override config file with user supplied arguments
-  user_args <- list(...)
-
-  if(length(user_args) > 0){
-	  for(arg in names(user_args)){
-		config[[arg]] <- user_args[[arg]]
-	  }
-  }
-
-  # set config as S3 class
-  class(config) <- "trace_config"
-
-  return(config)
-}
-
-
 
 ## fsa pipeline
 trace_fsa <-  function(x,
@@ -179,7 +142,7 @@ trace_fragments <-  function(x,
 
   message("Assigning index peaks")
 
-  assign_index_peaks(x, config, index_override_dataframe = config$index_override_dataframe)
+  assign_index_peaks(x, config, index_override_dataframe = index_override_dataframe)
 
   return(x)
 }
@@ -203,7 +166,7 @@ trace_repeats <- function(x,
 
   message("Assigning index peaks")
 
-  assign_index_peaks(x, config, index_override_dataframe = config$index_override_dataframe)
+  assign_index_peaks(x, config, index_override_dataframe = index_override_dataframe)
 
   return(x)
 }

@@ -3,6 +3,7 @@
 testthat::test_that("percentiles", {
   gm_raw <- trace::example_data
   test_sample <- unique(gm_raw$Sample.File.Name)[1]
+  config <- load_config()
 
   test_df <- gm_raw[which(gm_raw$Sample.File.Name == test_sample), ]
 
@@ -13,10 +14,11 @@ testthat::test_that("percentiles", {
     min_size_bp = 350
   )
 
-  find_alleles(test_fragments[1])
+  find_alleles(test_fragments[1], config)
 
   call_repeats(
     test_fragments,
+    config,
     assay_size_without_repeat = 87,
     repeat_size = 3
   )
@@ -59,6 +61,7 @@ testthat::test_that("calculate metrics", {
       min_size_bp = 400
     )
   )
+  config <- load_config()
 
 
 
@@ -68,13 +71,14 @@ testthat::test_that("calculate metrics", {
   )
 
   find_alleles(
-    fragments_list = test_fragments
+    fragments_list = test_fragments, config
   )
 
 
   suppressWarnings(
     call_repeats(
       fragments_list = test_fragments,
+      config,
       assay_size_without_repeat = 87,
       repeat_size = 3
     )
@@ -88,6 +92,7 @@ testthat::test_that("calculate metrics", {
     suppressWarnings(
       assign_index_peaks(
         test_fragments,
+        config,
         grouped = FALSE
       )
     )
@@ -124,6 +129,7 @@ testthat::test_that("calculate metrics", {
     suppressWarnings(
       assign_index_peaks(
         test_fragments,
+        config,
         grouped = FALSE,
         index_override_dataframe = mock_override_df
       )
@@ -150,6 +156,7 @@ testthat::test_that("calculate metrics", {
     suppressWarnings(
       assign_index_peaks(
         test_fragments,
+        config,
         grouped = TRUE
       )
     )
@@ -179,3 +186,4 @@ testthat::test_that("calculate metrics", {
 
 
 })
+

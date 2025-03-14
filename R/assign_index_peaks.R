@@ -11,7 +11,7 @@
 #'
 #' @param fragments_list A list of "fragments" class objects representing fragment data.
 #' @param index_override_dataframe A data.frame to manually set index peaks. Column 1: unique sample IDs, Column 2: desired index peaks (the order of the columns is important since the information is pulled by column position rather than column name). Closest peak in each sample is selected so the number needs to just be approximate. Default: `NULL`.
-#' @param config_file The file path to a YAML file containing a full list of parameters. This provides a central place to adjust parameters for the pipeline. Use the following command to make a copy of the YAML file: `file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")`.
+#' @param config A trace_config object generated using [load_config()].
 #' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`. These parameters include:
 #'   \itemize{
 #'     \item `grouped` Logical value indicating whether samples should be grouped to share a common index peak. `FALSE` will assign the sample's own modal allele as the index peak. `TRUE` will use metadata to assign the index peak based on the modal peak of another sample (see below for more details). Default: `FALSE`.
@@ -35,27 +35,31 @@
 #'
 #'
 #' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
-#'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
-#'
-#' find_fragments(fsa_list,
-#'   min_bp_size = 300
-#' )
-#'
-#' find_alleles(
-#'   fsa_list
-#' )
-#' call_repeats(
-#'   fsa_list
-#' )
-#'
+#' config <- load_config()
+#' 
 #' add_metadata(
 #'   fsa_list,
 #'   metadata_data.frame = trace::metadata
 #' )
 #'
+#' find_ladders(fsa_list, config, show_progress_bar = FALSE)
+#'
+#' find_fragments(fsa_list, config,
+#'   min_bp_size = 300
+#' )
+#'
+#' find_alleles(
+#'   fsa_list,
+#'   config
+#' )
+#' call_repeats(
+#'   fsa_list,
+#'   config
+#' )
+#'
 #'assign_index_peaks(
 #'   fsa_list,
+#'   config,
 #'   grouped = TRUE
 #' )
 #'
@@ -68,11 +72,11 @@
 #'
 assign_index_peaks <- function(
     fragments_list,
-    config_file = NULL,
+    config,
     index_override_dataframe = NULL,
     ...) {
   # load config
-  config <- load_config(config_file, ...)
+  config <- update_config(config, ...)
   
   if (config$grouped == TRUE) {
     # what we're doing here is pulling out the key data for all the samples that are metrics controls

@@ -183,46 +183,14 @@ repeat_table_subset <- function(repeat_table_df,
 #' @export
 #'
 #' @examples
-#' gm_raw <- trace::example_data
-#' metadata <- trace::metadata
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' test_fragments <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 #'
-#' test_fragments <- genemapper_table_to_fragments(gm_raw,
-#'   dye_channel = "B",
-#'   min_size_bp = 400
-#' )
-#'
-#' add_metadata(
-#'   fragments_list = test_fragments,
-#'   metadata_data.frame = metadata
-#' )
-#'
-#' find_alleles(
-#'   fragments_list = test_fragments,
-#'   peak_region_size_gap_threshold = 6,
-#'   peak_region_signal_threshold_multiplier = 1
-#' )
-#'
-#'
-#' call_repeats(
-#'   fragments_list = test_fragments,
-#'   assay_size_without_repeat = 87,
-#'   repeat_size = 3
-#' )
-#'
-#' assign_index_peaks(
-#'   fragments_list = test_fragments,
-#'   grouped = TRUE
-#' )
-#'
-#'
-#' # grouped metrics
-#' # uses t=0 samples as indicated in metadata
 #' test_metrics_grouped <- calculate_instability_metrics(
 #'   fragments_list = test_fragments,
 #'   peak_threshold = 0.05,
-#'   window_around_index_peak = c(-40, 40),
-#'   percentile_range = c(0.5, 0.75, 0.9, 0.95),
-#'   repeat_range = c(2, 5, 10, 20)
+#'   window_around_index_peak = c(-40, 40)
 #' )
 calculate_instability_metrics <- function(
     fragments_list,
@@ -231,52 +199,52 @@ calculate_instability_metrics <- function(
     percentile_range = c(0.5, 0.75, 0.9, 0.95),
     repeat_range = c(2, 5, 10, 20)) {
   # calculate metrics
-  metrics_list <- lapply(fragments_list, function(fragments) {
+  metrics_list <- lapply(fragments_list, function(fragments_repeats) {
     # check to make sure all the required steps for the function have been done
-    if(fragments$.__enclos_env__$private$find_main_peaks_used == FALSE){
-      stop(paste0(fragments$unique_id, " requires called alleles to calculate repeat instability metrics. Use 'find_alleles()'."),
+    if(fragments_repeats$.__enclos_env__$private$find_main_peaks_used == FALSE){
+      stop(paste0(fragments_repeats$unique_id, " requires called alleles to calculate repeat instability metrics. Use 'find_alleles()'."),
           call. = FALSE
       )
     } 
-    if(fragments$.__enclos_env__$private$assigned_index_peak_used == FALSE){
-      stop(paste0(fragments$unique_id, " requires an index peak to calculate repeat instability metrics. Use 'assign_index_peaks' to set the index peaks."),
+    if(fragments_repeats$.__enclos_env__$private$assigned_index_peak_used == FALSE){
+      stop(paste0(fragments_repeats$unique_id, " requires an index peak to calculate repeat instability metrics. Use 'assign_index_peaks' to set the index peaks."),
           call. = FALSE
       )
     } 
 
     # return early under different situations and record a reason why
-    if (nrow(fragments$repeat_table_df) == 0) {
-      fragments$.__enclos_env__$private$metrics_qc_message <- "Skip reason: sample has no data"
+    if (nrow(fragments_repeats$repeat_table_df) == 0) {
+      fragments_repeats$.__enclos_env__$private$metrics_qc_message <- "Skip reason: sample has no data"
       return(NULL)
-    } else if (is.na(fragments$get_allele_peak()$allele_repeat)) {
-      fragments$.__enclos_env__$private$metrics_qc_message <- "Skip reason: no allele found in sample"
+    } else if (is.na(fragments_repeats$get_allele_peak()$allele_repeat)) {
+      fragments_repeats$.__enclos_env__$private$metrics_qc_message <- "Skip reason: no allele found in sample"
       return(NULL)
-    } else if (fragments$.__enclos_env__$private$assigned_index_peak_grouped == TRUE &&  is.na(fragments$get_index_peak()$index_repeat)){
+    } else if (fragments_repeats$.__enclos_env__$private$assigned_index_peak_grouped == TRUE &&  is.na(fragments_repeats$get_index_peak()$index_repeat)){
       # because of the warning above we know that there is data in this sample, but the issue came from the index grouping
-      fragments$.__enclos_env__$private$metrics_qc_message <- "Skip reason: Invalid index peak in sample grouping. Issue likely with `metrics_baseline_control` sample(s) that pairs with this sample."
+      fragments_repeats$.__enclos_env__$private$metrics_qc_message <- "Skip reason: Invalid index peak in sample grouping. Issue likely with `metrics_baseline_control` sample(s) that pairs with this sample."
       return(NULL)
     }
 
     # no issues so set this as blank in case calculate_instability_metrics was run with an issue previously
-    fragments$.__enclos_env__$private$metrics_qc_message <- NA_character_
+    fragments_repeats$.__enclos_env__$private$metrics_qc_message <- NA_character_
 
 
 
     # filter dataset to user supplied thresholds
     size_filtered_df <- repeat_table_subset(
-      repeat_table_df = fragments$repeat_table_df,
-      allele_signal = fragments$get_allele_peak()$allele_signal,
-      index_repeat = fragments$get_index_peak()$index_repeat,
+      repeat_table_df = fragments_repeats$repeat_table_df,
+      allele_signal = fragments_repeats$get_allele_peak()$allele_signal,
+      index_repeat = fragments_repeats$get_index_peak()$index_repeat,
       peak_threshold = peak_threshold,
       window_around_index_peak = window_around_index_peak
     )
 
     # filter and calculate index samples if they exist
-    if(!is.null(fragments$.__enclos_env__$private$index_samples) && length(fragments$.__enclos_env__$private$index_samples) > 0){
+    if(!is.null(fragments_repeats$.__enclos_env__$private$index_samples) && length(fragments_repeats$.__enclos_env__$private$index_samples) > 0){
 
       # filter for index samples with data
-      not_na_allele <- sapply(fragments$.__enclos_env__$private$index_samples, function(x) !is.na(x[[1]]))
-      index_sample_list_filtered <- fragments$.__enclos_env__$private$index_samples[not_na_allele]
+      not_na_allele <- sapply(fragments_repeats$.__enclos_env__$private$index_samples, function(x) !is.na(x[[1]]))
+      index_sample_list_filtered <- fragments_repeats$.__enclos_env__$private$index_samples[not_na_allele]
 
       if(length(index_sample_list_filtered) > 0){
         index_sample_list_filtered <- lapply(index_sample_list_filtered, function(x){
@@ -320,31 +288,31 @@ calculate_instability_metrics <- function(
     }
 
     # first subset to make some dataframe that are just for contractions or expansions
-    size_filtered_df$repeat_delta_index_peak <- size_filtered_df$repeats - fragments$get_index_peak()$index_repeat
+    size_filtered_df$repeat_delta_index_peak <- size_filtered_df$repeats - fragments_repeats$get_index_peak()$index_repeat
     expansion_filtered <- size_filtered_df[which(size_filtered_df$repeat_delta_index_peak >= 0), ]
     contraction_filtered <- size_filtered_df[which(size_filtered_df$repeat_delta_index_peak <= 0), ]
 
     # QCs
-    QC_modal_peak_signal <- if (fragments$get_allele_peak()$allele_signal > 500) {
+    QC_modal_peak_signal <- if (fragments_repeats$get_allele_peak()$allele_signal > 500) {
       NA_character_
-    } else if (fragments$get_allele_peak()$allele_signal > 100) {
+    } else if (fragments_repeats$get_allele_peak()$allele_signal > 100) {
       "Low"
     } else {
       "Extremely low"
     }
 
-    QC_peak_number <- if (nrow(fragments$repeat_table_df) > 20) {
+    QC_peak_number <- if (nrow(fragments_repeats$repeat_table_df) > 20) {
       NA_character_
-    } else if (nrow(fragments$repeat_table_df) > 10) {
+    } else if (nrow(fragments_repeats$repeat_table_df) > 10) {
       "Low"
     } else {
       "Extremely low"
     }
 
-    QC_off_scale <- if (any(fragments$repeat_table_df$off_scale)) {
+    QC_off_scale <- if (any(fragments_repeats$repeat_table_df$off_scale)) {
       paste(
         "The following repeats were determined off scale (check ladder too, could be scans in any channel):",
-        paste(round(fragments$repeat_table_df[which(fragments$repeat_table_df$off_scale), "repeats"]), collapse = ", ")
+        paste(round(fragments_repeats$repeat_table_df[which(fragments_repeats$repeat_table_df$off_scale), "repeats"]), collapse = ", ")
       )
     } else {
       NA_character_
@@ -352,17 +320,17 @@ calculate_instability_metrics <- function(
 
     # make a wide dataframe
     metrics <- data.frame(
-      unique_id = fragments$unique_id,
+      unique_id = fragments_repeats$unique_id,
       QC_comments = NA_character_,
       QC_modal_peak_signal = QC_modal_peak_signal,
       QC_peak_number = QC_peak_number,
       QC_off_scale = QC_off_scale,
-      modal_peak_repeat = fragments$get_allele_peak()$allele_repeat,
-      modal_peak_signal = fragments$get_allele_peak()$allele_signal,
-      index_peak_repeat = fragments$get_index_peak()$index_repeat,
-      index_peak_signal = fragments$get_index_peak()$index_signal,
+      modal_peak_repeat = fragments_repeats$get_allele_peak()$allele_repeat,
+      modal_peak_signal = fragments_repeats$get_allele_peak()$allele_signal,
+      index_peak_repeat = fragments_repeats$get_index_peak()$index_repeat,
+      index_peak_signal = fragments_repeats$get_index_peak()$index_signal,
       index_weighted_mean_repeat = index_weighted_mean_repeat,
-      n_peaks_total = nrow(fragments$repeat_table_df),
+      n_peaks_total = nrow(fragments_repeats$repeat_table_df),
       n_peaks_analysis_subset = nrow(size_filtered_df),
       n_peaks_analysis_subset_expansions = nrow(expansion_filtered),
       min_repeat = min(size_filtered_df$repeats),
@@ -375,45 +343,45 @@ calculate_instability_metrics <- function(
       max_delta_pos = max(size_filtered_df$repeat_delta_index_peak),
       skewness = fishers_skewness(size_filtered_df$repeats, size_filtered_df$signal),
       kurtosis = fishers_kurtosis(size_filtered_df$repeats, size_filtered_df$signal),
-      modal_repeat_change = fragments$get_allele_peak()$allele_repeat - fragments$get_index_peak()$index_repeat,
+      modal_repeat_change = fragments_repeats$get_allele_peak()$allele_repeat - fragments_repeats$get_index_peak()$index_repeat,
       average_repeat_change = weighted.mean(size_filtered_df$repeats, size_filtered_df$signal) - index_weighted_mean_repeat,
       instability_index_change = instability_index(
         repeats = size_filtered_df$repeats,
         signals = size_filtered_df$signal,
-        index_peak_signal = fragments$get_allele_peak()$allele_signal,
-        index_peak_repeat = fragments$get_index_peak()$index_repeat,
+        index_peak_signal = fragments_repeats$get_allele_peak()$allele_signal,
+        index_peak_repeat = fragments_repeats$get_index_peak()$index_repeat,
         peak_threshold = peak_threshold,
         abs_sum = FALSE
       ) - index_instability_index,
       instability_index = instability_index(
         repeats = size_filtered_df$repeats,
         signals = size_filtered_df$signal,
-        index_peak_signal = fragments$get_allele_peak()$allele_signal,
-        index_peak_repeat = fragments$get_index_peak()$index_repeat,
+        index_peak_signal = fragments_repeats$get_allele_peak()$allele_signal,
+        index_peak_repeat = fragments_repeats$get_index_peak()$index_repeat,
         peak_threshold = peak_threshold,
         abs_sum = FALSE
       ),
       instability_index_abs = instability_index(
         repeats = size_filtered_df$repeats,
         signals = size_filtered_df$signal,
-        index_peak_signal = fragments$get_allele_peak()$allele_signal,
-        index_peak_repeat = fragments$get_index_peak()$index_repeat,
+        index_peak_signal = fragments_repeats$get_allele_peak()$allele_signal,
+        index_peak_repeat = fragments_repeats$get_index_peak()$index_repeat,
         peak_threshold = peak_threshold,
         abs_sum = TRUE
       ),
       expansion_index = instability_index(
         repeats = expansion_filtered$repeats,
         signals = expansion_filtered$signal,
-        index_peak_signal = fragments$get_allele_peak()$allele_signal,
-        index_peak_repeat = fragments$get_index_peak()$index_repeat,
+        index_peak_signal = fragments_repeats$get_allele_peak()$allele_signal,
+        index_peak_repeat = fragments_repeats$get_index_peak()$index_repeat,
         peak_threshold = peak_threshold,
         abs_sum = FALSE
       ),
       contraction_index = instability_index(
         repeats = contraction_filtered$repeats,
         signals = contraction_filtered$signal,
-        index_peak_signal = fragments$get_allele_peak()$allele_signal,
-        index_peak_repeat = fragments$get_index_peak()$index_repeat,
+        index_peak_signal = fragments_repeats$get_allele_peak()$allele_signal,
+        index_peak_repeat = fragments_repeats$get_index_peak()$index_repeat,
         peak_threshold = peak_threshold,
         abs_sum = FALSE
       ),
@@ -424,7 +392,7 @@ calculate_instability_metrics <- function(
     expansion_percentile <- find_percentiles(
       expansion_filtered$repeats,
       expansion_filtered$signal,
-      fragments$get_index_peak()$index_repeat,
+      fragments_repeats$get_index_peak()$index_repeat,
       type = "percentile",
       range = percentile_range,
       col_prefix = "expansion_percentile"
@@ -433,7 +401,7 @@ calculate_instability_metrics <- function(
     expansion_repeat <- find_percentiles(
       expansion_filtered$repeats,
       expansion_filtered$signal,
-      fragments$get_index_peak()$index_repeat,
+      fragments_repeats$get_index_peak()$index_repeat,
       type = "repeat",
       range = repeat_range,
       col_prefix = "expansion_percentile_for_repeat"

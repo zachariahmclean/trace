@@ -249,7 +249,7 @@ ladder_rsq_warning_helper <- function(
 #' Find the ladder peaks in and use that to call bp size
 #'
 #' @param fragments_list list from 'read_fsa' function
-#' @param config_file The file path to a YAML file containing a full list of parameters. This provides a central place to adjust parameters for the pipeline. Use the following command to make a copy of the YAML file: `file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")`.
+#' @param config A trace_config object generated using [load_config()].
 #' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`. These parameters include:
 #'   \itemize{
 #'     \item `ladder_channel`: string, which channel in the fsa file contains the ladder signal. Default: `"DATA.105"`.
@@ -290,15 +290,16 @@ ladder_rsq_warning_helper <- function(
 #' @examples
 #'
 #' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
+#' config <- load_config()
 #'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
+#' find_ladders(fsa_list, config, show_progress_bar = FALSE)
 #'
 #' # Manually inspect the ladders
 #' plot_ladders(fsa_list[1])
 #'
 find_ladders <- function(
   fragments_list,
-  config_file = NULL,
+  config,
   ...) {
 
   fit_ladder <- function(
@@ -346,7 +347,7 @@ find_ladders <- function(
   }
 
   # load config
-  config <- load_config(config_file, ...)
+  config <- update_config(config, ...)
 
   # prepare output
   output <- trace_output$new("find_ladders")
@@ -549,10 +550,11 @@ find_ladders <- function(
 #'
 #'
 #' @examples
-#'
+#' 
+#' config <- load_config()
 #' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 #'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
+#' find_ladders(fsa_list, config, show_progress_bar = FALSE)
 #'
 #' # first manually determine the real ladder peaks using your judgment
 #' # the raw ladder signal can be extracted

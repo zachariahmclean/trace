@@ -268,12 +268,12 @@ plot_data_channels_helper <- function(fragment){
 #'
 #' @examples
 #'
-#' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
-#'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' fragments_list <- trace_main(fsa_list)
 #'
 #' # Manually inspect the ladders
-#' plot_ladders(fsa_list[1])
+#' plot_ladders(fragments_list[1])
 #'
 plot_ladders <- function(
     fragments_list,
@@ -346,24 +346,11 @@ plot_ladders <- function(
 #'
 #' @examples
 #'
-#' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' fragments_list <- trace_main(fsa_list)
 #'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
-#'
-#' find_fragments(fsa_list,
-#'   min_bp_size = 300
-#' )
-#'
-#' find_alleles(
-#'   fsa_list
-#' )
-#'
-#' # Simple conversion from bp size to repeat size
-#' call_repeats(
-#'   fsa_list
-#' )
-#'
-#' plot_traces(fsa_list, xlim = c(105, 150))
+#' plot_traces(fragments_list, xlim = c(105, 150))
 #'
 plot_traces <- function(
     fragments_list,
@@ -417,17 +404,10 @@ plot_traces <- function(
 #' @export
 #'
 #' @examples
-#' gm_raw <- trace::example_data
-#'
-#' fragments_list <- genemapper_table_to_fragments(gm_raw,
-#'   dye_channel = "B",
-#'   min_size_bp = 300
-#' )
-#'
-#' find_alleles(
-#'   fragments_list
-#' )
-#'
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' fragments_list <- trace_main(fsa_list)
+#' 
 #' plot_fragments(fragments_list[1])
 plot_fragments <- function(
     fragments_list,
@@ -484,30 +464,14 @@ plot_fragments <- function(
 #' @seealso [call_repeats()] for more info on batch correction.
 #' @examples
 #'
-#' fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' fragments_list <- trace_main(fsa_list, metadata_data.frame = metadata, correction = "batch")
 #'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
-#'
-#' find_fragments(fsa_list, min_bp_size = 300)
-#'
-#' test_alleles <- find_alleles(
-#'   fsa_list 
-#' )
-#' 
-#' add_metadata(
-#'   fsa_list,
-#'   metadata
-#' )
-#'
-#'
-#' call_repeats(
-#'   fsa_list,
-#'   correction = "batch"
-#' )
 #'
 #' # traces of bp size shows traces at different sizes
 #' plot_batch_correction_samples(
-#'   fsa_list,
+#'   fragments_list,
 #'   selected_sample = "S-21-212", xlim = c(100, 120)
 #' )
 #'
@@ -723,31 +687,13 @@ plot_data_channels <- function(
 #' 
 #' @examples
 #'
-#'
-#' fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
-#'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
-#'
-#' find_fragments(fsa_list, min_bp_size = 300)
-#'
-#' find_alleles(
-#'   fsa_list 
-#' )
-#' 
-#' add_metadata(
-#'   fsa_list,
-#'   metadata
-#' )
-#'
-#'
-#' call_repeats(
-#'   fsa_list,
-#'   correction = "repeat"
-#' )
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' fragments_list <- trace_main(fsa_list, metadata_data.frame = metadata, correction = "repeat")
 #'
 #' # traces of bp size shows traces at different sizes
 #' plot_repeat_correction_model(
-#'   fsa_list,
+#'   fragments_list,
 #'   batch_run_id_subset = "20230414"
 #' )
 #'

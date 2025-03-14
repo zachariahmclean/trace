@@ -19,31 +19,16 @@ Extracts a table summarizing the model used to correct repeat length
 For each of the samples used for repeat correction, this table pulls out the modal repeat length called by the model (\code{allele_repeat}), how far that sample is on average from the linear model in repeat units by finding the average residuals (\code{avg_residual}), and the absolute value of the \code{avg_residual} (\code{abs_avg_residual})
 }
 \examples{
-
-
-fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
-
-find_ladders(fsa_list, show_progress_bar = FALSE)
-
-fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
-
-test_alleles <- find_alleles(
-  fragments_list 
-)
-
-add_metadata(
-  fragments_list,
-  metadata
-)
-
-
-call_repeats(
-  fragments_list = fragments_list,
-  correction = "repeat"
-)
+fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+# import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+test_fragments <- trace_main(
+   fsa_list, 
+   grouped = TRUE, 
+   metadata_data.frame = metadata, 
+   correction = "repeat")
 
 # finally extract repeat correction summary
-extract_repeat_correction_summary(fragments_list)
+extract_repeat_correction_summary(fsa_list)
 
 
 }

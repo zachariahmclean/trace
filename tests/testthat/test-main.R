@@ -127,7 +127,7 @@ test_that("main repeats", {
 
   fragment_list <- repeat_table_to_fragments(example_data_repeat_table, min_repeat = 71)
 
-  frag_list <- suppressMessages(trace_main(fragment_list, grouped = TRUE, metadata_data.frame = metadata, peak_region_size_gap_threshold =2))
+  frag_list <- suppressMessages(trace_main(fragment_list, grouped = TRUE, metadata_data.frame = metadata[1:17,], peak_region_size_gap_threshold =2))
 
   
   test_metrics_grouped <- calculate_instability_metrics(
@@ -158,15 +158,15 @@ test_that("main repeats", {
 
 
 
-  ggplot2::ggplot(plot_data,
-                  ggplot2::aes(as.factor(treatment), rel_gain,
-             colour = as.factor(treatment))) +
-    ggplot2::geom_boxplot(outlier.shape = NA) +
-    ggplot2::geom_jitter() +
-    ggplot2::facet_wrap(ggplot2::vars(genotype)) +
-    ggplot2::labs(y = "Average repeat gain\n(relative to DMSO)",
-         x = "Branaplam (nM)") +
-    ggplot2::theme(legend.position = "none")
+  # ggplot2::ggplot(plot_data,
+  #                 ggplot2::aes(as.factor(treatment), rel_gain,
+  #            colour = as.factor(treatment))) +
+  #   ggplot2::geom_boxplot(outlier.shape = NA) +
+  #   ggplot2::geom_jitter() +
+  #   ggplot2::facet_wrap(ggplot2::vars(genotype)) +
+  #   ggplot2::labs(y = "Average repeat gain\n(relative to DMSO)",
+  #        x = "Branaplam (nM)") +
+  #   ggplot2::theme(legend.position = "none")
 
 
   medians <- aggregate(rel_gain ~ treatment + genotype, plot_data, median, na.rm = TRUE)

@@ -28,41 +28,13 @@ lets first generate some example data by cloning the example data that comes wit
 ```{r fsa_import}
 fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 
-```
-
-```{r ladders,warning=FALSE, message=FALSE}
-find_ladders(
-  fsa_list,
-  show_progress_bar = FALSE
-)
-```
-
-```{r find_fragments, warning=FALSE}
-find_fragments(
-  fsa_list,
+fsa_list <- trace_main(
+  fsa_list, 
+  show_progress_bar = FALSE,
   min_bp_size = 300
-)
+  )
+
 ```
-
-```{r add_metadata}
-
-add_metadata(
-  fsa_list,
-  metadata_data.frame = metadata
-)
-```
-
-```{r find_alleles_and_repeats, warning=FALSE, message=FALSE}
-find_alleles(
-  fsa_list
-)
-
-
-call_repeats(
-  fsa_list
-)
-```
-
 
 # plotting a trace
 

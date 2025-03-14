@@ -46,11 +46,13 @@ fragments pipeline: \code{\link[=add_metadata]{add_metadata()}} (only if metadat
 repeats pipeline: \code{\link[=add_metadata]{add_metadata()}} (only if metadata_data.frame supplied), \code{\link[=find_alleles]{find_alleles()}}, \code{\link[=assign_index_peaks]{assign_index_peaks()}}.
 }
 \examples{
+fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 
 # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-fragments_list <- trace_main(cell_line_fsa_list, grouped = TRUE, metadata_data.frame = metadata)
+fragments_list <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
+
 metrics <- calculate_instability_metrics(
-  fragments_list = fragments_list,
+  fragments_list,
   peak_threshold = 0.05,
   window_around_index_peak = c(-40, 40),
   percentile_range = c(0.5, 0.75, 0.9, 0.95),

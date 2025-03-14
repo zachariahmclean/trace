@@ -1,6 +1,7 @@
 test_that("index assignment", {
   gm_raw <- trace::example_data
   metadata <- trace::metadata
+  config <- load_config()
   # Save raw data as a fragment class
 
   suppressWarnings(
@@ -18,13 +19,15 @@ test_that("index assignment", {
   )
 
   find_alleles(
-    fragments_list = test_fragments
+    fragments_list = test_fragments,
+    config
   )
 
   suppressMessages(
     suppressWarnings(
       call_repeats(
-        fragments_list = test_fragments
+        fragments_list = test_fragments,
+        config
       )
     )
   )
@@ -40,6 +43,7 @@ test_that("index assignment", {
     suppressWarnings(
       assign_index_peaks(
         test_fragments,
+        config,
         grouped = TRUE
       )
     )
@@ -79,6 +83,7 @@ testthat::expect_true(all(sapply(test_fragments, function(x) x$.__enclos_env__$p
 testthat::test_that("calculate metrics", {
   gm_raw <- trace::example_data
   metadata <- trace::metadata
+  config <- load_config()
   # Save raw data as a fragment class
 
   suppressWarnings(
@@ -96,13 +101,15 @@ testthat::test_that("calculate metrics", {
   )
 
   find_alleles(
-    fragments_list = test_fragments
+    fragments_list = test_fragments,
+    config
   )
 
 
   suppressWarnings(
     call_repeats(
       fragments_list = test_fragments,
+      config,
       assay_size_without_repeat = 87,
       repeat_size = 3
     )
@@ -117,6 +124,7 @@ suppressMessages(
   tryCatch({
     assign_index_peaks(
       test_fragments,
+      config,
       grouped = TRUE
     )
   },
@@ -137,6 +145,7 @@ testthat::expect_true(grepl("batch_run_id", assignment_warning))
 testthat::test_that("test situation where some samples have NA in grouped", {
   gm_raw <- trace::example_data
   metadata <- trace::metadata
+  config <- load_config()
   # Save raw data as a fragment class
 
   suppressWarnings(
@@ -154,13 +163,15 @@ testthat::test_that("test situation where some samples have NA in grouped", {
   )
 
   find_alleles(
-    fragments_list = test_fragments
+    fragments_list = test_fragments,
+    config
   )
 
 
   suppressWarnings(
     call_repeats(
       fragments_list = test_fragments,
+      config,
       assay_size_without_repeat = 87,
       repeat_size = 3
     )
@@ -175,6 +186,7 @@ suppressMessages(
   tryCatch({
     assign_index_peaks(
       test_fragments,
+      config,
       grouped = TRUE
     )
   },

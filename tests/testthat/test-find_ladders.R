@@ -70,10 +70,13 @@ test_that("iterative ladder", {
 
 test_that("find ladders", {
 
+  config <- load_config()
+
   fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
   suppressWarnings(
     find_ladders(
       fsa_list,
+      config,
       ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
       max_combinations = 2500000,
       ladder_selection_window = 8,
@@ -89,9 +92,11 @@ test_that("find ladders", {
 
 test_that("find ladders scan subset", {
 
+  config <- load_config()
   fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
   suppressWarnings(
     find_ladders(fsa_list,
+      config,
       ladder_sizes = c(200, 250, 300, 340, 350, 400, 450),
       scan_subset = c(2400, 4250),
       max_combinations = 2500000,
@@ -111,10 +116,13 @@ test_that("find ladders scan subset", {
 
 test_that("ladder minium signal", {
 
+  config <- load_config()
+
   fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
 
     test_ladders <- find_ladders(fsa_list,
+      config,
                                  ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
                                  max_combinations = 2500000,
                                  ladder_selection_window = 8,
@@ -171,6 +179,8 @@ test_that("ladder minium signal", {
 
 
 test_that("fix ladders manual", {
+  config <- load_config()
+
  example_list <- list(
   "20230413_A07.fsa" = data.frame(
     size = c(100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
@@ -181,6 +191,7 @@ test_that("fix ladders manual", {
   fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
   find_ladders(fsa_list,
+    config,
     ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
     max_combinations = 2500000,
     ladder_selection_window = 8,
@@ -200,12 +211,15 @@ test_that("fix ladders manual", {
 
 test_that("ladder fit ladder error message", {
 
+  config <- load_config()
+
   fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
   
   test_ladders <- tryCatch(
     print(
       find_ladders(fsa_list,
+        config,
         ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
         max_combinations = 2500000,
         ladder_selection_window = 8,
@@ -215,7 +229,7 @@ test_that("ladder fit ladder error message", {
     ), error = function(e) e
   )
 
-  expect_true("error" %in% class(print(test_ladders)))
+  expect_true("error" %in% class(test_ladders))
 
   # warning
 

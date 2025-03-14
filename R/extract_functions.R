@@ -10,11 +10,11 @@
 #' @export
 #'
 #' @examples
-#' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' test_fragments <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 #'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
-#'
-#' extracted_traces <- extract_trace_table(fsa_list)
+#' extracted_traces <- extract_trace_table(test_fragments)
 #'
 extract_trace_table <- function(fragments_list) {
   # turn the output into a dataframe
@@ -45,11 +45,11 @@ extract_trace_table <- function(fragments_list) {
 #'
 #' @examples
 #'
-#'   fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' test_fragments <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 #'
-#'   find_ladders(fsa_list, show_progress_bar = FALSE)
-#'
-#'   extract_ladder_summary(fsa_list, sort = TRUE)
+#'   extract_ladder_summary(test_fragments, sort = TRUE)
 extract_ladder_summary <- function(
     fragments_list,
     sort = FALSE){
@@ -93,18 +93,9 @@ extract_ladder_summary <- function(
 #' @export
 #'
 #' @examples
-#' gm_raw <- trace::example_data
-#'
-#' test_fragments <- genemapper_table_to_fragments(gm_raw,
-#'   dye_channel = "B",
-#'   min_size_bp = 400
-#' )
-#'
-#' find_alleles(
-#'   fragments_list = test_fragments,
-#'   peak_region_size_gap_threshold = 6,
-#'   peak_region_signal_threshold_multiplier = 1
-#' )
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' test_fragments <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 #'
 #' extract_alleles(test_fragments)
 #'
@@ -131,30 +122,11 @@ extract_alleles <- function(fragments_list) {
 #' @export
 #'
 #' @examples
-#' gm_raw <- trace::example_data
-#' metadata <- trace::metadata
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' test_fragments <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 #'
-#' test_fragments <- genemapper_table_to_fragments(gm_raw,
-#'   dye_channel = "B",
-#'   min_size_bp = 400
-#' )
-#'
-#' add_metadata(
-#'   fragments_list = test_fragments,
-#'   metadata_data.frame = metadata
-#' )
-#'
-#' find_alleles(
-#'   fragments_list = test_fragments
-#' )
-#'
-#' call_repeats(
-#'   fragments_list = test_fragments,
-#'   assay_size_without_repeat = 87,
-#'   repeat_size = 3
-#' )
-#'
-#' extract_alleles(test_fragments)
+#' extract_fragments(test_fragments)
 #'
 extract_fragments <- function(fragments_list) {
   suppressWarnings(
@@ -201,28 +173,13 @@ extract_fragments <- function(fragments_list) {
 #' For each of the samples used for repeat correction, this table pulls out the modal repeat length called by the model (`allele_repeat`), how far that sample is on average from the linear model in repeat units by finding the average residuals (`avg_residual`), and the absolute value of the `avg_residual` (`abs_avg_residual`)
 #' 
 #' @examples
-#'
-#'
-#' fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
-#'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
-#'
-#' find_fragments(fsa_list, min_bp_size = 300)
-#'
-#' test_alleles <- find_alleles(
-#'   fsa_list 
-#' )
-#' 
-#' add_metadata(
-#'   fsa_list,
-#'   metadata
-#' )
-#'
-#'
-#' call_repeats(
-#'   fragments_list = fsa_list,
-#'   correction = "repeat"
-#' )
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' test_fragments <- trace_main(
+#'    fsa_list, 
+#'    grouped = TRUE, 
+#'    metadata_data.frame = metadata, 
+#'    correction = "repeat")
 #'
 #' # finally extract repeat correction summary
 #' extract_repeat_correction_summary(fsa_list)
