@@ -77,12 +77,21 @@ find_alleles <- function(
   }
 
 
-  # NEED TO VALIDATE INPUTS
- 
-  config <- update_config(config, ...)
-
   # prepare output file
   output <- trace_output$new("find_alleles")
+ 
+  # load config
+  config <- tryCatch(
+    update_config(config, ...),
+    error = function(e) e
+  )
+  if("error" %in% class(config)){
+    output$set_status(
+      "error", 
+      config$message
+    )
+    return(output)
+  }
 
   lapply(fragments_list, function(fragment) {
     # the main idea here is that PCR generates clusters of peaks around the main alleles.

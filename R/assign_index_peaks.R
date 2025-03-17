@@ -75,8 +75,21 @@ assign_index_peaks <- function(
     config,
     index_override_dataframe = NULL,
     ...) {
+  # prepare output file
+  output <- trace_output$new("assign_index_peaks")
+
   # load config
-  config <- update_config(config, ...)
+  config <- tryCatch(
+    update_config(config, ...),
+    error = function(e) e
+  )
+  if("error" %in% class(config)){
+    output$set_status(
+      "error", 
+      config$message
+    )
+    return(output)
+  }
   
   if (config$grouped == TRUE) {
     # what we're doing here is pulling out the key data for all the samples that are metrics controls
@@ -189,6 +202,6 @@ assign_index_peaks <- function(
     })
   }
 
-  invisible()
+  return(output)
 }
 

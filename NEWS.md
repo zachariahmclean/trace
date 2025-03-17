@@ -8,6 +8,8 @@
 #metadata now more rigid and requires all the columns with a specific name
 peakpat added to find_fragments as argument (fix this so it's simpler and just scans per peak)
 Changed individual functions to require a config file
+scan subset replace with min scan and max scan
+changed deaults from null to NA (ladder_start_scan, minimum_peak_signal)
 
 
 

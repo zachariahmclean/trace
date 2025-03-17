@@ -24,32 +24,25 @@ find_ladder_peaks <- function(ladder_df,
   ladder_peaks <- vector("numeric")
   ladder_peak_threshold <- 1
 
-  #allow user to set min signal
-
-  if(!is.null(minimum_ladder_signal)){
+  while (length(ladder_peaks) < n_reference_sizes) {
     peaks <- pracma::findpeaks(ladder_df$smoothed_signal,
                                peakpat = "[+]{5,}[0]*[-]{5,}", # see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
-                               minpeakheight = minimum_ladder_signal
+                               minpeakheight = median_signal + sd_signal * ladder_peak_threshold
     )
 
     ladder_peaks <- ladder_df$scan[peaks[, 2]]
-  } else {
-    while (length(ladder_peaks) < n_reference_sizes) {
-      peaks <- pracma::findpeaks(ladder_df$smoothed_signal,
-                                 peakpat = "[+]{5,}[0]*[-]{5,}", # see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
-                                 minpeakheight = median_signal + sd_signal * ladder_peak_threshold
-      )
 
-      ladder_peaks <- ladder_df$scan[peaks[, 2]]
+    # lower the threshold for the next cycle
+    ladder_peak_threshold <- ladder_peak_threshold - 0.01
 
-      # lower the threshold for the next cycle
-      ladder_peak_threshold <- ladder_peak_threshold - 0.01
-
-      # provide an exit if there are not enough peaks found
-      if (sd_signal * ladder_peak_threshold <= 0) {
-        break
-      }
+    # provide an exit if there are not enough peaks found
+    if (sd_signal * ladder_peak_threshold <= 0) {
+      break
     }
+  }
+
+  if(!is.na(minimum_ladder_signal)){
+    ladder_peaks <- ladder_peaks[which(ladder_df[ladder_peaks, "signal"] > minimum_ladder_signal)]
   }
 
   if(length(ladder_peaks) < n_reference_sizes){
@@ -255,13 +248,14 @@ ladder_rsq_warning_helper <- function(
 #'     \item `ladder_channel`: string, which channel in the fsa file contains the ladder signal. Default: `"DATA.105"`.
 #'     \item `signal_channel`: string, which channel in the fsa file contains the data signal. Default: `"DATA.1"`.
 #'     \item `ladder_sizes`: numeric vector, bp sizes of ladder used in fragment analysis. Default: `c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500)`.
-#'     \item `ladder_start_scan`: numeric, indicate the scan number to start looking for ladder peaks. Usually this can be automatically found (when set to NULL). Default: `NULL`.
-#'     \item `minimum_peak_signal`: numeric, minimum signal of peak from smoothed signal. Default: `NULL`.
-#'     \item `scan_subset`: numeric vector (length 2), filter the ladder and data signal between the selected scans (e.g., `scan_subset = c(3000, 5000)`). Default: `NULL`.
-#'     \item `ladder_selection_window`: numeric, in the ladder assigning algorithm, the we iterate through the scans in blocks and test their linear fit (We can assume that the ladder is linear over a short distance). This value defines how large that block of peaks should be. Default: `5`.
-#'     \item `max_combinations`: numeric, what is the maximum number of ladder combinations that should be tested. Default: `2500000`.
-#'     \item `warning_rsq_threshold`: numeric, the value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold. Default: `0.998`.
-#'     \item `show_progress_bar`: logical, show progress bar. Default: `TRUE`.
+#'     \item `ladder_start_scan`: single numeric indicating the scan number to start looking for ladder peaks. Usually this can be automatically found (when set to NULL). Default: `NA`.
+#'     \item `minimum_peak_signal`: single numeric for minimum signal of peak from smoothed signal. Default: `NA`.
+#'     \item `min_scan`: single numeric indicating the lower scan limit to filter out scans below. Default: `NA`.
+#'     \item `max_scan`: single numeric indicating the upper scan limit to filter out scans above Default: `NA`.
+#'     \item `ladder_selection_window`: single numeric for the ladder assigning algorithm. We iterate through the scans in blocks and test their linear fit (We can assume that the ladder is linear over a short distance). This value defines how large that block of peaks should be. Default: `5`.
+#'     \item `max_combinations`: single numeric indicating what is the maximum number of ladder combinations that should be tested. Default: `2500000`.
+#'     \item `warning_rsq_threshold`: single numeric for the value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold. Default: `0.998`.
+#'     \item `show_progress_bar`: single logical for showing progress bar. Default: `TRUE`.
 #'   }
 #'
 #' @return This function modifies list of fragments objects in place with the ladder assigned and base pair calculated.
@@ -306,12 +300,9 @@ find_ladders <- function(
       ladder,
       scans,
       sample_id) {
-    if (is.null(config$ladder_start_scan)) {
-      config$ladder_start_scan <- which.max(ladder) + 50
-    }
-
+    
     ladder_df <- data.frame(signal = ladder, scan = scans)
-    ladder_df <- ladder_df[which(ladder_df$scan >= config$ladder_start_scan), ]
+    ladder_df <- ladder_df[which(ladder_df$scan >= ladder_start_scan), ]
     ladder_df$detrended_signal <- detrend_signal(ladder_df$signal)
     ladder_df$smoothed_signal <- pracma::savgol(
       ladder_df$detrended_signal,
@@ -346,72 +337,22 @@ find_ladders <- function(
     return(combined_ladder_peaks)
   }
 
-  # load config
-  config <- update_config(config, ...)
+  # update config
 
   # prepare output
   output <- trace_output$new("find_ladders")
 
-  # validate inputs
-  for (param in c("ladder_channel", "signal_channel" )) {
-    if(length(config[[param]]) != 1 && !is.character(config[[param]])){
-      output$set_status(
-        "error", 
-        paste0(param, " parameter must be a character type and length = 1")
-      )
-      return(output)
-    }
-  }
-
-  if(length(config[["ladder_sizes"]]) <2 && !is.numeric(config[["ladder_sizes"]])){
+  config <- tryCatch(
+    update_config(config, ...),
+    error = function(e) e
+  )
+  if("error" %in% class(config)){
     output$set_status(
       "error", 
-      paste0("ladder_sizes", " parameter must be a character type and length > 2")
+      config$message
     )
     return(output)
   }
-
-  for (param in c("ladder_start_scan", "minimum_ladder_signal" )) {
-    if(!is.null(config[[param]])){
-      if(length(config[[param]]) != 1 && !is.numeric(config[[param]])){
-        output$set_status(
-          "error", 
-          paste0(param, " parameter must be a numeric type and length = 1")
-        )
-        return(output)
-      }
-    }
-  }
-
-  if(!is.null(config[["scan_subset"]])){
-    if(length(config[["scan_subset"]]) != 2 && !is.numeric(config[["scan_subset"]])){
-      output$set_status(
-        "error", 
-        paste0("scan_subset", " parameter must be a numeric type and length = 2")
-      )
-      return(output)
-    }
-  }
-
-  for (param in c("ladder_selection_window", "max_combinations", "warning_rsq_threshold")) {
-    if(length(config[[param]]) != 1 && !is.numeric(config[[param]])){
-      output$set_status(
-        "error", 
-        paste0(param, " parameter must be a numeric type and length = 1")
-      )
-      return(output)
-    }
-  }
-
-  if(length(config[["show_progress_bar"]]) != 1 && !is.logical(config[["show_progress_bar"]])){
-    output$set_status(
-      "error", 
-      paste0("show_progress_bar", " parameter must be a logical type and length = 1")
-    )
-    return(output)
-  }
-
-  # run code
 
   if (config$show_progress_bar) {
     pb <- utils::txtProgressBar(min = 0, max = length(fragments_list), style = 3)
@@ -441,14 +382,27 @@ find_ladders <- function(
       config$ladder_selection_window <- length(config$ladder_sizes)
     }
 
+    # set ladder_start_scan
+    if (is.na(config$ladder_start_scan)) {
+      ladder_start_scan <- which.max(fragments_list[[i]]$raw_ladder) + 50
+    } else{
+      ladder_start_scan <- config$ladder_start_scan
+    }
+
     # allow user to subset to particular scans
-    if (!is.null(config$scan_subset)) {
-      fragments_list[[i]]$raw_ladder <- fragments_list[[i]]$raw_ladder[config$scan_subset[1]:config$scan_subset[2]]
-      fragments_list[[i]]$raw_data <- fragments_list[[i]]$raw_data[config$scan_subset[1]:config$scan_subset[2]]
-      fragments_list[[i]]$scan <- fragments_list[[i]]$scan[config$scan_subset[1]:config$scan_subset[2]]
+    if (!is.na(config$min_scan) | !is.na(config$max_scan)) {
+      min_scan = ifelse(is.na(config$min_scan), min(fragments_list[[i]]$scan), config$min_scan)
+      max_scan = ifelse(is.na(config$max_scan), max(fragments_list[[i]]$scan), config$max_scan)
+
+      fragments_list[[i]]$raw_ladder <- fragments_list[[i]]$raw_ladder[min_scan:max_scan]
+      fragments_list[[i]]$raw_data <- fragments_list[[i]]$raw_data[min_scan:max_scan]
+      fragments_list[[i]]$scan <- fragments_list[[i]]$scan[min_scan:max_scan]
 
       # set spike location since it's automatically set usually, and user may select scans to start after
-      config$ladder_start_scan <- config$scan_subset[1]
+      if(is.na(config$ladder_start_scan)){
+        ladder_start_scan <- config$min_scan
+      }
+      
     }
 
     # ladder

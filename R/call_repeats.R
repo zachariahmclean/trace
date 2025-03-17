@@ -551,8 +551,21 @@ call_repeats <- function(
     config,
     ...) {
   
+  # prepare output file
+  output <- trace_output$new("call_repeats")
+  
   # load config
-  config <- update_config(config, ...)
+  config <- tryCatch(
+    update_config(config, ...),
+    error = function(e) e
+  )
+  if("error" %in% class(config)){
+    output$set_status(
+      "error", 
+      config$message
+    )
+    return(output)
+  }
  
   ### in this function, we are doing three key things
       #### 1) use force_repeat_pattern to find repeats and generate a new repeat table dataframe
@@ -737,5 +750,5 @@ call_repeats <- function(
     )
   }    
 
-  invisible()
+  return(output)
 }

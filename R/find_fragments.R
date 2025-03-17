@@ -94,12 +94,21 @@ find_fragments <- function(
     return(df2)
   }
 
-  # load config
-  config <- update_config(config, ...)
-
   # prepare output file
   output <- trace_output$new("find_fragments")
 
+  # load config
+  config <- tryCatch(
+    update_config(config, ...),
+    error = function(e) e
+  )
+  if("error" %in% class(config)){
+    output$set_status(
+      "error", 
+      config$message
+    )
+    return(output)
+  }
 
   # NEED TO VALIDATE INPUTS
   #SMOOTHING WINDOW MUST BE ODD integer greater than 1

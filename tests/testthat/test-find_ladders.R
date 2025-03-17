@@ -15,7 +15,7 @@ testthat::test_that("find ladder peaks", {
   test_ladder_peaks <- find_ladder_peaks(
     test_processed,
     length(ladder_sizes),
-    minimum_ladder_signal = NULL,
+    minimum_ladder_signal = NA,
     sample_id = names(cell_line_fsa_list[1])
   )
 
@@ -25,7 +25,7 @@ testthat::test_that("find ladder peaks", {
   test_ladder_peaks_20 <- find_ladder_peaks(
     test_processed,
     n_reference_sizes = 20,
-    minimum_ladder_signal = NULL,
+    minimum_ladder_signal = NA,
     sample_id = names(cell_line_fsa_list[1])
   )
 
@@ -98,7 +98,8 @@ test_that("find ladders scan subset", {
     find_ladders(fsa_list,
       config,
       ladder_sizes = c(200, 250, 300, 340, 350, 400, 450),
-      scan_subset = c(2400, 4250),
+      min_scan = 2400,
+      max_scan = 4250,
       max_combinations = 2500000,
       ladder_selection_window = 8,
       show_progress_bar = FALSE
