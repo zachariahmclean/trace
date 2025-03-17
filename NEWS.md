@@ -1,15 +1,15 @@
 # new
 
 #renamed find_ladders() minimum_peak_signal to minimum_ladder_signal
-#relaxed peakpat to make peak calling slightly less agressive to avoid missing peaks
 #find_fragments now modifies in place
 #repeat_table_to_repeats renames to repeat_table_to_fragments. also require specific column names
 #peak_table_to_fragments split up into two import functions genemapper_table_to_fragments and generic size_table_to_fragments
 #metadata now more rigid and requires all the columns with a specific name
-peakpat added to find_fragments as argument (fix this so it's simpler and just scans per peak)
+peak_scan_ramp added to find_fragments as argument and relaxed from 6 to 5
 Changed individual functions to require a config file
 scan subset replace with min scan and max scan
 changed deaults from null to NA (ladder_start_scan, minimum_peak_signal)
+made inputs stricter and validated
 
 
 

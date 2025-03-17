@@ -429,7 +429,7 @@ model_repeat_length <- function(
 #'
 #' @param fragments_list A list of fragments objects containing fragment data.
 #' @param config A trace_config object generated using [load_config()].
-#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`. These parameters include:
+#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config`. These parameters include:
 #'   \itemize{
 #'     \item `assay_size_without_repeat` An integer specifying the assay size without repeat for repeat calling. This is the length of the sequence flanking the repeat in the PCR product. Default: `87`.
 #'     \item `repeat_size` An integer specifying the repeat size for repeat calling. Default: `3`.

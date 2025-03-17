@@ -79,7 +79,7 @@ validate_inputs <- function(config){
     minimum_peak_signal = list(type = "numeric", length = "single", allow_na = FALSE, allow_inf = TRUE),
     min_bp_size = list(type = "numeric", length = "single", allow_na = FALSE, allow_inf = TRUE),
     max_bp_size = list(type = "numeric", length = "single", allow_na = FALSE, allow_inf = TRUE),
-    peakpat = list(type = "character", length = "single", allow_na = FALSE, allow_inf = FALSE),
+    peak_scan_ramp = list(type = "numeric", length = "single", allow_na = FALSE, allow_inf = FALSE),
     number_of_alleles = list(type = "numeric", length = "single", allow_na = FALSE, allow_inf = FALSE),
     peak_region_size_gap_threshold = list(type = "numeric", length = "single", allow_na = FALSE, allow_inf = FALSE),
     peak_region_signal_threshold_multiplier = list(type = "numeric", length = "single", allow_na = FALSE, allow_inf = FALSE),

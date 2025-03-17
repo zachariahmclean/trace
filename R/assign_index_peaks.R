@@ -12,7 +12,7 @@
 #' @param fragments_list A list of "fragments" class objects representing fragment data.
 #' @param index_override_dataframe A data.frame to manually set index peaks. Column 1: unique sample IDs, Column 2: desired index peaks (the order of the columns is important since the information is pulled by column position rather than column name). Closest peak in each sample is selected so the number needs to just be approximate. Default: `NULL`.
 #' @param config A trace_config object generated using [load_config()].
-#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`. These parameters include:
+#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config`. These parameters include:
 #'   \itemize{
 #'     \item `grouped` Logical value indicating whether samples should be grouped to share a common index peak. `FALSE` will assign the sample's own modal allele as the index peak. `TRUE` will use metadata to assign the index peak based on the modal peak of another sample (see below for more details). Default: `FALSE`.
 #'    } 

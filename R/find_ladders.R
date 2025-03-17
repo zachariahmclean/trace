@@ -243,7 +243,7 @@ ladder_rsq_warning_helper <- function(
 #'
 #' @param fragments_list list from 'read_fsa' function
 #' @param config A trace_config object generated using [load_config()].
-#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`. These parameters include:
+#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config`. These parameters include:
 #'   \itemize{
 #'     \item `ladder_channel`: string, which channel in the fsa file contains the ladder signal. Default: `"DATA.105"`.
 #'     \item `signal_channel`: string, which channel in the fsa file contains the data signal. Default: `"DATA.1"`.

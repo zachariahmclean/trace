@@ -16,7 +16,7 @@ find_fragments:
   minimum_peak_signal: 20
   min_bp_size: 200
   max_bp_size: 1000
-  peakpat: '[+]{5,}[0]*[-]{5,}'
+  peak_scan_ramp: 5
 
 find_alleles:
   number_of_alleles: 1

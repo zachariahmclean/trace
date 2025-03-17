@@ -5,7 +5,7 @@
 #'
 #' @param fragments_list A list of fragment objects containing peak data.
 #' @param config A trace_config object generated using [load_config()].
-#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`. These parameters include:
+#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config`. These parameters include:
 #'   \itemize{
 #'     \item `number_of_alleles` Number of alleles to be returned for each fragment. Must either be 1 or 2. Being able to identify two alleles is for cases when you are analyze different human samples with a normal and expanded alleles and you can't do the preferred option of simply ignoring the normal allele in [find_fragments()] (eg setting the min_bp_size above the normal allele bp size). Default: `1`.
 #'     \item `peak_region_size_gap_threshold` Gap threshold for identifying peak regions. The peak_region_size_gap_threshold is a parameter used to determine the maximum allowed gap between peak sizes within a peak region. Adjusting this parameter affects the size range of peaks that can be grouped together in a region. A smaller value makes it more stringent, while a larger value groups peaks with greater size differences, leading to broader peak regions that may encompass wider size ranges. Default: `6`.

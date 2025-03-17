@@ -10,13 +10,13 @@
 #'
 #' @param fragments_list A list of fragments objects containing fragment data.
 #' @param config A trace_config object generated using [load_config()].
-#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`. These parameters include:
+#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config`. These parameters include:
 #'   \itemize{
 #'    \item `smoothing_window` numeric, signal smoothing window size passed to pracma::savgol(). Default: `21`.
 #'    \item `minimum_peak_signal` numeric, minimum signal of the raw trace. To have no minimum signal set as "-Inf". Default: `20`.
 #'    \item `min_bp_size` numeric, minimum bp size of peaks to consider. Default: `100`.
 #'    \item `max_bp_size` numeric, maximum bp size of peaks to consider. Default: `1000`.
-#'    \item `peakpat` formula to define a peak, which includes the number of scans either side of maxima. Passed to [pracma::findpeaks()]. Default: `'\[+\]\{5,\}\[0\]*\[-\]\{5,\}'`. See https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
+#'    \item `peak_scan_ramp` Single numeric value to indicate how many scans (increasing in signal) should be either side of the peak maxima. Default: `5`.
 #'  }
 #'
 #' @return a list of fragments objects.
@@ -29,7 +29,7 @@
 #' 
 #' This takes in a list of fragments objects and returns a list of new fragments objects.
 #' 
-#' This function is basically a wrapper around [pracma::findpeaks()] and the definition of a peak can be defined with peakpat argument. If your amplicon is large, there may be fewer scans that make up individual peak. SO for example you may want to set peakpat as '\[+\]\{3,\}\[0\]*\[-\]\{3,\}'.
+#' This function is basically a wrapper around [pracma::findpeaks()]. If your amplicon is large, there may be fewer scans that make up individual peak. So for example you may want to set peak_scan_ramp as a smaller value.
 #'
 #' If too many and inappropriate peaks are being called, this may also be solved with the different repeat calling algorithms in [call_repeats()].
 #'
@@ -55,6 +55,11 @@ find_fragments <- function(
     config,
     ...) {
   find_fragment_peaks <- function(trace_bp_df) {
+
+    if(config$smoothing_window %% 2 != 1){
+      stop("smoothing_window must be an odd integer value")
+    }
+
     smoothed_signal <- pracma::savgol(
       trace_bp_df$signal,
       config$smoothing_window
@@ -63,7 +68,7 @@ find_fragments <- function(
     # call all peaks regardless of height
     peaks <- pracma::findpeaks(smoothed_signal,
       minpeakheight = -Inf,
-      peakpat = config$peakpat
+      peakpat = sprintf('[+]{%d,}[0]*[-]{%d,}', config$peak_scan_ramp, config$peak_scan_ramp)
     )
 
     n_scans <- length(trace_bp_df$signal)
@@ -110,8 +115,6 @@ find_fragments <- function(
     return(output)
   }
 
-  # NEED TO VALIDATE INPUTS
-  #SMOOTHING WINDOW MUST BE ODD integer greater than 1
 
   fragments_list <- lapply(fragments_list, function(x) {
     # find peak table
