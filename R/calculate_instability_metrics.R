@@ -200,17 +200,6 @@ calculate_instability_metrics <- function(
     repeat_range = c(2, 5, 10, 20)) {
   # calculate metrics
   metrics_list <- lapply(fragments_list, function(fragments_repeats) {
-    # check to make sure all the required steps for the function have been done
-    if(fragments_repeats$.__enclos_env__$private$find_main_peaks_used == FALSE){
-      stop(paste0(fragments_repeats$unique_id, " requires called alleles to calculate repeat instability metrics. Use 'find_alleles()'."),
-          call. = FALSE
-      )
-    } 
-    if(fragments_repeats$.__enclos_env__$private$assigned_index_peak_used == FALSE){
-      stop(paste0(fragments_repeats$unique_id, " requires an index peak to calculate repeat instability metrics. Use 'assign_index_peaks' to set the index peaks."),
-          call. = FALSE
-      )
-    } 
 
     # return early under different situations and record a reason why
     if (nrow(fragments_repeats$repeat_table_df) == 0) {
@@ -243,17 +232,23 @@ calculate_instability_metrics <- function(
     if(!is.null(fragments_repeats$.__enclos_env__$private$index_samples) && length(fragments_repeats$.__enclos_env__$private$index_samples) > 0){
 
       # filter for index samples with data
-      not_na_allele <- sapply(fragments_repeats$.__enclos_env__$private$index_samples, function(x) !is.na(x[[1]]))
+      not_na_allele <- sapply(fragments_repeats$.__enclos_env__$private$index_samples, function(x) !is.na(x$allele_repeat))
+
+      ## add height and signal sum filter here!
+      ## also check to see if that completely removes them and makes those NA
+
+
       index_sample_list_filtered <- fragments_repeats$.__enclos_env__$private$index_samples[not_na_allele]
 
       if(length(index_sample_list_filtered) > 0){
         index_sample_list_filtered <- lapply(index_sample_list_filtered, function(x){
           list(
-            x[[1]],
+            x$allele_repeat,
+            x$allele_signal,
             repeat_table_subset(
-              repeat_table_df = x[[2]],
-              allele_signal = x[[2]][which(x[[2]]$repeats == x[[1]]), "signal"],
-              index_repeat = x[[1]],
+              repeat_table_df = x$repeat_table_df,
+              allele_signal = x$allele_signal,
+              index_repeat = x$allele_repeat,
               peak_threshold = peak_threshold,
               window_around_index_peak = window_around_index_peak
             )
@@ -262,16 +257,16 @@ calculate_instability_metrics <- function(
   
   
         control_weighted_mean_repeat <- sapply(index_sample_list_filtered, function(x){
-          weighted.mean(x[[2]]$repeats, x[[2]]$signal)
+          weighted.mean(x[[3]]$repeats, x[[3]]$signal)
         })
         index_weighted_mean_repeat <- median(control_weighted_mean_repeat, na.rm = TRUE)
   
         control_instability_index <- sapply(index_sample_list_filtered, function(x){
           instability_index(
             # can use the modal as the index peak since these are the index samples
-            repeats = x[[2]]$repeats,
-            signals = x[[2]]$signal,
-            index_peak_signal = x[[2]][which(x[[2]]$repeats == x[[1]]), "signal"],
+            repeats = x[[3]]$repeats,
+            signals = x[[3]]$signal,
+            index_peak_signal = x[[2]],
             index_peak_repeat = x[[1]],
             peak_threshold = peak_threshold,
             abs_sum = FALSE

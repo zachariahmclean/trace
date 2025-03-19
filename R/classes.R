@@ -177,10 +177,6 @@ fragments <- R6::R6Class("fragments",
         stop("Invalid 'allele' input. Please select between 1 or 2", call. = FALSE)
       }
       
-
-
-      private$find_main_peaks_used <- TRUE
-
       invisible(self)
     },
 
@@ -215,7 +211,6 @@ fragments <- R6::R6Class("fragments",
       }
       private$index_repeat <- ifelse(!is.na(value), index_df$repeats, NA_real_)
       private$index_signal <- ifelse(!is.na(value), index_df$signal, NA_real_)
-      private$assigned_index_peak_used <- TRUE
       
       invisible(self)
     },
@@ -249,7 +244,6 @@ fragments <- R6::R6Class("fragments",
     allele_2_size = NA_real_,
     allele_2_repeat = NA_real_,
     allele_2_signal = NA_real_,
-    find_main_peaks_used = FALSE,
 
     # call_repeats data
     batch_correction_factor = NA_real_,
@@ -263,7 +257,6 @@ fragments <- R6::R6Class("fragments",
     index_repeat = NA_real_,
     index_signal = NA_real_,
     index_samples = NULL,
-    assigned_index_peak_used = FALSE,
     assigned_index_peak_grouped = NULL,
 
     # metrics calculation data
@@ -285,7 +278,7 @@ trace_output <- R6::R6Class("trace_output",
       self$module <- module_name
       invisible(self)
     },
-    print = function() {
+    print_status = function() {
       if(self$status == "error"){
         stop(paste0(self$module, " error: ", self$error_message), call. = FALSE)
       } else if(self$status == "warning"){
@@ -294,6 +287,9 @@ trace_output <- R6::R6Class("trace_output",
           cat(paste0("\033[1;34m", message, "\033[0m\n"))
         })
       }
+    },
+    print = function() {
+      self$print_status()
     },
     set_status = function(status, message){
       self$status <- status

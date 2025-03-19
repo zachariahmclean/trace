@@ -116,28 +116,26 @@ find_fragments <- function(
   }
 
 
-  fragments_list <- lapply(fragments_list, function(x) {
+  for (fragment in fragments_list) {
     # find peak table
     df <- tryCatch(
-      find_fragment_peaks(x$trace_bp_df),
+      find_fragment_peaks(fragment$trace_bp_df),
       error = function(e) e
     )
     if("error" %in% class(df)){
       output$set_status(
         "error", 
-        paste0("There was an error finding fragments for ", x$unique_id, ":\n", df$message)
+        paste0("There was an error finding fragments for ", fragment$unique_id, ":\n", df$message)
       )
       return(output)
     }
 
-    df$unique_id <- rep(x$unique_id, nrow(df))
+    df$unique_id <- rep(fragment$unique_id, nrow(df))
     df <- df[which(df$size > config$min_bp_size & df$size < config$max_bp_size), ,drop = FALSE]
-    x$peak_table_df <- df
-    x$.__enclos_env__$private$min_bp_size <- config$min_bp_size
-    x$.__enclos_env__$private$max_bp_size <- config$max_bp_size
-    
-    return(x)
-  })
+    fragment$peak_table_df <- df
+    fragment$.__enclos_env__$private$min_bp_size <- config$min_bp_size
+    fragment$.__enclos_env__$private$max_bp_size <- config$max_bp_size
+  }
 
   return(output)
 }

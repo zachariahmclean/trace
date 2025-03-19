@@ -113,7 +113,6 @@ testthat::test_that("calculate metrics", {
   testthat::expect_true(all(is.na(test_metrics_ungrouped$average_repeat_change)))
   testthat::expect_true(round(mean(test_metrics_ungrouped$skewness, na.rm = TRUE), 5) == -0.00725)
   testthat::expect_true(test_fragments[[1]]$get_allele_peak()$allele_repeat == test_fragments[[1]]$get_index_peak()$index_repeat)
-  testthat::expect_true(all(sapply(test_fragments, function(x) x$.__enclos_env__$private$assigned_index_peak_used)))
   
   
   #test override
@@ -180,7 +179,6 @@ testthat::test_that("calculate metrics", {
   testthat::expect_true(round(mean(test_metrics_grouped$average_repeat_change, na.rm = TRUE), 3) == 3.348)
   testthat::expect_true(round(mean(test_metrics_grouped$skewness, na.rm = TRUE), 5) == -0.00725)
   testthat::expect_true(test_fragments[[1]]$get_allele_peak()$allele_repeat != test_fragments[[1]]$get_index_peak()$index_repeat)
-  testthat::expect_true(all(sapply(test_fragments, function(x) x$.__enclos_env__$private$assigned_index_peak_used)))
 
 
 

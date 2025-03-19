@@ -72,7 +72,7 @@
       fragments_list,
       metadata_data.frame = metadata_data.frame
     )
-    print(add_metadata_status)
+    add_metadata_status$print_status()
   }
 
   sample_processed <- switch(input_type,
@@ -106,17 +106,17 @@ trace_fsa <-  function(x,
   message("Finding ladders")
 
   find_ladders_status <- find_ladders(x, config)
-  print(find_ladders_status)
+  find_ladders_status$print_status()
 
   if(!is.null(ladder_df_list)){
     fix_ladders_manual_status <- fix_ladders_manual(x, ladder_df_list, config$warning_rsq_threshold)
-    print(fix_ladders_manual_status)
+    fix_ladders_manual_status$print_status()
   }
 
   message("Finding fragments")
 
   find_fragments_status <- find_fragments(x, config)
-  print(find_fragments_status)
+  find_fragments_status$print_status()
 
   trace_fragments(x,
     config = config,
@@ -134,15 +134,17 @@ trace_fragments <-  function(x,
   message("Finding alleles")
 
   find_alleles_status <- find_alleles(x,config)
-  print(find_alleles_status)
+  find_alleles_status$print_status()
 
   message("Calling repeats")
 
-  call_repeats(x, config)
+  call_repeats_status <- call_repeats(x, config)
+  call_repeats_status$print_status()
 
   message("Assigning index peaks")
 
-  assign_index_peaks(x, config, index_override_dataframe = index_override_dataframe)
+  assign_index_peaks_status <- assign_index_peaks(x, config, index_override_dataframe = index_override_dataframe)
+  assign_index_peaks_status$print_status()
 
   return(x)
 }
@@ -166,7 +168,9 @@ trace_repeats <- function(x,
 
   message("Assigning index peaks")
 
-  assign_index_peaks(x, config, index_override_dataframe = index_override_dataframe)
+  assign_index_peaks_status <- assign_index_peaks(x, config, index_override_dataframe = index_override_dataframe)
+  assign_index_peaks_status$print_status()
+
 
   return(x)
 }

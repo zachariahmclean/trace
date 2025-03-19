@@ -510,22 +510,14 @@ testthat::test_that("repeat correction one run missing", {
   find_alleles(fsa_list,config)
 
 
-  suppressMessages(
-    tryCatch({
-      call_repeats(
-        fsa_list,
-        config,
-        correction  = "repeat"
-      )
-    },
-      error = function(e){
-        assignment_error <<- e
-      }
-    )
+  call_repeats_output <- call_repeats(
+    fsa_list,
+    config,
+    correction  = "repeat"
   )
 
-  testthat::expect_true(class(assignment_error)[1] == "simpleError")
-  testthat::expect_true(grepl("no samples with 'batch_sample_modal_repeat'", assignment_error))
+  testthat::expect_true(class(call_repeats_output)[1] == "trace_output")
+  testthat::expect_true(grepl("no samples with 'batch_sample_modal_repeat'", call_repeats_output$error_message))
 
 })
 

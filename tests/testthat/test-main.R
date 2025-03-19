@@ -33,15 +33,15 @@ test_that("main trace", {
 
 
 
-  # ggplot2::ggplot(plot_data,
-  #                 ggplot2::aes(as.factor(treatment), rel_gain,
-  #            colour = as.factor(treatment))) +
-  #   ggplot2::geom_boxplot(outlier.shape = NA) +
-  #   ggplot2::geom_jitter() +
-  #   ggplot2::facet_wrap(ggplot2::vars(genotype)) +
-  #   ggplot2::labs(y = "Average repeat gain\n(relative to DMSO)",
-  #        x = "Branaplam (nM)") +
-  #   ggplot2::theme(legend.position = "none")
+  ggplot2::ggplot(plot_data,
+                  ggplot2::aes(as.factor(treatment), rel_gain,
+             colour = as.factor(treatment))) +
+    ggplot2::geom_boxplot(outlier.shape = NA) +
+    ggplot2::geom_jitter() +
+    ggplot2::facet_wrap(ggplot2::vars(genotype)) +
+    ggplot2::labs(y = "Average repeat gain\n(relative to DMSO)",
+         x = "Branaplam (nM)") +
+    ggplot2::theme(legend.position = "none")
 
 
   medians <- aggregate(rel_gain ~ treatment + genotype, plot_data, median, na.rm = TRUE)
