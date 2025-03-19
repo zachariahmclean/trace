@@ -7,8 +7,8 @@ test_that("main trace", {
 
   test_metrics_grouped <- calculate_instability_metrics(
     fragments_list = frag_list,
-    peak_threshold = 0.05,
-    window_around_index_peak = c(-40, 40)
+    peak_threshold = 0.1,
+    window_around_index_peak = c(-25, 25)
   )
 
   # Left join
@@ -33,20 +33,20 @@ test_that("main trace", {
 
 
 
-  ggplot2::ggplot(plot_data,
-                  ggplot2::aes(as.factor(treatment), rel_gain,
-             colour = as.factor(treatment))) +
-    ggplot2::geom_boxplot(outlier.shape = NA) +
-    ggplot2::geom_jitter() +
-    ggplot2::facet_wrap(ggplot2::vars(genotype)) +
-    ggplot2::labs(y = "Average repeat gain\n(relative to DMSO)",
-         x = "Branaplam (nM)") +
-    ggplot2::theme(legend.position = "none")
+  # ggplot2::ggplot(plot_data,
+  #                 ggplot2::aes(as.factor(treatment), rel_gain,
+  #            colour = as.factor(treatment))) +
+  #   ggplot2::geom_boxplot(outlier.shape = NA) +
+  #   ggplot2::geom_jitter() +
+  #   ggplot2::facet_wrap(ggplot2::vars(genotype)) +
+  #   ggplot2::labs(y = "Average repeat gain\n(relative to DMSO)",
+  #        x = "Branaplam (nM)") +
+  #   ggplot2::theme(legend.position = "none")
 
 
   medians <- aggregate(rel_gain ~ treatment + genotype, plot_data, median, na.rm = TRUE)
 
-  expect_true(all(round(medians$rel_gain, 5) == c(1.00000, 0.86173, 0.73276, 0.55737)))
+  expect_true(all(round(medians$rel_gain, 5) == c(1.00000, 0.87985, 0.69696, 0.48567)))
 
 
 })

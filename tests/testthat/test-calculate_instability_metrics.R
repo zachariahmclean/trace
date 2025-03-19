@@ -111,7 +111,7 @@ testthat::test_that("calculate metrics", {
 
   testthat::expect_true(round(mean(test_metrics_ungrouped$expansion_index, na.rm = TRUE), 3) == 4.635)
   testthat::expect_true(all(is.na(test_metrics_ungrouped$average_repeat_change)))
-  testthat::expect_true(round(mean(test_metrics_ungrouped$skewness, na.rm = TRUE), 5) == -0.00725)
+  testthat::expect_true(round(mean(test_metrics_ungrouped$skewness, na.rm = TRUE), 5) == 0.10263)
   testthat::expect_true(test_fragments[[1]]$get_allele_peak()$allele_repeat == test_fragments[[1]]$get_index_peak()$index_repeat)
   
   
@@ -177,11 +177,130 @@ testthat::test_that("calculate metrics", {
 
   testthat::expect_true(round(mean(test_metrics_grouped$expansion_index, na.rm = TRUE), 3) == 5.729)
   testthat::expect_true(round(mean(test_metrics_grouped$average_repeat_change, na.rm = TRUE), 3) == 3.348)
-  testthat::expect_true(round(mean(test_metrics_grouped$skewness, na.rm = TRUE), 5) == -0.00725)
+  testthat::expect_true(round(mean(test_metrics_grouped$skewness, na.rm = TRUE), 5) == 0.10263)
   testthat::expect_true(test_fragments[[1]]$get_allele_peak()$allele_repeat != test_fragments[[1]]$get_index_peak()$index_repeat)
+
+
+
 
 
 
 
 })
 
+testthat::test_that("test index signal filters", {
+  suppressWarnings(
+    test_fragments <- genemapper_table_to_fragments(example_data,
+      dye_channel = "B",
+      min_size_bp = 400
+    )
+  )
+  config <- load_config()
+
+
+
+  add_metadata(
+    fragments_list = test_fragments,
+    metadata_data.frame = metadata
+  )
+
+  find_alleles(
+    fragments_list = test_fragments, config
+  )
+
+
+  suppressWarnings(
+    call_repeats(
+      fragments_list = test_fragments,
+      config,
+      assay_size_without_repeat = 87,
+      repeat_size = 3
+    )
+  )
+
+  suppressMessages(
+    suppressWarnings(
+      assign_index_peaks(
+        test_fragments,
+        config,
+        grouped = TRUE
+      )
+    )
+  )
+
+  suppressMessages(
+    suppressWarnings(
+      test_metrics_grouped <- calculate_instability_metrics(
+        fragments_list = test_fragments,
+        peak_threshold = 0.05,
+        # note the lower lim should be a negative value
+        window_around_index_peak = c(-40, 40),
+        percentile_range = c(0.01, 0.05, seq(0.1, 0.9, 0.1), 0.95, 0.99),
+        repeat_range = c(1, 2, 3, 4, seq(6, 20, 2)),
+        index_modal_signal_threshold = 3000
+      )
+    )
+  )
+  testthat::expect_true(is.na(test_metrics_grouped[18,2]))
+  testthat::expect_true(grepl("filter removed all index samples", test_metrics_grouped[19,2]))
+  
+})
+
+
+testthat::test_that("test index sum filters", {
+  suppressWarnings(
+    test_fragments <- genemapper_table_to_fragments(example_data,
+      dye_channel = "B",
+      min_size_bp = 400
+    )
+  )
+  config <- load_config()
+
+
+
+  add_metadata(
+    fragments_list = test_fragments,
+    metadata_data.frame = metadata
+  )
+
+  find_alleles(
+    fragments_list = test_fragments, config
+  )
+
+
+  suppressWarnings(
+    call_repeats(
+      fragments_list = test_fragments,
+      config,
+      assay_size_without_repeat = 87,
+      repeat_size = 3
+    )
+  )
+
+  suppressMessages(
+    suppressWarnings(
+      assign_index_peaks(
+        test_fragments,
+        config,
+        grouped = TRUE
+      )
+    )
+  )
+
+  suppressMessages(
+    suppressWarnings(
+      test_metrics_grouped <- calculate_instability_metrics(
+        fragments_list = test_fragments,
+        peak_threshold = 0.05,
+        # note the lower lim should be a negative value
+        window_around_index_peak = c(-40, 40),
+        percentile_range = c(0.01, 0.05, seq(0.1, 0.9, 0.1), 0.95, 0.99),
+        repeat_range = c(1, 2, 3, 4, seq(6, 20, 2)),
+        index_signal_sum_threshold = 10000
+      )
+    )
+  )
+  testthat::expect_true(is.na(test_metrics_grouped[18,2]))
+  testthat::expect_true(grepl("filter removed all index samples", test_metrics_grouped[19,2]))
+  
+})

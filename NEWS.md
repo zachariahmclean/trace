@@ -10,6 +10,8 @@ Changed individual functions to require a config file
 scan subset replace with min scan and max scan
 changed deaults from null to NA (ladder_start_scan, minimum_peak_signal)
 made inputs stricter and validated
+in calculate instability metrics added ways to filter out poor quality index samples with height and sum thresholds
+fixed skewness and kurtosis calculations (previous versions didn't weight signal appropriately)
 
 
 

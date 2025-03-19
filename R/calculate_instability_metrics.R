@@ -72,10 +72,15 @@ find_percentiles <- function(repeats,
 # skewness ------------------------------------------------------------------
 
 fishers_skewness <- function(x, y) {
-  mean_val <- sum(x * y)
-  sd_val <- sqrt(sum(y * (x - mean_val)^2))
+  # Calculate the weighted mean
+  mean_val <- sum(x * y) / sum(y)
 
-  skewness <- sum(y * (x - mean_val)^3) / sd_val^3
+  # Calculate the weighted variance and standard deviation
+  variance <- sum(y * (x - mean_val)^2) / sum(y)
+  sd_val <- sqrt(variance)
+
+  # Calculate the weighted skewness
+  skewness <- sum(y * (x - mean_val)^3) / (sum(y) * sd_val^3)
 
   return(skewness)
 }
@@ -84,10 +89,16 @@ fishers_skewness <- function(x, y) {
 # kurtosis -----------------------------------------------------------------
 
 fishers_kurtosis <- function(x, y) {
-  mean_val <- sum(x * y)
-  sd_val <- sqrt(sum(y * (x - mean_val)^2))
+  # Calculate the weighted mean
+  mean_val <- sum(x * y) / sum(y)
 
-  kurtosis <- (sum(y * (x - mean_val)^4) / sd_val^4) - 3
+  # Calculate the weighted variance and standard deviation
+  variance <- sum(y * (x - mean_val)^2) / sum(y)
+  sd_val <- sqrt(variance)
+
+  # Calculate the weighted kurtosis
+  kurtosis <- (sum(y * (x - mean_val)^4) / (sum(y) * sd_val^4)) - 3
+
   return(kurtosis)
 }
 
@@ -129,10 +140,12 @@ repeat_table_subset <- function(repeat_table_df,
 #' This function computes instability metrics from a list of fragments data objects.
 #'
 #' @param fragments_list A list of "fragments" objects representing fragment data.
-#' @param peak_threshold The threshold for peak signals to be considered in the calculations, relative to the modal peak signal of the expanded allele.
-#' @param window_around_index_peak A numeric vector (length = 2) defining the range around the index peak. First number specifies repeats before the index peak, second after. For example, \code{c(-5, 40)} around an index peak of 100 would analyze repeats 95 to 140. The sign of the numbers does not matter (The absolute value is found).
+#' @param peak_threshold A single numeric value between 0 and 1 for the threshold of peak signals to be considered in the calculations, relative to the modal peak signal of the expanded allele.
+#' @param window_around_index_peak A numeric vector (length 2) defining the range around the index peak. First number specifies repeats before the index peak, second after. For example, \code{c(-5, 40)} around an index peak of 100 would analyze repeats 95 to 140. The sign of the numbers does not matter (The absolute value is found).
 #' @param percentile_range A numeric vector of percentiles to compute (e.g., c(0.5, 0.75, 0.9, 0.95)).
 #' @param repeat_range A numeric vector specifying ranges of repeats for the inverse quantile computation.
+#' @param index_modal_signal_threshold A single numeric value for the minimum signal of the modal peak for the index samples (basically a quality control for the samples used to set the index peak or to calculate average_repeat_change or instability_index_change). This is only relevant when grouped = TRUE for the index peak assignment. 
+#' @param index_signal_sum_threshold A single numeric value for the minimum sum of all peaks for each index sample (basically a quality control for the samples used to set the index peak or to calculate average_repeat_change or instability_index_change). This is only relevant when grouped = TRUE for the index peak assignment. 
 #'
 #' @return A data.frame with calculated instability metrics for each sample.
 #' @details
@@ -162,6 +175,7 @@ repeat_table_subset <- function(repeat_table_df,
 #' - `weighted_mean_repeat`: The weighted mean repeat size (weight on peak signal) in the analysis subset.
 #' - `median_repeat`: The median repeat size in the analysis subset.
 #' - `max_signal`: The maximum peak signal in the analysis subset.
+#' - `sum_signal`: The sum of the peak signal in the analysis subset.
 #' - `max_delta_neg`: The maximum negative delta to the index peak.
 #' - `max_delta_pos`: The maximum positive delta to the index peak.
 #' - `skewness`: The skewness of the repeat size distribution.
@@ -195,9 +209,12 @@ repeat_table_subset <- function(repeat_table_df,
 calculate_instability_metrics <- function(
     fragments_list,
     peak_threshold = 0.05,
-    window_around_index_peak = c(NA, NA),
+    window_around_index_peak = c(NA_real_, NA_real_),
     percentile_range = c(0.5, 0.75, 0.9, 0.95),
-    repeat_range = c(2, 5, 10, 20)) {
+    repeat_range = c(2, 5, 10, 20),
+    index_modal_signal_threshold = NA_real_,
+    index_signal_sum_threshold = NA_real_
+  ) {
   # calculate metrics
   metrics_list <- lapply(fragments_list, function(fragments_repeats) {
 
@@ -216,7 +233,7 @@ calculate_instability_metrics <- function(
 
     # no issues so set this as blank in case calculate_instability_metrics was run with an issue previously
     fragments_repeats$.__enclos_env__$private$metrics_qc_message <- NA_character_
-
+    metrics_qc_message <- NA_character_
 
 
     # filter dataset to user supplied thresholds
@@ -229,58 +246,64 @@ calculate_instability_metrics <- function(
     )
 
     # filter and calculate index samples if they exist
+    index_weighted_mean_repeat <- NA
+    index_instability_index <- NA
     if(!is.null(fragments_repeats$.__enclos_env__$private$index_samples) && length(fragments_repeats$.__enclos_env__$private$index_samples) > 0){
 
       # filter for index samples with data
       not_na_allele <- sapply(fragments_repeats$.__enclos_env__$private$index_samples, function(x) !is.na(x$allele_repeat))
-
-      ## add height and signal sum filter here!
-      ## also check to see if that completely removes them and makes those NA
-
-
       index_sample_list_filtered <- fragments_repeats$.__enclos_env__$private$index_samples[not_na_allele]
 
-      if(length(index_sample_list_filtered) > 0){
+      if(length(index_sample_list_filtered) == 0){
+        metrics_qc_message <- "Index sample(s) do not have called alleles"
+      } else {
         index_sample_list_filtered <- lapply(index_sample_list_filtered, function(x){
-          list(
-            x$allele_repeat,
-            x$allele_signal,
-            repeat_table_subset(
-              repeat_table_df = x$repeat_table_df,
-              allele_signal = x$allele_signal,
-              index_repeat = x$allele_repeat,
-              peak_threshold = peak_threshold,
-              window_around_index_peak = window_around_index_peak
-            )
-          )
-        })
-  
-  
-        control_weighted_mean_repeat <- sapply(index_sample_list_filtered, function(x){
-          weighted.mean(x[[3]]$repeats, x[[3]]$signal)
-        })
-        index_weighted_mean_repeat <- median(control_weighted_mean_repeat, na.rm = TRUE)
-  
-        control_instability_index <- sapply(index_sample_list_filtered, function(x){
-          instability_index(
-            # can use the modal as the index peak since these are the index samples
-            repeats = x[[3]]$repeats,
-            signals = x[[3]]$signal,
-            index_peak_signal = x[[2]],
-            index_peak_repeat = x[[1]],
+          x$repeat_table_df <- repeat_table_subset(
+            repeat_table_df = x$repeat_table_df,
+            allele_signal = x$allele_signal,
+            index_repeat = x$allele_repeat,
             peak_threshold = peak_threshold,
-            abs_sum = FALSE
+            window_around_index_peak = window_around_index_peak
           )
+          return(x)
         })
-        index_instability_index <- median(control_instability_index, na.rm = TRUE)
-      } else{
-        index_weighted_mean_repeat <- NA
-        index_instability_index <- NA
-      }
-    } else{
-      index_weighted_mean_repeat <- NA
-      index_instability_index <- NA
-    }
+        
+        ## filter based on height and or signal sum        
+        if(!is.na(index_modal_signal_threshold)){
+          above_signal_threshold <- sapply(index_sample_list_filtered, function(x) x$allele_signal > index_modal_signal_threshold)
+          index_sample_list_filtered <- index_sample_list_filtered[above_signal_threshold]
+        }
+          
+        if(!is.na(index_signal_sum_threshold)){
+          above_sum_threshold <- sapply(index_sample_list_filtered, function(x) sum(x$repeat_table_df$signal) > index_signal_sum_threshold)
+          index_sample_list_filtered <- index_sample_list_filtered[above_sum_threshold]
+        }
+
+        # only continue if index samples survived the filtering
+        if(length(index_sample_list_filtered) == 0){
+          metrics_qc_message <- "index threshold filter removed all index samples (therefore index peak assignment was also removed)"
+          fragments_repeats$set_index_peak(NA_real_)
+        } else{
+          control_weighted_mean_repeat <- sapply(index_sample_list_filtered, function(x){
+            weighted.mean(x$repeat_table_df$repeats, x$repeat_table_df$signal)
+          })
+          index_weighted_mean_repeat <- median(control_weighted_mean_repeat, na.rm = TRUE)
+    
+          control_instability_index <- sapply(index_sample_list_filtered, function(x){
+            instability_index(
+              # can use the modal as the index peak since these are the index samples
+              repeats = x$repeat_table_df$repeats,
+              signals = x$repeat_table_df$signal,
+              index_peak_signal = x$allele_signal,
+              index_peak_repeat = x$allele_repeat,
+              peak_threshold = peak_threshold,
+              abs_sum = FALSE
+            )
+          })
+          index_instability_index <- median(control_instability_index, na.rm = TRUE)
+        }
+      } 
+    } 
 
     # first subset to make some dataframe that are just for contractions or expansions
     size_filtered_df$repeat_delta_index_peak <- size_filtered_df$repeats - fragments_repeats$get_index_peak()$index_repeat
@@ -316,7 +339,7 @@ calculate_instability_metrics <- function(
     # make a wide dataframe
     metrics <- data.frame(
       unique_id = fragments_repeats$unique_id,
-      QC_comments = NA_character_,
+      QC_comments = metrics_qc_message,
       QC_modal_peak_signal = QC_modal_peak_signal,
       QC_peak_number = QC_peak_number,
       QC_off_scale = QC_off_scale,
@@ -334,6 +357,7 @@ calculate_instability_metrics <- function(
       weighted_mean_repeat = weighted.mean(size_filtered_df$repeats, size_filtered_df$signal),
       median_repeat = median(size_filtered_df$repeats),
       max_signal = max(size_filtered_df$signal),
+      sum_signal = sum(size_filtered_df$signal),
       max_delta_neg = min(size_filtered_df$repeat_delta_index_peak),
       max_delta_pos = max(size_filtered_df$repeat_delta_index_peak),
       skewness = fishers_skewness(size_filtered_df$repeats, size_filtered_df$signal),
