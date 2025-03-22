@@ -1,5 +1,5 @@
 # new
-
+#removed modules and have to use main now
 #renamed find_ladders() minimum_peak_signal to minimum_ladder_signal
 #find_fragments now modifies in place
 #repeat_table_to_repeats renames to repeat_table_to_fragments. also require specific column names

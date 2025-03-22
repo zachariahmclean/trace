@@ -270,7 +270,7 @@ plot_data_channels_helper <- function(fragment){
 #'
 #' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 #' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-#' fragments_list <- trace_main(fsa_list)
+#' fragments_list <- trace(fsa_list)
 #'
 #' # Manually inspect the ladders
 #' plot_ladders(fragments_list[1])
@@ -348,7 +348,7 @@ plot_ladders <- function(
 #'
 #' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 #' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-#' fragments_list <- trace_main(fsa_list)
+#' fragments_list <- trace(fsa_list)
 #'
 #' plot_traces(fragments_list, xlim = c(105, 150))
 #'
@@ -406,7 +406,7 @@ plot_traces <- function(
 #' @examples
 #' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 #' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-#' fragments_list <- trace_main(fsa_list)
+#' fragments_list <- trace(fsa_list)
 #' 
 #' plot_fragments(fragments_list[1])
 plot_fragments <- function(
@@ -466,7 +466,7 @@ plot_fragments <- function(
 #'
 #' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 #' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-#' fragments_list <- trace_main(fsa_list, metadata_data.frame = metadata, correction = "batch")
+#' fragments_list <- trace(fsa_list, metadata_data.frame = metadata, correction = "batch")
 #'
 #'
 #' # traces of bp size shows traces at different sizes
@@ -689,7 +689,7 @@ plot_data_channels <- function(
 #'
 #' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 #' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-#' fragments_list <- trace_main(fsa_list, metadata_data.frame = metadata, correction = "repeat")
+#' fragments_list <- trace(fsa_list, metadata_data.frame = metadata, correction = "repeat")
 #'
 #' # traces of bp size shows traces at different sizes
 #' plot_repeat_correction_model(

@@ -21,14 +21,16 @@ For each of the samples used for repeat correction, this table pulls out the mod
 \examples{
 fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-test_fragments <- trace_main(
+test_fragments <- trace(
    fsa_list, 
    grouped = TRUE, 
    metadata_data.frame = metadata, 
-   correction = "repeat")
+   correction = "repeat",
+   show_progress_bar = FALSE
+)
 
 # finally extract repeat correction summary
-extract_repeat_correction_summary(fsa_list)
+extract_repeat_correction_summary(test_fragments)
 
 
 }

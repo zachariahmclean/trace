@@ -20,7 +20,7 @@
 #'  }
 #'
 #' @return a list of fragments objects.
-#' @export
+#' @keywords internal
 #'
 #' @importFrom pracma findpeaks
 #' @importFrom pracma savgol
@@ -37,9 +37,9 @@
 #' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 #' config <- load_config()
 #'
-#' find_ladders(fsa_list, config)
+#' trace:::find_ladders(fsa_list, config)
 #'
-#' find_fragments(fsa_list,
+#' trace:::find_fragments(fsa_list,
 #'   config,
 #'   min_bp_size = 300
 #' )

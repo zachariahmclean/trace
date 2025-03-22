@@ -40,7 +40,7 @@ This is best used with \code{\link[=fix_ladders_interactive]{fix_ladders_interac
 config <- load_config()
 fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
-find_ladders(fsa_list, config, show_progress_bar = FALSE)
+trace:::find_ladders(fsa_list, config, show_progress_bar = FALSE)
 
 # first manually determine the real ladder peaks using your judgment
 # the raw ladder signal can be extracted
@@ -61,9 +61,10 @@ example_list <- list(
  )
 )
 
-fix_ladders_manual(
+trace:::fix_ladders_manual(
   fsa_list,
   example_list
 )
 
 }
+\keyword{internal}

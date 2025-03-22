@@ -11,18 +11,19 @@ find_ladders(fragments_list, config, ...)
 
 \item{config}{A trace_config object generated using \code{\link[=load_config]{load_config()}}.}
 
-\item{...}{additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the \code{config_file}. These parameters include:
+\item{...}{additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the \code{config}. These parameters include:
 \itemize{
 \item \code{ladder_channel}: string, which channel in the fsa file contains the ladder signal. Default: \code{"DATA.105"}.
 \item \code{signal_channel}: string, which channel in the fsa file contains the data signal. Default: \code{"DATA.1"}.
 \item \code{ladder_sizes}: numeric vector, bp sizes of ladder used in fragment analysis. Default: \code{c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500)}.
-\item \code{ladder_start_scan}: numeric, indicate the scan number to start looking for ladder peaks. Usually this can be automatically found (when set to NULL). Default: \code{NULL}.
-\item \code{minimum_peak_signal}: numeric, minimum signal of peak from smoothed signal. Default: \code{NULL}.
-\item \code{scan_subset}: numeric vector (length 2), filter the ladder and data signal between the selected scans (e.g., \code{scan_subset = c(3000, 5000)}). Default: \code{NULL}.
-\item \code{ladder_selection_window}: numeric, in the ladder assigning algorithm, the we iterate through the scans in blocks and test their linear fit (We can assume that the ladder is linear over a short distance). This value defines how large that block of peaks should be. Default: \code{5}.
-\item \code{max_combinations}: numeric, what is the maximum number of ladder combinations that should be tested. Default: \code{2500000}.
-\item \code{warning_rsq_threshold}: numeric, the value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold. Default: \code{0.998}.
-\item \code{show_progress_bar}: logical, show progress bar. Default: \code{TRUE}.
+\item \code{ladder_start_scan}: single numeric indicating the scan number to start looking for ladder peaks. Usually this can be automatically found (when set to NULL). Default: \code{NA}.
+\item \code{minimum_ladder_signal}: single numeric for minimum signal of peak from smoothed signal. Default: \code{NA}.
+\item \code{min_scan}: single numeric indicating the lower scan limit to filter out scans below. Default: \code{NA}.
+\item \code{max_scan}: single numeric indicating the upper scan limit to filter out scans above Default: \code{NA}.
+\item \code{ladder_selection_window}: single numeric for the ladder assigning algorithm. We iterate through the scans in blocks and test their linear fit (We can assume that the ladder is linear over a short distance). This value defines how large that block of peaks should be. Default: \code{5}.
+\item \code{max_combinations}: single numeric indicating what is the maximum number of ladder combinations that should be tested. Default: \code{2500000}.
+\item \code{warning_rsq_threshold}: single numeric for the value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold. Default: \code{0.998}.
+\item \code{show_progress_bar}: single logical for showing progress bar. Default: \code{TRUE}.
 }}
 }
 \value{
@@ -50,7 +51,7 @@ Each ladder should be manually inspected to make sure that is has been correctly
 fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 config <- load_config()
 
-find_ladders(fsa_list, config, show_progress_bar = FALSE)
+trace:::find_ladders(fsa_list, config, show_progress_bar = FALSE)
 
 # Manually inspect the ladders
 plot_ladders(fsa_list[1])
@@ -61,3 +62,4 @@ plot_ladders(fsa_list[1])
 peaks onto the raw ladder signal. \code{\link[=fix_ladders_interactive]{fix_ladders_interactive()}} to fix ladders with
 incorrectly assigned peaks.
 }
+\keyword{internal}

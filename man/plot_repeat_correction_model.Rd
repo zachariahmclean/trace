@@ -30,7 +30,7 @@ This function makes plots for the model used to correct samples for each \code{b
 
 fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-fragments_list <- trace_main(fsa_list, metadata_data.frame = metadata, correction = "repeat")
+fragments_list <- trace(fsa_list, metadata_data.frame = metadata, correction = "repeat")
 
 # traces of bp size shows traces at different sizes
 plot_repeat_correction_model(

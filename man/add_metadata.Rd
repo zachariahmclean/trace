@@ -38,8 +38,9 @@ test_fragments <- genemapper_table_to_fragments(gm_raw,
   min_size_bp = 300
 )
 
-add_metadata(
+trace:::add_metadata(
   fragments_list = test_fragments,
   metadata_data.frame = metadata
 )
 }
+\keyword{internal}

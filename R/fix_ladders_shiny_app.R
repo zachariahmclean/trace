@@ -335,7 +335,7 @@ server_function <- function(input, output, session, fragment_trace_list) {
 #' 
 #' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 #' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-#' test_fragments <- trace_main(fsa_list, ladder_df_list = brake_ladder_list)
+#' test_fragments <- trace(fsa_list, ladder_df_list = brake_ladder_list)
 #'
 #' if (interactive()) {
 #'   fix_ladders_interactive(test_fragments)

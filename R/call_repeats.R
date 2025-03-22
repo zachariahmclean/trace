@@ -465,7 +465,7 @@ model_repeat_length <- function(
 #' 
 #' @seealso [find_alleles()], [add_metadata()], [plot_batch_correction_samples()], [plot_repeat_correction_model()], [extract_repeat_correction_summary()]
 #'
-#' @export
+#' @keywords internal
 #' 
 #' @importFrom lme4 lmer
 #' @importFrom lme4 ranef
@@ -475,22 +475,22 @@ model_repeat_length <- function(
 #' fsa_list <- lapply(cell_line_fsa_list[c(16:19)], function(x) x$clone())
 #' config <- load_config()
 #'
-#' find_ladders(fsa_list, config, show_progress_bar = FALSE)
+#' trace:::find_ladders(fsa_list, config, show_progress_bar = FALSE)
 #'
-#' find_fragments(
+#' trace:::find_fragments(
 #'   fsa_list,
 #'   config,
 #'   min_bp_size = 300
 #' )
 #'
-#' find_alleles(fsa_list, config)
+#' trace:::find_alleles(fsa_list, config)
 #' 
-#' add_metadata(fsa_list,
+#' trace:::add_metadata(fsa_list,
 #'    metadata[c(16:19), ]
 #' )
 #'
 #' # Simple conversion from bp size to repeat size
-#' call_repeats(
+#' trace:::call_repeats(
 #'   fsa_list,
 #'   config,
 #'   assay_size_without_repeat = 87,
@@ -502,7 +502,7 @@ model_repeat_length <- function(
 #' # Use force_whole_repeat_units algorithm to make sure called
 #' # repeats are the exact number of bp apart
 #'
-#' call_repeats(
+#' trace:::call_repeats(
 #'   fsa_list,
 #'   config,
 #'   force_whole_repeat_units = TRUE,
@@ -514,7 +514,7 @@ model_repeat_length <- function(
 #'
 #' 
 #' # apply batch correction
-#' call_repeats(
+#' trace:::call_repeats(
 #'   fsa_list,
 #'   config,
 #'   correction = "batch",
@@ -525,7 +525,7 @@ model_repeat_length <- function(
 #' plot_traces(fsa_list[1], xlim = c(120, 170))
 #' 
 #' # apply repeat correction
-#' call_repeats(
+#' trace:::call_repeats(
 #'   fsa_list,
 #'   config,
 #'   correction = "repeat",
@@ -536,7 +536,7 @@ model_repeat_length <- function(
 #' plot_traces(fsa_list[1], xlim = c(120, 170))
 #'
 #' #ensure only periodic peaks are called
-#' call_repeats(
+#' trace:::call_repeats(
 #'   fsa_list,
 #'   config,
 #'   force_repeat_pattern_size_period = 2.75,
@@ -619,10 +619,10 @@ call_repeats <- function(
         ),
         error = function(e) e
       )
-      if("error" %in% class(df)){
+      if("error" %in% class(size_period_df)){
         output$set_status(
           "error", 
-          paste0("There was an error using force_repeat_pattern for ", fragment$unique_id, ":\n", df$message)
+          paste0("There was an error using force_repeat_pattern for ", fragment$unique_id, ":\n", size_period_df$message)
         )
         return(output)
       }

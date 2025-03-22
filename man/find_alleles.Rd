@@ -11,7 +11,7 @@ find_alleles(fragments_list, config, ...)
 
 \item{config}{A trace_config object generated using \code{\link[=load_config]{load_config()}}.}
 
-\item{...}{additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the \code{config_file}. These parameters include:
+\item{...}{additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the \code{config}. These parameters include:
 \itemize{
 \item \code{number_of_alleles} Number of alleles to be returned for each fragment. Must either be 1 or 2. Being able to identify two alleles is for cases when you are analyze different human samples with a normal and expanded alleles and you can't do the preferred option of simply ignoring the normal allele in \code{\link[=find_fragments]{find_fragments()}} (eg setting the min_bp_size above the normal allele bp size). Default: \code{1}.
 \item \code{peak_region_size_gap_threshold} Gap threshold for identifying peak regions. The peak_region_size_gap_threshold is a parameter used to determine the maximum allowed gap between peak sizes within a peak region. Adjusting this parameter affects the size range of peaks that can be grouped together in a region. A smaller value makes it more stringent, while a larger value groups peaks with greater size differences, leading to broader peak regions that may encompass wider size ranges. Default: \code{6}.
@@ -35,17 +35,18 @@ The parameters \code{peak_region_signal_threshold_multiplier} and \code{peak_reg
 fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 config <- load_config()
 
-find_ladders(fsa_list, config, show_progress_bar = FALSE)
+trace:::find_ladders(fsa_list, config, show_progress_bar = FALSE)
 
-find_fragments(fsa_list,
+trace:::find_fragments(fsa_list,
   config,
   min_bp_size = 300
 )
 
 
-find_alleles(
+trace:::find_alleles(
   fsa_list,
   config,
   peak_region_signal_threshold_multiplier = 1
 )
 }
+\keyword{internal}

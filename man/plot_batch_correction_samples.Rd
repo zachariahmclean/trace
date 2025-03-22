@@ -30,7 +30,7 @@ These plots are made using base R plotting. Sometimes these fail to render in th
 
 fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-fragments_list <- trace_main(fsa_list, metadata_data.frame = metadata, correction = "batch")
+fragments_list <- trace(fsa_list, metadata_data.frame = metadata, correction = "batch")
 
 
 # traces of bp size shows traces at different sizes

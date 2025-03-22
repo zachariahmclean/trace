@@ -29,7 +29,7 @@
 #'
 #' As a final option, the index peak could be manually assigned directly to a [fragments] class using the internal setter function fragments$set_index_peak().
 #'
-#' @export
+#' @keywords internal
 #'
 #' @examples
 #'
@@ -37,27 +37,27 @@
 #' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 #' config <- load_config()
 #' 
-#' add_metadata(
+#' trace:::add_metadata(
 #'   fsa_list,
 #'   metadata_data.frame = trace::metadata
 #' )
 #'
-#' find_ladders(fsa_list, config, show_progress_bar = FALSE)
+#' trace:::find_ladders(fsa_list, config, show_progress_bar = FALSE)
 #'
-#' find_fragments(fsa_list, config,
+#' trace:::find_fragments(fsa_list, config,
 #'   min_bp_size = 300
 #' )
 #'
-#' find_alleles(
+#' trace:::find_alleles(
 #'   fsa_list,
 #'   config
 #' )
-#' call_repeats(
+#' trace:::call_repeats(
 #'   fsa_list,
 #'   config
 #' )
 #'
-#'assign_index_peaks(
+#' trace:::assign_index_peaks(
 #'   fsa_list,
 #'   config,
 #'   grouped = TRUE

@@ -20,7 +20,7 @@
 #' 
 #' Finally, samples with known and validated repeat size can be used to accurately call the repeat length (and therefore also correct batch effects) in [call_repeats()]. Similar to batch correction, batch_run_id (to group samples by fragment analysis run) and batch_sample_id (to enable linking samples across batches) are used, but importantly batch_sample_modal_repeat is also set. The batch_sample_modal_repeat is the validated repeat length of the modal repeat of the sample. This validated repeat length is then used to call the repeat length of the modal repeat for each sample (by each batch_run_id). Importantly, this correction requires you to know with confidence the repeat length of the modal peak of the sample. Therefore it's important that the sample used for repeat correction has a clear and prominent modal peak. If the repeat length is very long, it's common for the modal peak of a sample to change so if you use this feature you're going to have to understand the shape of the distribution of your sample and double check that the correct peak has been called as the modal peak after you have used [find_alleles()]. If a different peak is selected as the modal peak than usual, you need to go back to the metadata and adjust the repeat size of the size standard (For example, your size standard sample has been validated to have 120 repeats. You run [find_alleles()] and look at the distribution of peaks and notice that the peak one repeat unit higher is the modal peak this time. Therefore, you're going to need to set the batch_sample_modal_repeat as 121 in the metadata just for that batch_run_id. In the other runs you would keep the batch_sample_modal_repeat as 120.).
 #' 
-#' @export
+#' @keywords internal
 #'
 #' @examples
 #'
@@ -32,7 +32,7 @@
 #'   min_size_bp = 300
 #' )
 #'
-#' add_metadata(
+#' trace:::add_metadata(
 #'   fragments_list = test_fragments,
 #'   metadata_data.frame = metadata
 #' )

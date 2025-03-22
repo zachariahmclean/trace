@@ -32,7 +32,7 @@ Plots peak data from a list of fragments.
 \examples{
 fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-fragments_list <- trace_main(fsa_list)
+fragments_list <- trace(fsa_list)
 
 plot_fragments(fragments_list[1])
 }

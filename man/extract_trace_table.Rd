@@ -18,7 +18,7 @@ Extract the raw trace from a list of fragments objects
 \examples{
 fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-test_fragments <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
+test_fragments <- trace(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 
 extracted_traces <- extract_trace_table(test_fragments)
 

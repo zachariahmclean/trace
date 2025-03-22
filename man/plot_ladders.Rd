@@ -33,7 +33,7 @@ Plot the ladder signal
 
 fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-fragments_list <- trace_main(fsa_list)
+fragments_list <- trace(fsa_list)
 
 # Manually inspect the ladders
 plot_ladders(fragments_list[1])

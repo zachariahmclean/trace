@@ -28,7 +28,7 @@ lets first generate some example data by cloning the example data that comes wit
 ```{r fsa_import}
 fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 
-fsa_list <- trace_main(
+fsa_list <- trace(
   fsa_list, 
   show_progress_bar = FALSE,
   min_bp_size = 300

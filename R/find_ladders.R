@@ -249,7 +249,7 @@ ladder_rsq_warning_helper <- function(
 #'     \item `signal_channel`: string, which channel in the fsa file contains the data signal. Default: `"DATA.1"`.
 #'     \item `ladder_sizes`: numeric vector, bp sizes of ladder used in fragment analysis. Default: `c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500)`.
 #'     \item `ladder_start_scan`: single numeric indicating the scan number to start looking for ladder peaks. Usually this can be automatically found (when set to NULL). Default: `NA`.
-#'     \item `minimum_peak_signal`: single numeric for minimum signal of peak from smoothed signal. Default: `NA`.
+#'     \item `minimum_ladder_signal`: single numeric for minimum signal of peak from smoothed signal. Default: `NA`.
 #'     \item `min_scan`: single numeric indicating the lower scan limit to filter out scans below. Default: `NA`.
 #'     \item `max_scan`: single numeric indicating the upper scan limit to filter out scans above Default: `NA`.
 #'     \item `ladder_selection_window`: single numeric for the ladder assigning algorithm. We iterate through the scans in blocks and test their linear fit (We can assume that the ladder is linear over a short distance). This value defines how large that block of peaks should be. Default: `5`.
@@ -259,7 +259,7 @@ ladder_rsq_warning_helper <- function(
 #'   }
 #'
 #' @return This function modifies list of fragments objects in place with the ladder assigned and base pair calculated.
-#' @export
+#' @keywords internal
 #'
 #' @details
 #' This function takes a list of fragments files (the output from read_fsa) and identifies
@@ -286,7 +286,7 @@ ladder_rsq_warning_helper <- function(
 #' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 #' config <- load_config()
 #'
-#' find_ladders(fsa_list, config, show_progress_bar = FALSE)
+#' trace:::find_ladders(fsa_list, config, show_progress_bar = FALSE)
 #'
 #' # Manually inspect the ladders
 #' plot_ladders(fsa_list[1])
@@ -491,7 +491,7 @@ find_ladders <- function(
 #' @param warning_rsq_threshold The value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold.
 #'
 #' @return This function modifies list of fragments objects in place with the selected ladders fixed.
-#' @export
+#' @keywords internal
 #'
 #' @details
 #' This function returns a fragments list the same length as was supplied.
@@ -508,7 +508,7 @@ find_ladders <- function(
 #' config <- load_config()
 #' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 #'
-#' find_ladders(fsa_list, config, show_progress_bar = FALSE)
+#' trace:::find_ladders(fsa_list, config, show_progress_bar = FALSE)
 #'
 #' # first manually determine the real ladder peaks using your judgment
 #' # the raw ladder signal can be extracted
@@ -529,7 +529,7 @@ find_ladders <- function(
 #'  )
 #' )
 #'
-#' fix_ladders_manual(
+#' trace:::fix_ladders_manual(
 #'   fsa_list,
 #'   example_list
 #' )

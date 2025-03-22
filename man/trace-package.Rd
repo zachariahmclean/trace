@@ -2,7 +2,6 @@
 % Please edit documentation in R/trace-package.R
 \docType{package}
 \name{trace-package}
-\alias{trace}
 \alias{trace-package}
 \title{trace: Tandem Repeat Analysis by Capillary Electrophoresis}
 \description{

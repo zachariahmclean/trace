@@ -7,21 +7,27 @@
 calculate_instability_metrics(
   fragments_list,
   peak_threshold = 0.05,
-  window_around_index_peak = c(NA, NA),
+  window_around_index_peak = c(NA_real_, NA_real_),
   percentile_range = c(0.5, 0.75, 0.9, 0.95),
-  repeat_range = c(2, 5, 10, 20)
+  repeat_range = c(2, 5, 10, 20),
+  index_modal_signal_threshold = NA_real_,
+  index_signal_sum_threshold = NA_real_
 )
 }
 \arguments{
 \item{fragments_list}{A list of "fragments" objects representing fragment data.}
 
-\item{peak_threshold}{The threshold for peak signals to be considered in the calculations, relative to the modal peak signal of the expanded allele.}
+\item{peak_threshold}{A single numeric value between 0 and 1 for the threshold of peak signals to be considered in the calculations, relative to the modal peak signal of the expanded allele.}
 
-\item{window_around_index_peak}{A numeric vector (length = 2) defining the range around the index peak. First number specifies repeats before the index peak, second after. For example, \code{c(-5, 40)} around an index peak of 100 would analyze repeats 95 to 140. The sign of the numbers does not matter (The absolute value is found).}
+\item{window_around_index_peak}{A numeric vector (length 2) defining the range around the index peak. First number specifies repeats before the index peak, second after. For example, \code{c(-5, 40)} around an index peak of 100 would analyze repeats 95 to 140. The sign of the numbers does not matter (The absolute value is found).}
 
 \item{percentile_range}{A numeric vector of percentiles to compute (e.g., c(0.5, 0.75, 0.9, 0.95)).}
 
 \item{repeat_range}{A numeric vector specifying ranges of repeats for the inverse quantile computation.}
+
+\item{index_modal_signal_threshold}{A single numeric value for the minimum signal of the modal peak for the index samples (basically a quality control for the samples used to set the index peak or to calculate average_repeat_change or instability_index_change). This is only relevant when grouped = TRUE for the index peak assignment.}
+
+\item{index_signal_sum_threshold}{A single numeric value for the minimum sum of all peaks for each index sample (basically a quality control for the samples used to set the index peak or to calculate average_repeat_change or instability_index_change). This is only relevant when grouped = TRUE for the index peak assignment.}
 }
 \value{
 A data.frame with calculated instability metrics for each sample.
@@ -62,6 +68,7 @@ Each of the columns in the supplied dataframe are explained below:
 \item \code{weighted_mean_repeat}: The weighted mean repeat size (weight on peak signal) in the analysis subset.
 \item \code{median_repeat}: The median repeat size in the analysis subset.
 \item \code{max_signal}: The maximum peak signal in the analysis subset.
+\item \code{sum_signal}: The sum of the peak signal in the analysis subset.
 \item \code{max_delta_neg}: The maximum negative delta to the index peak.
 \item \code{max_delta_pos}: The maximum positive delta to the index peak.
 \item \code{skewness}: The skewness of the repeat size distribution.
@@ -88,7 +95,7 @@ Each of the columns in the supplied dataframe are explained below:
 \examples{
 fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-test_fragments <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
+test_fragments <- trace(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 
 test_metrics_grouped <- calculate_instability_metrics(
   fragments_list = test_fragments,

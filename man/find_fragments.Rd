@@ -11,13 +11,13 @@ find_fragments(fragments_list, config, ...)
 
 \item{config}{A trace_config object generated using \code{\link[=load_config]{load_config()}}.}
 
-\item{...}{additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the \code{config_file}. These parameters include:
+\item{...}{additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the \code{config}. These parameters include:
 \itemize{
 \item \code{smoothing_window} numeric, signal smoothing window size passed to pracma::savgol(). Default: \code{21}.
 \item \code{minimum_peak_signal} numeric, minimum signal of the raw trace. To have no minimum signal set as "-Inf". Default: \code{20}.
 \item \code{min_bp_size} numeric, minimum bp size of peaks to consider. Default: \code{100}.
 \item \code{max_bp_size} numeric, maximum bp size of peaks to consider. Default: \code{1000}.
-\item \code{peakpat} formula to define a peak, which includes the number of scans either side of maxima. Passed to \code{\link[pracma:findpeaks]{pracma::findpeaks()}}. Default: \verb{'\[+\]\\\{5,\\\}\[0\]*\[-\]\\\{5,\\\}'}. See https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
+\item \code{peak_scan_ramp} Single numeric value to indicate how many scans (increasing in signal) should be either side of the peak maxima. Default: \code{5}.
 }}
 }
 \value{
@@ -30,7 +30,7 @@ class.
 \details{
 This takes in a list of fragments objects and returns a list of new fragments objects.
 
-This function is basically a wrapper around \code{\link[pracma:findpeaks]{pracma::findpeaks()}} and the definition of a peak can be defined with peakpat argument. If your amplicon is large, there may be fewer scans that make up individual peak. SO for example you may want to set peakpat as '[+]\{3,\}[0]*[-]\{3,\}'.
+This function is basically a wrapper around \code{\link[pracma:findpeaks]{pracma::findpeaks()}}. If your amplicon is large, there may be fewer scans that make up individual peak. So for example you may want to set peak_scan_ramp as a smaller value.
 
 If too many and inappropriate peaks are being called, this may also be solved with the different repeat calling algorithms in \code{\link[=call_repeats]{call_repeats()}}.
 }
@@ -38,9 +38,9 @@ If too many and inappropriate peaks are being called, this may also be solved wi
 fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 config <- load_config()
 
-find_ladders(fsa_list, config)
+trace:::find_ladders(fsa_list, config)
 
-find_fragments(fsa_list,
+trace:::find_fragments(fsa_list,
   config,
   min_bp_size = 300
 )
@@ -52,3 +52,4 @@ plot_traces(fsa_list,
   xlim = c(400, 550), ylim = c(0, 1200)
 )
 }
+\keyword{internal}

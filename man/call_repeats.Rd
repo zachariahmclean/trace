@@ -11,7 +11,7 @@ call_repeats(fragments_list, config, ...)
 
 \item{config}{A trace_config object generated using \code{\link[=load_config]{load_config()}}.}
 
-\item{...}{additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the \code{config_file}. These parameters include:
+\item{...}{additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the \code{config}. These parameters include:
 \itemize{
 \item \code{assay_size_without_repeat} An integer specifying the assay size without repeat for repeat calling. This is the length of the sequence flanking the repeat in the PCR product. Default: \code{87}.
 \item \code{repeat_size} An integer specifying the repeat size for repeat calling. Default: \code{3}.
@@ -57,22 +57,22 @@ This parameter re-calls the peaks based on specified (\code{force_repeat_pattern
 fsa_list <- lapply(cell_line_fsa_list[c(16:19)], function(x) x$clone())
 config <- load_config()
 
-find_ladders(fsa_list, config, show_progress_bar = FALSE)
+trace:::find_ladders(fsa_list, config, show_progress_bar = FALSE)
 
-find_fragments(
+trace:::find_fragments(
   fsa_list,
   config,
   min_bp_size = 300
 )
 
-find_alleles(fsa_list, config)
+trace:::find_alleles(fsa_list, config)
 
-add_metadata(fsa_list,
+trace:::add_metadata(fsa_list,
    metadata[c(16:19), ]
 )
 
 # Simple conversion from bp size to repeat size
-call_repeats(
+trace:::call_repeats(
   fsa_list,
   config,
   assay_size_without_repeat = 87,
@@ -84,7 +84,7 @@ plot_traces(fsa_list[1], xlim = c(120, 170))
 # Use force_whole_repeat_units algorithm to make sure called
 # repeats are the exact number of bp apart
 
-call_repeats(
+trace:::call_repeats(
   fsa_list,
   config,
   force_whole_repeat_units = TRUE,
@@ -96,7 +96,7 @@ plot_traces(fsa_list[1], xlim = c(120, 170))
 
 
 # apply batch correction
-call_repeats(
+trace:::call_repeats(
   fsa_list,
   config,
   correction = "batch",
@@ -107,7 +107,7 @@ call_repeats(
 plot_traces(fsa_list[1], xlim = c(120, 170))
 
 # apply repeat correction
-call_repeats(
+trace:::call_repeats(
   fsa_list,
   config,
   correction = "repeat",
@@ -118,7 +118,7 @@ call_repeats(
 plot_traces(fsa_list[1], xlim = c(120, 170))
 
 #ensure only periodic peaks are called
-call_repeats(
+trace:::call_repeats(
   fsa_list,
   config,
   force_repeat_pattern_size_period = 2.75,
@@ -132,3 +132,4 @@ plot_traces(fsa_list[1], xlim = c(120, 170))
 \seealso{
 \code{\link[=find_alleles]{find_alleles()}}, \code{\link[=add_metadata]{add_metadata()}}, \code{\link[=plot_batch_correction_samples]{plot_batch_correction_samples()}}, \code{\link[=plot_repeat_correction_model]{plot_repeat_correction_model()}}, \code{\link[=extract_repeat_correction_summary]{extract_repeat_correction_summary()}}
 }
+\keyword{internal}

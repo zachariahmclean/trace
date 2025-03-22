@@ -12,7 +12,7 @@
 #' @examples
 #' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 #' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-#' test_fragments <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
+#' test_fragments <- trace(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 #'
 #' extracted_traces <- extract_trace_table(test_fragments)
 #'
@@ -47,7 +47,7 @@ extract_trace_table <- function(fragments_list) {
 #'
 #' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 #' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-#' test_fragments <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
+#' test_fragments <- trace(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 #'
 #'   extract_ladder_summary(test_fragments, sort = TRUE)
 extract_ladder_summary <- function(
@@ -81,7 +81,6 @@ extract_ladder_summary <- function(
 }
 
 
-# Extract alleles -------------------------------------------------------
 
 #' Extract Modal Peaks
 #'
@@ -95,7 +94,7 @@ extract_ladder_summary <- function(
 #' @examples
 #' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 #' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-#' test_fragments <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
+#' test_fragments <- trace(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 #'
 #' extract_alleles(test_fragments)
 #'
@@ -110,7 +109,6 @@ extract_alleles <- function(fragments_list) {
   return(extracted_df)
 }
 
-# Extract fragments -------------------------------------------------------
 
 #' Extract All Fragments
 #'
@@ -124,7 +122,7 @@ extract_alleles <- function(fragments_list) {
 #' @examples
 #' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 #' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-#' test_fragments <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
+#' test_fragments <- trace(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 #'
 #' extract_fragments(test_fragments)
 #'
@@ -175,14 +173,16 @@ extract_fragments <- function(fragments_list) {
 #' @examples
 #' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 #' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-#' test_fragments <- trace_main(
+#' test_fragments <- trace(
 #'    fsa_list, 
 #'    grouped = TRUE, 
 #'    metadata_data.frame = metadata, 
-#'    correction = "repeat")
+#'    correction = "repeat",
+#'    show_progress_bar = FALSE
+#' )
 #'
 #' # finally extract repeat correction summary
-#' extract_repeat_correction_summary(fsa_list)
+#' extract_repeat_correction_summary(test_fragments)
 #'
 #'
 extract_repeat_correction_summary <- function(

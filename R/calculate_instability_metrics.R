@@ -199,7 +199,7 @@ repeat_table_subset <- function(repeat_table_df,
 #' @examples
 #' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 #' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-#' test_fragments <- trace_main(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
+#' test_fragments <- trace(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 #'
 #' test_metrics_grouped <- calculate_instability_metrics(
 #'   fragments_list = test_fragments,
@@ -215,6 +215,10 @@ calculate_instability_metrics <- function(
     index_modal_signal_threshold = NA_real_,
     index_signal_sum_threshold = NA_real_
   ) {
+  # copy each object to make sure that they are not modified in place from this function
+  # want users to be able to rerun with index thresholds without having to rerun the whole pipeline
+  fragments_list <- lapply(fragments_list, function(x) x$clone())
+  
   # calculate metrics
   metrics_list <- lapply(fragments_list, function(fragments_repeats) {
 

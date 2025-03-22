@@ -2,7 +2,7 @@ test_that("main trace", {
 
   fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 
-  frag_list <- suppressMessages(trace_main(fsa_list, min_bp_size = 300, grouped = TRUE, metadata_data.frame = metadata, show_progress_bar = FALSE))
+  frag_list <- suppressMessages(trace(fsa_list, min_bp_size = 300, grouped = TRUE, metadata_data.frame = metadata, show_progress_bar = FALSE))
 
 
   test_metrics_grouped <- calculate_instability_metrics(
@@ -63,7 +63,7 @@ test_that("ladder fixing", {
     )
    )
 
-   frag_list <- suppressMessages(trace_main(fsa_list, ladder_df_list = example_list, min_bp_size = 300, grouped = TRUE, metadata_data.frame = metadata, show_progress_bar = FALSE))
+   frag_list <- suppressMessages(trace(fsa_list, ladder_df_list = example_list, min_bp_size = 300, grouped = TRUE, metadata_data.frame = metadata, show_progress_bar = FALSE))
 
 })
 
@@ -72,7 +72,7 @@ test_that("main fragments", {
 
   fragment_list <- genemapper_table_to_fragments(example_data, dye_channel = "B",  min_size_bp = 300)
 
-  frag_list <- suppressMessages(trace_main(fragment_list, grouped = TRUE, metadata_data.frame = metadata))
+  frag_list <- suppressMessages(trace(fragment_list, grouped = TRUE, metadata_data.frame = metadata))
 
   
   test_metrics_grouped <- calculate_instability_metrics(
@@ -127,7 +127,7 @@ test_that("main repeats", {
 
   fragment_list <- repeat_table_to_fragments(example_data_repeat_table, min_repeat = 71)
 
-  frag_list <- suppressMessages(trace_main(fragment_list, grouped = TRUE, metadata_data.frame = metadata[1:17,], peak_region_size_gap_threshold =2))
+  frag_list <- suppressMessages(trace(fragment_list, grouped = TRUE, metadata_data.frame = metadata[1:17,], peak_region_size_gap_threshold =2))
 
   
   test_metrics_grouped <- calculate_instability_metrics(
@@ -184,7 +184,7 @@ test_that("main error",{
   fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
   
   test_error <- tryCatch(
-    trace_main(fsa_list, metadata_data.frame = wrong_metadata),
+    trace(fsa_list, metadata_data.frame = wrong_metadata),
   error = function(e) e
 )
 
@@ -195,6 +195,6 @@ expect_true("error" %in% class(test_error))
   
 # fsa_list <- lapply(cell_line_fsa_list[1:10], function(x) x$clone())
 
-# frag_list <- trace_main(fsa_list, metadata_data.frame = metadata)
+# frag_list <- trace(fsa_list, metadata_data.frame = metadata)
   
 })
