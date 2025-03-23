@@ -115,26 +115,36 @@ find_fragments <- function(
     return(output)
   }
 
+  if (config$show_progress_bar) {
+    pb <- utils::txtProgressBar(min = 0, max = length(fragments_list), style = 3)
+  }
 
-  for (fragment in fragments_list) {
+  for (i in seq_along(fragments_list)) {
     # find peak table
     df <- tryCatch(
-      find_fragment_peaks(fragment$trace_bp_df),
+      find_fragment_peaks(fragments_list[[i]]$trace_bp_df),
       error = function(e) e
     )
     if("error" %in% class(df)){
       output$set_status(
         "error", 
-        paste0("There was an error finding fragments for ", fragment$unique_id, ":\n", df$message)
+        paste0("There was an error finding fragments for ", fragments_list[[i]]$unique_id, ":\n", df$message)
       )
       return(output)
     }
 
-    df$unique_id <- rep(fragment$unique_id, nrow(df))
+    df$unique_id <- rep(fragments_list[[i]]$unique_id, nrow(df))
     df <- df[which(df$size > config$min_bp_size & df$size < config$max_bp_size), ,drop = FALSE]
-    fragment$peak_table_df <- df
-    fragment$.__enclos_env__$private$min_bp_size <- config$min_bp_size
-    fragment$.__enclos_env__$private$max_bp_size <- config$max_bp_size
+    fragments_list[[i]]$peak_table_df <- df
+
+    if (config$show_progress_bar) {
+      utils::setTxtProgressBar(pb, i)
+    }
+  }
+
+  if (config$show_progress_bar) {
+    # make sure progress bar ends on new line
+    cat("\n")
   }
 
   return(output)

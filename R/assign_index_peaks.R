@@ -45,7 +45,8 @@
 #' trace:::find_ladders(fsa_list, config, show_progress_bar = FALSE)
 #'
 #' trace:::find_fragments(fsa_list, config,
-#'   min_bp_size = 300
+#'   min_bp_size = 300,
+#'   show_progress_bar = FALSE
 #' )
 #'
 #' trace:::find_alleles(

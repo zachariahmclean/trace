@@ -5,6 +5,7 @@
 # test_that("{shinytest2} recording: fix_ladder-checkbox", {
 #   # Don't run these tests on the CRAN build servers
 #   skip_on_cran()
+#   skip_on_ci()
 #   config <- load_config()
 #   fsa_list <- lapply(trace::cell_line_fsa_list[1:2], function(x) x$clone())
 

@@ -62,7 +62,7 @@
 #' This function processes samples through the full pipeline, applying the library of functions within this package. Parameters can be adjusted either by passing them directly to this function or by editing a configuration file and supplying it to `config_file`. Below is a breakdown of the pipeline stages and their key functionalities:
 #'
 #' **Ladder-related parameters:**
-#' The ladder is used to calibrate the base pair (bp) sizes of fragments. The ladder peaks are identified in the ladder channel using \code{\link{find_ladders}}, and a generalized additive model (GAM) with cubic regression splines is used to fit the relationship between scan numbers and bp sizes. This allows for accurate interpolation of bp sizes for all scans. Manual inspection of ladder assignments is recommended to ensure correctness. If needed, ladders can be interactively fixed using \code{\link{fix_ladders_interactive}} or manually adjusted using \code{\link{fix_ladders_manual}}.
+#' The ladder is used to calibrate the base pair (bp) sizes of fragments. The ladder peaks are identified in the ladder channel using \code{\link{find_ladders}}, and a generalized additive model (GAM) with cubic regression splines is used to fit the relationship between scan numbers and bp sizes. This allows for accurate interpolation of bp sizes for all scans. Manual inspection of ladder assignments is recommended to ensure correctness. If ladders are broken, first try and adjust parameters. In a last resort, ladders may be manually set by using the `ladder_df_list` parameter. To generate this list, use the helper shiny app \code{\link{fix_ladders_interactive}}.
 #'
 #' **Peak-finding parameters:**
 #' Fragment peaks are identified in the continuous trace data using \code{\link{find_fragments}}. The signal is smoothed using a Savitzky-Golay filter, and peaks are detected based on their signal intensity and bp size. Parameters such as `min_bp_size` and `max_bp_size` allow filtering peaks outside the desired range, while `peak_scan_ramp` controls the number of scans around the peak maxima.
@@ -77,7 +77,7 @@
 #' The index peak is the reference repeat length used for instability metrics calculations. It is typically the inherited repeat length or the modal repeat length at a starting time point. Samples can be grouped to share a common index peak using \code{\link{assign_index_peaks}}, or the index peak can be manually overridden using `index_override_dataframe`.
 #'
 #' **Metadata:**
-#' Metadata is used to group samples for metrics calculations, batch correction, or repeat length validation. Use \code{\link{add_metadata}} to add metadata to the fragments list. Key metadata fields include:
+#' Metadata is used to group samples for metrics calculations, batch correction, or repeat length validation. Use \code{\link{add_metadata}} to add metadata to the fragments list. Required (even if the column is left blank) metadata fields include:
 #'   - `batch_run_id`: Groups samples by fragment analysis run.
 #'   - `batch_sample_id`: Links samples across batches for batch or repeat correction.
 #'   - `batch_sample_modal_repeat`: Specifies the validated repeat length for samples used in repeat correction.

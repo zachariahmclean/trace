@@ -100,6 +100,7 @@ np_repeat <- function(size,
 
 size_period_repeat_caller <- function(
   fragments_repeat,
+  config,
   repeat_size,
   size_period,
   scan_peak_window) {
@@ -114,8 +115,7 @@ size_period_repeat_caller <- function(
                                       ) {
     
     # first filter by previously set size constraints
-    df <- df[which(df$size > fragments_repeat$.__enclos_env__$private$min_bp_size & 
-      df$size < fragments_repeat$.__enclos_env__$private$max_bp_size), ]
+    df <- df[which(df$size > config$min_bp_size & df$size < config$max_bp_size), ]
     
     # filter for the directly wer are iterating over
     if (direction == 1) {
@@ -160,17 +160,13 @@ size_period_repeat_caller <- function(
     fragments_repeat$get_allele_peak()$allele_size,
     size_period,
     direction = 1,
-    window = scan_peak_window,
-    min_bp_size = fragments_repeat$.__enclos_env__$private$min_bp_size,
-    max_bp_size = fragments_repeat$.__enclos_env__$private$max_bp_size)
+    window = scan_peak_window)
 
   neg_peaks <- find_peaks_by_size_period(fragments_repeat$trace_bp_df,
     fragments_repeat$get_allele_peak()$allele_size,
     size_period,
     direction = -1,
-    window = scan_peak_window,
-    min_bp_size = fragments_repeat$.__enclos_env__$private$min_bp_size,
-    max_bp_size = fragments_repeat$.__enclos_env__$private$max_bp_size)
+    window = scan_peak_window)
 
   peak_table <- fragments_repeat$trace_bp_df
   allele_scan <- peak_table[which(peak_table$size == fragments_repeat$get_allele_peak()$allele_size), "scan"]
@@ -480,7 +476,8 @@ model_repeat_length <- function(
 #' trace:::find_fragments(
 #'   fsa_list,
 #'   config,
-#'   min_bp_size = 300
+#'   min_bp_size = 300,
+#'   show_progress_bar = FALSE
 #' )
 #'
 #' trace:::find_alleles(fsa_list, config)
@@ -613,6 +610,7 @@ call_repeats <- function(
       # use force_repeat_pattern and catch any errors with that
       size_period_df <- tryCatch(
         size_period_repeat_caller(fragment,
+          config = config,
           repeat_size = config$repeat_size,
           size_period = config$force_repeat_pattern_size_period,
           scan_peak_window = config$force_repeat_pattern_size_window

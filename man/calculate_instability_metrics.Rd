@@ -52,6 +52,16 @@ Each of the columns in the supplied dataframe are explained below:
 }
 }
 
+\subsection{settings used}{
+\itemize{
+\item \code{peak_threshold}: THe peak_threshold parameter used.
+\item \code{lower_repeat_threshold}: The lower repeat limit based of the index repeat of each sample.
+\item \code{upper_repeat_threshold}: The upper repeat limit based of the index repeat of each sample.
+\item \code{index_modal_signal_threshold}: The index_modal_signal_threshold parameter used.
+\item \code{index_signal_sum_threshold}: The index_signal_sum_threshold parameter used.
+}
+}
+
 \subsection{General sample metrics}{
 \itemize{
 \item \code{modal_peak_repeat}: The repeat size of the modal peak.

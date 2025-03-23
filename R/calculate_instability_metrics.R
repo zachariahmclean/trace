@@ -160,6 +160,13 @@ repeat_table_subset <- function(repeat_table_df,
 #' - `QC_peak_number`: Quality control status based on the number of peaks (Low < 20, very low < 10).
 #' - `QC_off_scale`: Quality control comments for off-scale peaks. Potential peaks that are off-scale are given. However, a caveat is that this could be from any of the channels (ie it could be from the ladder channel but is the same scan as the given repeat).
 #'
+#' ## settings used
+#' - `peak_threshold`: THe peak_threshold parameter used.
+#' - `lower_repeat_threshold`: The lower repeat limit based of the index repeat of each sample.
+#' - `upper_repeat_threshold`: The upper repeat limit based of the index repeat of each sample.
+#' - `index_modal_signal_threshold`: The index_modal_signal_threshold parameter used.
+#' - `index_signal_sum_threshold`: The index_signal_sum_threshold parameter used.
+#' 
 #' ## General sample metrics
 #' - `modal_peak_repeat`: The repeat size of the modal peak.
 #' - `modal_peak_signal`: The signal of the modal peak.
@@ -235,10 +242,7 @@ calculate_instability_metrics <- function(
       return(NULL)
     }
 
-    # no issues so set this as blank in case calculate_instability_metrics was run with an issue previously
-    fragments_repeats$.__enclos_env__$private$metrics_qc_message <- NA_character_
     metrics_qc_message <- NA_character_
-
 
     # filter dataset to user supplied thresholds
     size_filtered_df <- repeat_table_subset(
@@ -347,6 +351,11 @@ calculate_instability_metrics <- function(
       QC_modal_peak_signal = QC_modal_peak_signal,
       QC_peak_number = QC_peak_number,
       QC_off_scale = QC_off_scale,
+      peak_threshold = peak_threshold,
+      lower_repeat_threshold = fragments_repeats$get_index_peak()$index_repeat - abs(window_around_index_peak[1]),
+      upper_repeat_threshold = fragments_repeats$get_index_peak()$index_repeat + abs(window_around_index_peak[2]),
+      index_modal_signal_threshold = index_modal_signal_threshold,
+      index_signal_sum_threshold = index_signal_sum_threshold,
       modal_peak_repeat = fragments_repeats$get_allele_peak()$allele_repeat,
       modal_peak_signal = fragments_repeats$get_allele_peak()$allele_signal,
       index_peak_repeat = fragments_repeats$get_index_peak()$index_repeat,

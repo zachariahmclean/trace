@@ -96,7 +96,8 @@ testthat::test_that("repeat period", {
   find_fragments(fsa_list,
     config,
                               minimum_peak_signal = 20,
-                              min_bp_size = 300
+                              min_bp_size = 300,
+                              show_progress_bar = FALSE
   )
 
 
@@ -176,7 +177,8 @@ testthat::test_that("full pipeline repeat size algo", {
   find_fragments(fsa_list,
     config,
                               minimum_peak_signal = 20,
-                              min_bp_size = 300
+                              min_bp_size = 300,
+                              show_progress_bar = FALSE
   )
 
   add_metadata(
@@ -272,7 +274,7 @@ testthat::test_that("batch correction", {
     config,
           show_progress_bar = FALSE)
 
-  find_fragments(fsa_list, config, min_bp_size = 300)
+  find_fragments(fsa_list, config, min_bp_size = 300, show_progress_bar = FALSE)
 
 
   add_metadata(fsa_list,
@@ -321,7 +323,7 @@ testthat::test_that("batch correction with no data in one batch", {
     config,
           show_progress_bar = FALSE)
 
-  find_fragments(fsa_list, config, min_bp_size = 300)
+  find_fragments(fsa_list, config, min_bp_size = 300, show_progress_bar = FALSE)
 
   add_metadata(fsa_list,
     metadata_modification_df)
@@ -362,7 +364,7 @@ testthat::test_that("batch correction with a single sample id", {
     config,
           show_progress_bar = FALSE)
 
-  find_fragments(fsa_list, config, min_bp_size = 300)
+  find_fragments(fsa_list, config, min_bp_size = 300, show_progress_bar = FALSE)
 
   add_metadata(fsa_list,
     metadata[16:19, ])
@@ -403,7 +405,7 @@ testthat::test_that("repeat correction", {
     config,
           show_progress_bar = FALSE)
 
-  find_fragments(fsa_list, config, min_bp_size = 300)
+  find_fragments(fsa_list, config, min_bp_size = 300, show_progress_bar = FALSE)
 
   add_metadata(fsa_list,
     metadata[16:19, ])
@@ -452,7 +454,7 @@ testthat::test_that("repeat correction with one sample off warning", {
   # make peak before just bigger 
   fsa_list[[1]]$trace_bp_df[which(round(fsa_list[[1]]$trace_bp_df$size, 2) == 418.25), "signal"] <- 4000
   
-  find_fragments(fsa_list, config, min_bp_size = 300)
+  find_fragments(fsa_list, config, min_bp_size = 300, show_progress_bar = FALSE)
 
   add_metadata(fsa_list,
     metadata[16:19, ])
@@ -497,7 +499,7 @@ testthat::test_that("repeat correction one run missing", {
           show_progress_bar = FALSE)
   
   
-  find_fragments(fsa_list, config, min_bp_size = 300)
+  find_fragments(fsa_list, config, min_bp_size = 300, show_progress_bar = FALSE)
 
   metadata_2 <- metadata[16:19, ]
 

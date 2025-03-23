@@ -233,9 +233,6 @@ fragments <- R6::R6Class("fragments",
 
   ),
   private = list(
-    # Fragments settings
-    min_bp_size = NULL,
-    max_bp_size = NULL,
 
     # allele data
     allele_size = NA_real_,

@@ -17,7 +17,8 @@ testthat::test_that("find_fragments", {
     find_fragments(fsa_list,
       config,
       minimum_peak_signal = 20,
-      min_bp_size = 100
+      min_bp_size = 100,
+      show_progress_bar = FALSE
     )
   )
 
