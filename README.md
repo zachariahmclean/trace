@@ -177,8 +177,7 @@ correction, repeat correction, and index peak assignment. Prepare a
 
 | Column Name | Purpose | Description |
 |----|----|----|
-| `unique_id` | Required to link up the metadata file with samples |  |
-| Unique identifier for each sample (e.g., file name). Must be unique across all runs. |  |  |
+| `unique_id` | Required to link up the metadata file with samples | Unique identifier for each sample (e.g., file name). Must be unique across all runs. |
 | `metrics_group_id` | Group samples for instability metrics (e.g., expansion index) | Group ID for samples sharing a common baseline (e.g., mouse ID or experiment group). |
 | `metrics_baseline_control` | Identify baseline samples (e.g., inherited repeat length or day 0) | Set to `TRUE` for baseline control samples (e.g., mouse tail or starting time point). |
 | `batch_run_id` | Group samples by run for batch or repeat correction | Identifier for each fragment analysis run (e.g., date). |

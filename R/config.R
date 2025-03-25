@@ -119,30 +119,27 @@ validate_inputs <- function(config){
 
     # Check type (if not NA or Inf)
     if (!any(is.na(config[[param]])) && !any(is.infinite(config[[param]]))) {
-      # Handle integer as a valid subtype of numeric
+          # Check length
+      if (expected[[param]]$length == "single") {
+        if (length(config[[param]]) != 1) {
+          stop(paste("Parameter", param, "should be a single value"))
+        }
+      } else if (expected[[param]]$length == "multiple") {
+        if (length(config[[param]]) < 2) {
+          stop(paste("Parameter", param, "should be a vector of multiple values"))
+        }
+      }
+      
+      # Check type
+      # First handle integer as a valid subtype of numeric
       if (expected[[param]]$type == "numeric" && inherits(config[[param]], "integer") ) {
         # Allow integer to pass as numeric
         next
-      }
-
-      # Check type
-      if (!inherits(config[[param]], expected[[param]]$type)) {
+      } else if (!inherits(config[[param]], expected[[param]]$type)) {
         stop(paste("Parameter", param, "should be of type", expected[[param]]$type, "but is of type", typeof(config[[param]]) ))
       }
     }
-
-    # Check length
-    if (expected[[param]]$length == "single") {
-      if (length(config[[param]]) != 1) {
-        stop(paste("Parameter", param, "should be a single value"))
-      }
-    } else if (expected[[param]]$length == "multiple") {
-      if (length(config[[param]]) < 2) {
-        stop(paste("Parameter", param, "should be a vector of multiple values"))
-      }
-    }
   }
-
 
   invisible()
 

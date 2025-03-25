@@ -84,10 +84,6 @@
 #'   - `metrics_group_id`: Groups samples for shared index peak assignment.
 #'   - `metrics_baseline_control`: Identifies samples used as baseline controls for index peak assignment.
 #'
-#' **Pipeline stages:**
-#' - **fsa pipeline**: \code{\link{add_metadata}} (only if `metadata_data.frame` is supplied), \code{\link{find_ladders}}, \code{\link{fix_ladders_manual}} (only if `ladder_df_list` is supplied), \code{\link{find_fragments}}, \code{\link{find_alleles}}, \code{\link{call_repeats}}, \code{\link{assign_index_peaks}}.
-#' - **fragments pipeline**: \code{\link{add_metadata}} (only if `metadata_data.frame` is supplied), \code{\link{find_alleles}}, \code{\link{call_repeats}}, \code{\link{assign_index_peaks}}.
-#' - **repeats pipeline**: \code{\link{add_metadata}} (only if `metadata_data.frame` is supplied), \code{\link{find_alleles}}, \code{\link{assign_index_peaks}}.
 #' @export
 #' 
 #' @examples
@@ -124,8 +120,8 @@
   input_type <- sapply(fragments_list, function(x) x$input_method)
   input_type <- unique(input_type)
   if(length(input_type) > 1){
-    stop(call. = FALSE, "'fragments_list' must be imported using the same method. Use either generated with either read_fsa(), size_table_to_fragments(), genemapper_table_to_fragments(), or [repeat_table_to_fragments().")
-  }
+    stop(call. = FALSE, "'fragments_list' must be imported using the same method generated with either read_fsa(), size_table_to_fragments(), genemapper_table_to_fragments(), or repeat_table_to_fragments().")
+  } 
 
   if(!is.null(metadata_data.frame)){
 
@@ -165,7 +161,6 @@ trace_fsa <-  function(x,
   ladder_df_list
 ) {
   message("Finding ladders")
-
   find_ladders_status <- find_ladders(x, config)
   find_ladders_status$print_status()
 
@@ -175,7 +170,6 @@ trace_fsa <-  function(x,
   }
 
   message("Finding fragments")
-
   find_fragments_status <- find_fragments(x, config)
   find_fragments_status$print_status()
 
@@ -193,17 +187,14 @@ trace_fragments <-  function(x,
   index_override_dataframe) {
   
   message("Finding alleles")
-
   find_alleles_status <- find_alleles(x,config)
   find_alleles_status$print_status()
 
   message("Calling repeats")
-
   call_repeats_status <- call_repeats(x, config)
   call_repeats_status$print_status()
 
   message("Assigning index peaks")
-
   assign_index_peaks_status <- assign_index_peaks(x, config, index_override_dataframe = index_override_dataframe)
   assign_index_peaks_status$print_status()
 
@@ -217,21 +208,19 @@ trace_repeats <- function(x,
 
   message("Finding alleles")
   
-  # # there's an issue that the default peak_region_size_gap_threshold in the config file is for fragments
-  # # if the user hasn't uploaded their own value, change it to 2 (for two repeats)
-  # if(is.null(config_file)){
-  #   config$peak_region_size_gap_threshold <- 2
-  #   message("overriding peak_region_size_gap_threshold to 2")
-  # }
+  # there's an issue that the default peak_region_size_gap_threshold in the config file is for fragments
+  # if the user hasn't uploaded their own value, give warning
+  if(config$peak_region_size_gap_threshold == 6){
+    config$peak_region_size_gap_threshold <- 2
+    message("WARNING! peak_region_size_gap_threshold is at the default value of 6 which is likely not appropriate when starting with the data here that already has the repeats called. If analyzing triplet repeats, a more appropriate value may be 'peak_region_size_gap_threshold = 2'.")
+  }
 
   find_alleles_status <- find_alleles(x, config)
-  print(find_alleles_status)
+  find_alleles_status$print_status()
 
   message("Assigning index peaks")
-
   assign_index_peaks_status <- assign_index_peaks(x, config, index_override_dataframe = index_override_dataframe)
   assign_index_peaks_status$print_status()
-
 
   return(x)
 }

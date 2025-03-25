@@ -106,13 +106,6 @@ Metadata is used to group samples for metrics calculations, batch correction, or
 \item \code{metrics_group_id}: Groups samples for shared index peak assignment.
 \item \code{metrics_baseline_control}: Identifies samples used as baseline controls for index peak assignment.
 }
-
-\strong{Pipeline stages:}
-\itemize{
-\item \strong{fsa pipeline}: \code{\link{add_metadata}} (only if \code{metadata_data.frame} is supplied), \code{\link{find_ladders}}, \code{\link{fix_ladders_manual}} (only if \code{ladder_df_list} is supplied), \code{\link{find_fragments}}, \code{\link{find_alleles}}, \code{\link{call_repeats}}, \code{\link{assign_index_peaks}}.
-\item \strong{fragments pipeline}: \code{\link{add_metadata}} (only if \code{metadata_data.frame} is supplied), \code{\link{find_alleles}}, \code{\link{call_repeats}}, \code{\link{assign_index_peaks}}.
-\item \strong{repeats pipeline}: \code{\link{add_metadata}} (only if \code{metadata_data.frame} is supplied), \code{\link{find_alleles}}, \code{\link{assign_index_peaks}}.
-}
 }
 \examples{
 fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
