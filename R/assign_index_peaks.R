@@ -81,7 +81,7 @@ assign_index_peaks <- function(
 
   # load config
   config <- tryCatch(
-    update_config(config, ...),
+    update_config(config, list(...)),
     error = function(e) e
   )
   if("error" %in% class(config)){

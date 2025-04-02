@@ -198,3 +198,18 @@ expect_true("error" %in% class(test_error))
 # frag_list <- trace(fsa_list, metadata_data.frame = metadata)
   
 })
+
+
+test_that("main custom config", {
+
+  fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+
+  frag_list <- suppressMessages(trace(
+    fsa_list, 
+    config_file = test_path("fixtures", "test_config.yaml"),
+    metadata_data.frame = metadata, show_progress_bar = FALSE))
+  
+  expect_true(all(sapply(frag_list, function(x) min(x$repeat_table_df$size) > 400)))
+  expect_true(frag_list[[1]]$get_allele_peak()$allele_repeat != frag_list[[1]]$get_index_peak()$index_repeat)
+
+})

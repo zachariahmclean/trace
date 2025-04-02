@@ -6,8 +6,8 @@
 #' @param metadata_data.frame metadata passed to [add_metadata()] for grouping samples for metrics calculations or batch correction.
 #' @param index_override_dataframe A data.frame to manually set index peaks. Column 1: unique sample IDs, Column 2: desired index peaks (the order of the columns is important since the information is pulled by column position rather than column name). Closest peak in each sample is selected so the number needs to just be approximate. Default: `NULL`. See [assign_index_peaks()].
 #' @param ladder_df_list A list of dataframes, with the names being the unique id and the value being a dataframe. The dataframe has two columns, size (indicating the bp of the standard) and scan (the scan value of the ladder peak). It's critical that the element name in the list is the unique id of the sample. Either manually figure out what scan the ladder peaks should be and generate the list, or use [fix_ladders_interactive()] to interactively generate the ladder_df_list.
-#' @param config_file The file path to a YAML file containing a full list of parameters. This provides a central place to adjust parameters for the pipeline. Use the following command to make a copy of the YAML file: `file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")`.
-#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config_file`. These parameters are grouped by functionality:
+#' @param config_file The file path to a YAML file containing a list of parameters. This provides a central place to adjust parameters for the pipeline. Use the following command to make a copy of the default YAML file: `file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")`. The YAML file does not have to contain a complete list of parameters. Parameters directly passed to this function via ... will overwrite values in the `config_file`.
+#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function.These parameters are grouped by functionality:
 #'
 #' **Ladder-related parameters:**
 #'   \itemize{
@@ -112,9 +112,14 @@
   # otherwise sometimes repeated running of pipeline results in unexpected errors
   fragments_list <- lapply(fragments_list, function(x) x$clone())
    
-  # Import config file if not supplied by user
-  config <- load_config(config_file)
-  config <- update_config(config, ...)
+  # Import and update config files
+  config <- load_config()
+  if(!is.null(config_file)){
+    user_config <- load_config(config_file)
+    config <- update_config(config, user_config)   
+  }
+  config <- update_config(config, list(...))
+
    
   # set input type
   input_type <- sapply(fragments_list, function(x) x$input_method)

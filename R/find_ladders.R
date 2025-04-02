@@ -343,7 +343,7 @@ find_ladders <- function(
   output <- trace_output$new("find_ladders")
 
   config <- tryCatch(
-    update_config(config, ...),
+    update_config(config, list(...)),
     error = function(e) e
   )
   if("error" %in% class(config)){

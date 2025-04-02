@@ -24,18 +24,14 @@ load_config <- function(config_file = NULL) {
     config_file <- system.file("extdata/trace_config.yaml", package = "trace")
   }
 
-  # read in config and flatten
-  config_nested <- yaml::read_yaml(config_file)
-  config <- list()
-  for (i in seq_along(config_nested)) {
-    config <- c(config, config_nested[[i]])
-  }
+  # read in config
+  config <- yaml::read_yaml(config_file)
 
   # correct type of NA for certain parameters
   na_params <- c("ladder_start_scan", "minimum_ladder_signal",
                   "min_scan", "max_scan")
   for (param in na_params) {
-    if(config[[param]] == "NA"){
+    if(param %in% names(config) && config[[param]] == "NA"){
       config[[param]] <- NA_real_
     }
   }
@@ -47,13 +43,10 @@ load_config <- function(config_file = NULL) {
 }
 
 
- update_config <- function(config, ...){
-     
-  # override config file with user supplied arguments
-  user_args <- list(...)
+ update_config <- function(config, new_config){
 
-  for(arg in names(user_args)){
-  config[[arg]] <- user_args[[arg]]
+  for(arg in names(new_config)){
+  config[[arg]] <- new_config[[arg]]
   }
    
   validate_inputs(config)
