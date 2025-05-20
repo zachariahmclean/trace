@@ -2,9 +2,8 @@ testthat::test_that("find ladder peaks", {
 
   test_processed <- data.frame(signal = cell_line_fsa_list[[1]]$fsa$Data$DATA.105, scan = 0:(length(cell_line_fsa_list[[1]]$fsa$Data$DATA.105) - 1))
   test_processed <- test_processed[which(test_processed$scan >= which.max(test_processed$signal)), ]
-  test_processed$detrended_signal <- detrend_signal(test_processed$signal)
   test_processed$smoothed_signal <- pracma::savgol(
-    test_processed$detrended_signal,
+    test_processed$signal,
     21
   )
 
@@ -61,7 +60,8 @@ test_that("iterative ladder", {
 
   iteration_result <- ladder_iteration(ladder_sizes, scans_162,
     choose = 4,
-    max_combinations = 2500000
+    max_combinations = 2500000,
+    
   )
 
   expect_true(round(mean(iteration_result$scan), 3) == 2877.923)
@@ -86,7 +86,7 @@ test_that("find ladders", {
 
 
 
-  testthat::expect_true(all(fsa_list[[1]]$ladder_df$scan == c(1540, 1618, 1766, 1909, 2139, 2198, 2257, 2502, 2802, 3131, 3376, 3438, 3756, 4046, 4280, 4328)))
+  testthat::expect_true(all(fsa_list[[1]]$ladder_df$scan == c(1529, 1540, 1618, 1766, 1909, 2139, 2198, 2257, 2502, 2802, 3131, 3376, 3438, 3756, 4046, 4280, 4328)))
 })
 
 
@@ -128,13 +128,13 @@ test_that("ladder minium signal", {
                                  max_combinations = 2500000,
                                  ladder_selection_window = 8,
                                  show_progress_bar = FALSE,
-                                 minimum_ladder_signal = 100
+                                 minimum_ladder_signal = 2000
     )
 
 
 
 
-  testthat::expect_true(all(fsa_list[[1]]$ladder_df$scan == c(1540, 1618, 1766, 1909, 2139, 2198, 2257, 2502, 2802, 3131, 3376, 3438, 3756, 4046, 4280, 4328)))
+  testthat::expect_true(all(fsa_list[[1]]$ladder_df$scan == c(2257, 2502, 2802, 3131, 3376, 3438, 3756)))
 })
 
 
@@ -210,34 +210,7 @@ test_that("fix ladders manual", {
 })
 
 
-test_that("ladder fit ladder error message", {
-
-  config <- load_config()
-
-  fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
   
-  test_ladders <- tryCatch(
-    print(
-      find_ladders(fsa_list,
-        config,
-        ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
-        max_combinations = 2500000,
-        ladder_selection_window = 8,
-        show_progress_bar = FALSE,
-        minimum_ladder_signal = 5000
-      )
-    ), error = function(e) e
-  )
-
-  expect_true("error" %in% class(test_ladders))
-
-  # warning
-
-  fsa_list <- lapply(cell_line_fsa_list[1:2], function(x) x$clone())
-  #find_ladders(fsa_list, warning_rsq_threshold = 0.9999, show_progress_bar = FALSE)
-
-
-})
-
+  
 

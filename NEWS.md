@@ -12,7 +12,8 @@ changed deaults from null to NA (ladder_start_scan, minimum_peak_signal)
 made inputs stricter and validated
 in calculate instability metrics added ways to filter out poor quality index samples with height and sum thresholds
 fixed skewness and kurtosis calculations (previous versions didn't weight signal appropriately)
-
+major update to find_ladders function to improve fitting. Made algortim branching and compares best options for overall fit. also introduces new parameters ladder_top_n_branching and ladder_branching_r_squared_threshold related to this 
+added new parameter to search for ladder in the forward or reverse directions
 
 
 # trace 0.6.0

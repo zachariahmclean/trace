@@ -16,11 +16,14 @@ find_ladders(fragments_list, config, ...)
 \item \code{ladder_channel}: string, which channel in the fsa file contains the ladder signal. Default: \code{"DATA.105"}.
 \item \code{signal_channel}: string, which channel in the fsa file contains the data signal. Default: \code{"DATA.1"}.
 \item \code{ladder_sizes}: numeric vector, bp sizes of ladder used in fragment analysis. Default: \code{c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500)}.
-\item \code{ladder_start_scan}: single numeric indicating the scan number to start looking for ladder peaks. Usually this can be automatically found (when set to NULL). Default: \code{NA}.
+\item \code{ladder_start_scan}: single numeric indicating the scan number to start looking for ladder peaks (only required when ladder signal does not have large spike at start). Usually this can be automatically found (when set to NA) through the detection of the large spike at the start of the signal. Default: \code{NA}.
 \item \code{minimum_ladder_signal}: single numeric for minimum signal of peak from smoothed signal. Default: \code{NA}.
+\item \code{ladder_assign_left_to_right}: single logical for if the ladder should be assigned from the smallest base pair size to largest (TRUE), or if the order should be reversed and assigned from largest to smallest (FALSE), which can be helpful since the end often has cleaner signal than the start. Default: \code{TRUE}.
+\item \code{ladder_selection_window}: single numeric for the ladder assigning algorithm. We iterate through the scans in blocks and test their linear fit (We can assume that the ladder is linear over a short distance). This value defines how large that block of peaks should be. Larger values should be better because the fit is tested in greater context, but larger numbers will make the fit increasingly slower. Default: \code{5}.
+\item \code{ladder_top_n_branching}: single numeric. The ladder assigning algorithm branches as it tests the various combinations. This value defines how many branches should be created. If the correct combination is not found, you could try increasing this value, but it will make it increasingly slower. Default: \code{5}.
+\item \code{ladder_branching_r_squared_threshold}: single numeric. The branches of the ladder assigning algorithm are pruned by R-squared values above this threshold to discard fits that are not promising. If the correct combination is not found, you could try decreasing this value, but it will make it increasingly slower. Default: \code{0.99}.
 \item \code{min_scan}: single numeric indicating the lower scan limit to filter out scans below. Default: \code{NA}.
 \item \code{max_scan}: single numeric indicating the upper scan limit to filter out scans above Default: \code{NA}.
-\item \code{ladder_selection_window}: single numeric for the ladder assigning algorithm. We iterate through the scans in blocks and test their linear fit (We can assume that the ladder is linear over a short distance). This value defines how large that block of peaks should be. Default: \code{5}.
 \item \code{max_combinations}: single numeric indicating what is the maximum number of ladder combinations that should be tested. Default: \code{2500000}.
 \item \code{warning_rsq_threshold}: single numeric for the value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold. Default: \code{0.998}.
 \item \code{show_progress_bar}: single logical for showing progress bar. Default: \code{TRUE}.
@@ -40,9 +43,6 @@ is a list of fragments.
 In this package, base pair (bp) sizes are assigned using a generalized additive model (GAM) with cubic regression splines. The model is fit to known ladder fragment sizes and their corresponding scan positions, capturing the relationship between scan number and bp size. Once trained, the model predicts bp sizes for all scans by interpolating between the known ladder points. This approach provides a flexible and accurate assignment of bp sizes, accommodating the slightly non-linear relationship.
 
 Use \code{\link[=plot_data_channels]{plot_data_channels()}} to plot the raw data on the fsa file to identify which channel the ladder and data are in.
-
-The ladder peaks are assigned from largest to smallest. I would recommend excluding
-size standard peaks less than 50 bp (eg size standard 35 bp).
 
 Each ladder should be manually inspected to make sure that is has been correctly assigned.
 }

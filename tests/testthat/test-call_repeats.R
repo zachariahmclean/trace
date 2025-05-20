@@ -261,7 +261,7 @@ suppressMessages(
 
   medians <- aggregate(rel_gain ~ treatment + genotype, plot_data, median, na.rm = TRUE)
 
-  testthat::expect_true(all(round(medians$rel_gain, 5) == c(1.00000, 0.86154, 0.73268, 0.55720)))
+  testthat::expect_true(all(round(medians$rel_gain, 5) == c(1.00000, 0.86158, 0.73262, 0.55721)))
 })
 
 
@@ -291,7 +291,7 @@ testthat::test_that("batch correction", {
     )
   )
   testthat::expect_true(all.equal(
-    c(rep(0.73299, 2), rep(-0.73299, 2)), 
+    c(rep(0.72867 , 2), rep(-0.72867 , 2)), 
     round(as.numeric(sapply(fsa_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)
   ))
   
@@ -428,7 +428,7 @@ testthat::test_that("repeat correction", {
 
 
   testthat::expect_true(all.equal(
-    c(10.51614, 10.58441, 11.09593, 11.17947), 
+    c(10.51614, 10.58441, 11.09364 , 11.17831), 
     round(as.numeric(sapply(fsa_list, function(x) x$.__enclos_env__$private$repeat_correction_factor)), 5)
   ))
 
@@ -437,7 +437,7 @@ testthat::test_that("repeat correction", {
   correction_summary <- extract_repeat_correction_summary(fsa_list)
 
   testthat::expect_true(is.data.frame(correction_summary))
-  testthat::expect_true(all.equal(round(correction_summary$abs_avg_residual, 5), c(0.01585, 0.01585, 0.01988, 0.01704)))
+  testthat::expect_true(all.equal(round(correction_summary$abs_avg_residual, 5), c(0.01585, 0.01585, 0.01777, 0.01523)))
 
 })
 

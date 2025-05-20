@@ -14,11 +14,14 @@
 #'     \item `ladder_channel`: string, which channel in the fsa file contains the ladder signal. Default: `"DATA.105"`.
 #'     \item `signal_channel`: string, which channel in the fsa file contains the data signal. Default: `"DATA.1"`.
 #'     \item `ladder_sizes`: numeric vector, bp sizes of ladder used in fragment analysis. Default: `c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500)`.
-#'     \item `ladder_start_scan`: single numeric indicating the scan number to start looking for ladder peaks. Usually this can be automatically found (when set to NA). Default: `NA`.
-#'     \item `minimum_ladder_signal`: single numeric for minimum signal of peak from the raw signal. Default: `NA`.
+#'     \item `ladder_start_scan`: single numeric indicating the scan number to start looking for ladder peaks (only required when ladder signal does not have large spike at start). Usually this can be automatically found (when set to NA) through the detection of the large spike at the start of the signal. Default: `NA`.
+#'     \item `minimum_ladder_signal`: single numeric for minimum signal of peak from the raw signal. If not set, the ladder will be fit to a set of the tallest peaks in the ladder channel. Default: `NA`.
+#'     \item `ladder_assign_left_to_right`: single logical for if the ladder should be assigned from the smallest base pair size to largest (TRUE), or if the order should be reversed and assigned from largest to smallest (FALSE), which can be helpful since the end often has cleaner signal than the start. Default: `TRUE`.
+#'     \item `ladder_selection_window`: single numeric for the ladder assigning algorithm. We iterate through the scans in blocks and test their linear fit (We can assume that the ladder is linear over a short distance). This value defines how large that block of peaks should be. Larger values should be better because the fit is tested in greater context, but larger numbers will make the fit increasingly slower. Default: `5`.
+#'     \item `ladder_top_n_branching`: single numeric. The ladder assigning algorithm branches as it tests the various combinations. This value defines how many branches should be created. If the correct combination is not found, you could try increasing this value, but it will make it increasingly slower. Default: `5`.
+#'     \item `ladder_branching_r_squared_threshold`: single numeric. The branches of the ladder assigning algorithm are pruned by R-squared values above this threshold to discard fits that are not promising. If the correct combination is not found, you could try decreasing this value, but it will make it increasingly slower. Default: `0.99`. 
 #'     \item `min_scan`: single numeric indicating the lower scan limit to filter out scans below. Default: `NA`.
 #'     \item `max_scan`: single numeric indicating the upper scan limit to filter out scans above. Default: `NA`.
-#'     \item `ladder_selection_window`: single numeric for the ladder assigning algorithm. We iterate through the scans in blocks and test their linear fit (We can assume that the ladder is linear over a short distance). This value defines how large that block of peaks should be. Default: `5`.
 #'     \item `max_combinations`: single numeric indicating what is the maximum number of ladder combinations that should be tested. Default: `2500000`.
 #'     \item `warning_rsq_threshold`: single numeric for the value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold. Default: `0.998`.
 #'     \item `show_progress_bar`: single logical for showing progress bar. Default: `TRUE`.
@@ -127,6 +130,9 @@
   if(length(input_type) > 1){
     stop(call. = FALSE, "'fragments_list' must be imported using the same method generated with either read_fsa(), size_table_to_fragments(), genemapper_table_to_fragments(), or repeat_table_to_fragments().")
   } 
+   
+   
+  #SOMEWHERE HERE CHECK IF PARAMS THAT REQUIRED METADATA ARE USED BUT NOT METADATA PROVIDED!
 
   if(!is.null(metadata_data.frame)){
 

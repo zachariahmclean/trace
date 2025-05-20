@@ -22,20 +22,23 @@ trace(
 
 \item{ladder_df_list}{A list of dataframes, with the names being the unique id and the value being a dataframe. The dataframe has two columns, size (indicating the bp of the standard) and scan (the scan value of the ladder peak). It's critical that the element name in the list is the unique id of the sample. Either manually figure out what scan the ladder peaks should be and generate the list, or use \code{\link[=fix_ladders_interactive]{fix_ladders_interactive()}} to interactively generate the ladder_df_list.}
 
-\item{config_file}{The file path to a YAML file containing a full list of parameters. This provides a central place to adjust parameters for the pipeline. Use the following command to make a copy of the YAML file: \code{file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")}.}
+\item{config_file}{The file path to a YAML file containing a list of parameters. This provides a central place to adjust parameters for the pipeline. Use the following command to make a copy of the default YAML file: \code{file.copy(system.file("extdata/trace_config.yaml", package = "trace"), ".")}. The YAML file does not have to contain a complete list of parameters. Parameters directly passed to this function via ... will overwrite values in the \code{config_file}.}
 
-\item{...}{additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the \code{config_file}. These parameters are grouped by functionality:
+\item{...}{additional parameters from any of the functions in the pipeline detailed below may be passed to this function.These parameters are grouped by functionality:
 
 \strong{Ladder-related parameters:}
 \itemize{
 \item \code{ladder_channel}: string, which channel in the fsa file contains the ladder signal. Default: \code{"DATA.105"}.
 \item \code{signal_channel}: string, which channel in the fsa file contains the data signal. Default: \code{"DATA.1"}.
 \item \code{ladder_sizes}: numeric vector, bp sizes of ladder used in fragment analysis. Default: \code{c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500)}.
-\item \code{ladder_start_scan}: single numeric indicating the scan number to start looking for ladder peaks. Usually this can be automatically found (when set to NA). Default: \code{NA}.
-\item \code{minimum_ladder_signal}: single numeric for minimum signal of peak from the raw signal. Default: \code{NA}.
+\item \code{ladder_start_scan}: single numeric indicating the scan number to start looking for ladder peaks (only required when ladder signal does not have large spike at start). Usually this can be automatically found (when set to NA) through the detection of the large spike at the start of the signal. Default: \code{NA}.
+\item \code{minimum_ladder_signal}: single numeric for minimum signal of peak from the raw signal. If not set, the ladder will be fit to a set of the tallest peaks in the ladder channel. Default: \code{NA}.
+\item \code{ladder_assign_left_to_right}: single logical for if the ladder should be assigned from the smallest base pair size to largest (TRUE), or if the order should be reversed and assigned from largest to smallest (FALSE), which can be helpful since the end often has cleaner signal than the start. Default: \code{TRUE}.
+\item \code{ladder_selection_window}: single numeric for the ladder assigning algorithm. We iterate through the scans in blocks and test their linear fit (We can assume that the ladder is linear over a short distance). This value defines how large that block of peaks should be. Larger values should be better because the fit is tested in greater context, but larger numbers will make the fit increasingly slower. Default: \code{5}.
+\item \code{ladder_top_n_branching}: single numeric. The ladder assigning algorithm branches as it tests the various combinations. This value defines how many branches should be created. If the correct combination is not found, you could try increasing this value, but it will make it increasingly slower. Default: \code{5}.
+\item \code{ladder_branching_r_squared_threshold}: single numeric. The branches of the ladder assigning algorithm are pruned by R-squared values above this threshold to discard fits that are not promising. If the correct combination is not found, you could try decreasing this value, but it will make it increasingly slower. Default: \code{0.99}.
 \item \code{min_scan}: single numeric indicating the lower scan limit to filter out scans below. Default: \code{NA}.
 \item \code{max_scan}: single numeric indicating the upper scan limit to filter out scans above. Default: \code{NA}.
-\item \code{ladder_selection_window}: single numeric for the ladder assigning algorithm. We iterate through the scans in blocks and test their linear fit (We can assume that the ladder is linear over a short distance). This value defines how large that block of peaks should be. Default: \code{5}.
 \item \code{max_combinations}: single numeric indicating what is the maximum number of ladder combinations that should be tested. Default: \code{2500000}.
 \item \code{warning_rsq_threshold}: single numeric for the value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold. Default: \code{0.998}.
 \item \code{show_progress_bar}: single logical for showing progress bar. Default: \code{TRUE}.

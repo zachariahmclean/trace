@@ -6,7 +6,10 @@ ladder_start_scan: NA
 minimum_ladder_signal: NA
 min_scan: NA
 max_scan: NA
+ladder_assign_left_to_right: TRUE
 ladder_selection_window: 5
+ladder_top_n_branching: 5
+ladder_branching_r_squared_threshold: 0.99
 max_combinations: 2500000
 warning_rsq_threshold: 0.998
 show_progress_bar: TRUE
