@@ -1,0 +1,40 @@
+#find_ladders
+ladder_channel: "DATA.105"
+signal_channel: "DATA.1"
+ladder_sizes: [50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500]
+ladder_start_scan: NA
+minimum_ladder_signal: NA
+min_scan: NA
+max_scan: NA
+ladder_assign_left_to_right: TRUE
+ladder_selection_window: 5
+ladder_top_n_branching: 5
+ladder_branching_r_squared_threshold: 0.99
+max_combinations: 2500000
+warning_rsq_threshold: 0.998
+show_progress_bar: TRUE
+
+#find_fragments
+smoothing_window: 21
+minimum_peak_signal: 20
+min_bp_size: 200
+max_bp_size: 1000
+peak_scan_ramp: 5
+
+#find_alleles
+number_of_alleles: 1
+peak_region_size_gap_threshold: 6
+peak_region_signal_threshold_multiplier: 1
+
+#call_repeats
+assay_size_without_repeat: 87
+repeat_size: 3
+correction: "none"
+force_whole_repeat_units: FALSE
+force_repeat_pattern: FALSE
+force_repeat_pattern_size_period: 2.79
+force_repeat_pattern_size_window: 0.5
+
+#assign_index_peaks
+grouped: FALSE
+

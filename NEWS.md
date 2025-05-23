@@ -1,4 +1,28 @@
+# new
+#removed modules and have to use main now
+#renamed find_ladders() minimum_peak_signal to minimum_ladder_signal
+#find_fragments now modifies in place
+#repeat_table_to_repeats renames to repeat_table_to_fragments. also require specific column names
+#peak_table_to_fragments split up into two import functions genemapper_table_to_fragments and generic size_table_to_fragments
+#metadata now more rigid and requires all the columns with a specific name
+peak_scan_ramp added to find_fragments as argument and relaxed from 6 to 5
+Changed individual functions to require a config file
+scan subset replace with min scan and max scan
+changed deaults from null to NA (ladder_start_scan, minimum_peak_signal)
+made inputs stricter and validated
+in calculate instability metrics added ways to filter out poor quality index samples with height and sum thresholds
+fixed skewness and kurtosis calculations (previous versions didn't weight signal appropriately)
+major update to find_ladders function to improve fitting. Made algortim branching and compares best options for overall fit. also introduces new parameters ladder_top_n_branching and ladder_branching_r_squared_threshold related to this 
+added new parameter to search for ladder in the forward or reverse directions
+
+
 # trace 0.6.0
+
+-   Fixed bug in `calculate_instability_metrics()` with missing index samples
+
+# trace 0.6.0
+
+-   Fixed bug in `calculate_instability_metrics()` with missing index samples
 
 # trace 0.5.0
 

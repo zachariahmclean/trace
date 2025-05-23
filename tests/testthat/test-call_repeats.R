@@ -2,9 +2,10 @@
 
 testthat::test_that("call_repeats", {
 
+  config <- load_config()
+
 suppressWarnings(
-  test_fragments <- peak_table_to_fragments(example_data,
-    data_format = "genemapper5",
+  test_fragments <- genemapper_table_to_fragments(example_data,
     dye_channel = "B",
     min_size_bp = 300
 )
@@ -13,13 +14,14 @@ suppressWarnings(
   
 
   find_alleles(
-    fragments_list = test_fragments
+    fragments_list = test_fragments, config
   )
 
   suppressWarnings(
     suppressMessages(
       call_repeats(
         fragments_list = test_fragments,
+        config,
         assay_size_without_repeat = 87,
         repeat_size = 3
       )
@@ -35,7 +37,7 @@ suppressWarnings(
   }
 
 
-  testthat::expect_true(all(unique(test_repeats_class) == "fragments_repeats"))
+  testthat::expect_true(all(unique(test_repeats_class) == "fragments"))
 
 
   # force_whole_repeat_units
@@ -43,6 +45,7 @@ suppressWarnings(
     suppressMessages(
       call_repeats(
         fragments_list = test_fragments,
+        config,
         force_whole_repeat_units = TRUE,
         assay_size_without_repeat = 87,
         repeat_size = 3
@@ -60,10 +63,12 @@ suppressWarnings(
 testthat::test_that("repeat period", {
 
   fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
+  config <- load_config()
 
   suppressWarnings(
     find_ladders(
       fsa_list,
+      config,
       ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
       max_combinations = 2500000,
       ladder_selection_window = 5,
@@ -88,35 +93,39 @@ testthat::test_that("repeat period", {
   # dev.off()
 
 
-  peak_list <- find_fragments(fsa_list,
+  find_fragments(fsa_list,
+    config,
                               minimum_peak_signal = 20,
-                              min_bp_size = 300
+                              min_bp_size = 300,
+                              show_progress_bar = FALSE
   )
 
 
 find_alleles(
-    fragments_list = peak_list
+    fragments_list = fsa_list, config
   )
 
-  test_repeats_size_period <- lapply(peak_list, function(x) x$clone())
+  test_repeats_size_period <- lapply(fsa_list, function(x) x$clone())
 
 
   suppressMessages(
     suppressWarnings(
        call_repeats(
         fragments_list = test_repeats_size_period,
+        config,
         force_repeat_pattern = TRUE,
         force_repeat_pattern_size_window = 0.5
       )
     )
   )
 
-  test_repeats_size_none <- lapply(peak_list, function(x) x$clone())
+  test_repeats_size_none <- lapply(fsa_list, function(x) x$clone())
 
   suppressMessages(
     suppressWarnings(
      call_repeats(
         fragments_list = test_repeats_size_none,
+        config,
         force_repeat_pattern = FALSE )
     )
   )
@@ -136,9 +145,11 @@ find_alleles(
 testthat::test_that("full pipeline repeat size algo", {
 
   fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+  config <- load_config()
 
   suppressWarnings(
     find_ladders(fsa_list,
+      config,
                   ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
                   max_combinations = 2500000,
                   ladder_selection_window = 5,
@@ -163,22 +174,25 @@ testthat::test_that("full pipeline repeat size algo", {
   # dev.off()
 
 
-  peak_list <- find_fragments(fsa_list,
+  find_fragments(fsa_list,
+    config,
                               minimum_peak_signal = 20,
-                              min_bp_size = 300
+                              min_bp_size = 300,
+                              show_progress_bar = FALSE
   )
 
   add_metadata(
-    fragments_list = peak_list,
+    fsa_list,
     metadata_data.frame = metadata
   )
 
-  find_alleles(peak_list)
+  find_alleles(fsa_list, config)
 
   suppressMessages(
     suppressWarnings(
       call_repeats(
-        fragments_list = peak_list,
+        fsa_list,
+        config,
         force_repeat_pattern = TRUE
       )
     )
@@ -193,7 +207,8 @@ testthat::test_that("full pipeline repeat size algo", {
 suppressMessages(
   suppressWarnings(
     assign_index_peaks(
-      peak_list,
+      fsa_list,
+      config,
       grouped = TRUE
     )
   )
@@ -203,7 +218,7 @@ suppressMessages(
   suppressMessages(
     suppressWarnings(
       test_metrics_grouped <- calculate_instability_metrics(
-        fragments_list = peak_list,
+        fragments_list = fsa_list,
         peak_threshold = 0.05,
         window_around_index_peak = c(-40, 40)
       )
@@ -246,7 +261,7 @@ suppressMessages(
 
   medians <- aggregate(rel_gain ~ treatment + genotype, plot_data, median, na.rm = TRUE)
 
-  testthat::expect_true(all(round(medians$rel_gain, 5) == c(1.00000, 0.86154, 0.73268, 0.55720)))
+  testthat::expect_true(all(round(medians$rel_gain, 5) == c(1.00000, 0.86158, 0.73262, 0.55721)))
 })
 
 
@@ -254,30 +269,33 @@ suppressMessages(
 testthat::test_that("batch correction", {
 
   fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
+  config <- load_config()
   find_ladders(fsa_list,
+    config,
           show_progress_bar = FALSE)
 
-  fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
+  find_fragments(fsa_list, config, min_bp_size = 300, show_progress_bar = FALSE)
 
 
-  add_metadata(fragments_list,
+  add_metadata(fsa_list,
     metadata[16:19, ])
 
   
   
-  find_alleles(fragments_list)
+  find_alleles(fsa_list, config)
   suppressMessages(
   suppressWarnings(
-   call_repeats(fragments_list,
+   call_repeats(fsa_list,
+    config,
       correction = "batch")
     )
   )
   testthat::expect_true(all.equal(
-    c(rep(0.7330, 2), rep(-0.7330, 2)), 
-    round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 4)
+    c(rep(0.72867 , 2), rep(-0.72867 , 2)), 
+    round(as.numeric(sapply(fsa_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)
   ))
   
-  # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(100, 115))
+  # plot_batch_correction_samples(fsa_list, selected_sample = 1, xlim = c(100, 115))
 
 
 })
@@ -285,6 +303,8 @@ testthat::test_that("batch correction", {
 
 
 testthat::test_that("batch correction with no data in one batch", {
+
+  config <- load_config()
 
   different_batch <- vector("list", 1)
   names(different_batch) <- "test1"
@@ -300,20 +320,22 @@ testthat::test_that("batch correction with no data in one batch", {
 
   fsa_list <- c(lapply(cell_line_fsa_list[16:19], function(x) x$clone()), different_batch)
   find_ladders(fsa_list,
+    config,
           show_progress_bar = FALSE)
 
-  fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
+  find_fragments(fsa_list, config, min_bp_size = 300, show_progress_bar = FALSE)
 
-  add_metadata(fragments_list,
+  add_metadata(fsa_list,
     metadata_modification_df)
   
 
-  find_alleles(fragments_list)
+  find_alleles(fsa_list, config)
 
   suppressMessages(
   suppressMessages(
     tryCatch({
-      call_repeats(fragments_list,
+      call_repeats(fsa_list,
+        config,
         correction = "batch")
     },
       warning = function(w){
@@ -335,18 +357,19 @@ testthat::test_that("batch correction with no data in one batch", {
 
 testthat::test_that("batch correction with a single sample id", {
 
-
+  config <- load_config()
 
   fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
   find_ladders(fsa_list,
+    config,
           show_progress_bar = FALSE)
 
-  fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
+  find_fragments(fsa_list, config, min_bp_size = 300, show_progress_bar = FALSE)
 
-  add_metadata(fragments_list,
+  add_metadata(fsa_list,
     metadata[16:19, ])
   
-    fragments_list <- lapply(fragments_list, function(x){
+    fsa_list <- lapply(fsa_list, function(x){
     if(x$batch_sample_id %in% "S-21-211"){
       x$batch_sample_id <- NA_character_ 
     } 
@@ -356,16 +379,16 @@ testthat::test_that("batch correction with a single sample id", {
       })
   
 
-  find_alleles(fragments_list)
+  find_alleles(fsa_list, config)
   suppressMessages(
-  suppressWarnings(call_repeats(fragments_list, correction = "batch"))
+  suppressWarnings(call_repeats(fsa_list, config, correction = "batch"))
   )
   
-  # plot_batch_correction_samples(fragments_list, selected_sample = 1, xlim = c(100, 120))
+  # plot_batch_correction_samples(fsa_list, selected_sample = 1, xlim = c(100, 120))
 
   testthat::expect_true(all.equal(
     c(rep(0.8113, 2), rep(-0.8113, 2)), 
-    round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)
+    round(as.numeric(sapply(fsa_list, function(x) x$.__enclos_env__$private$batch_correction_factor)), 5)
   ))
 
 
@@ -375,67 +398,75 @@ testthat::test_that("batch correction with a single sample id", {
 
 testthat::test_that("repeat correction", {
 
+  config <- load_config()
+
   fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
   find_ladders(fsa_list,
+    config,
           show_progress_bar = FALSE)
 
-  fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
+  find_fragments(fsa_list, config, min_bp_size = 300, show_progress_bar = FALSE)
 
-  add_metadata(fragments_list,
+  add_metadata(fsa_list,
     metadata[16:19, ])
     
-  find_alleles(fragments_list)
+  find_alleles(fsa_list, config)
 
   suppressMessages(
     suppressWarnings(
       call_repeats(
-        fragments_list = fragments_list,
+        fsa_list,
+        config, 
         correction  = "repeat"
       )
     )
   )
 
-  # plot_batch_correction_samples(fragments_list, 1, c(100,130))
+  # plot_batch_correction_samples(fsa_list, 1, c(100,130))
 
-  # plot_repeat_correction_model(fragments_list)
+  # plot_repeat_correction_model(fsa_list)
 
 
   testthat::expect_true(all.equal(
-    c(10.51614, 10.58441, 11.09593, 11.17947), 
-    round(as.numeric(sapply(fragments_list, function(x) x$.__enclos_env__$private$repeat_correction_factor)), 5)
+    c(10.51614, 10.58441, 11.09364 , 11.17831), 
+    round(as.numeric(sapply(fsa_list, function(x) x$.__enclos_env__$private$repeat_correction_factor)), 5)
   ))
 
 
   # extract model summary
-  correction_summary <- extract_repeat_correction_summary(fragments_list)
+  correction_summary <- extract_repeat_correction_summary(fsa_list)
 
   testthat::expect_true(is.data.frame(correction_summary))
-  testthat::expect_true(all.equal(round(correction_summary$abs_avg_residual, 5), c(0.01585, 0.01585, 0.01988, 0.01704)))
+  testthat::expect_true(all.equal(round(correction_summary$abs_avg_residual, 5), c(0.01585, 0.01585, 0.01777, 0.01523)))
 
 })
 
 
 testthat::test_that("repeat correction with one sample off warning", {
 
+  config <- load_config()
+
   fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
   find_ladders(fsa_list,
+    config,
           show_progress_bar = FALSE)
   
   # make peak before just bigger 
   fsa_list[[1]]$trace_bp_df[which(round(fsa_list[[1]]$trace_bp_df$size, 2) == 418.25), "signal"] <- 4000
   
-  fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
+  find_fragments(fsa_list, config, min_bp_size = 300, show_progress_bar = FALSE)
 
-  add_metadata(fragments_list,
+  add_metadata(fsa_list,
     metadata[16:19, ])
     
-  find_alleles(fragments_list)
+  find_alleles(fsa_list, config)
 
 
   suppressMessages(
     tryCatch({
       call_repeats(
-        fragments_list = fragments_list,
+        fsa_list,
+        config,
         correction  = "repeat"
       )
     },
@@ -445,9 +476,9 @@ testthat::test_that("repeat correction with one sample off warning", {
     )
   )
 
-  # plot_batch_correction_samples(fragments_list, 1, c(100,115))
+  # plot_batch_correction_samples(fsa_list, 1, c(100,115))
 
-  # plot_repeat_correction_model(fragments_list)
+  # plot_repeat_correction_model(fsa_list)
 
 
   testthat::expect_true(class(assignment_warning)[1] == "simpleWarning")
@@ -460,39 +491,35 @@ testthat::test_that("repeat correction with one sample off warning", {
 
 testthat::test_that("repeat correction one run missing", {
 
+  config <- load_config()
+
   fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
   find_ladders(fsa_list,
+    config,
           show_progress_bar = FALSE)
   
   
-  fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
+  find_fragments(fsa_list, config, min_bp_size = 300, show_progress_bar = FALSE)
 
   metadata_2 <- metadata[16:19, ]
 
   metadata_2$batch_sample_modal_repeat <- ifelse(metadata_2$batch_run_id == "20230414", NA_real_,  metadata_2$batch_sample_modal_repeat)
 
 
-  add_metadata(fragments_list,
+  add_metadata(fsa_list,
     metadata_2)
     
-  find_alleles(fragments_list)
+  find_alleles(fsa_list,config)
 
 
-  suppressMessages(
-    tryCatch({
-      call_repeats(
-        fragments_list = fragments_list,
-        correction  = "repeat"
-      )
-    },
-      error = function(e){
-        assignment_error <<- e
-      }
-    )
+  call_repeats_output <- call_repeats(
+    fsa_list,
+    config,
+    correction  = "repeat"
   )
 
-  testthat::expect_true(class(assignment_error)[1] == "simpleError")
-  testthat::expect_true(grepl("no samples with 'batch_sample_modal_repeat'", assignment_error))
+  testthat::expect_true(class(call_repeats_output)[1] == "trace_output")
+  testthat::expect_true(grepl("no samples with 'batch_sample_modal_repeat'", call_repeats_output$error_message))
 
 })
 

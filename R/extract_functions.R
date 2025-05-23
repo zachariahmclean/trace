@@ -4,21 +4,21 @@
 #'
 #' Extract the raw trace from a list of fragments objects
 #'
-#' @param fragments_trace_list a list of fragments objects
+#' @param fragments_list a list of fragments objects
 #'
 #' @return A dataframe of the raw trace data. Each row representing a single scan.
 #' @export
 #'
 #' @examples
-#' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' test_fragments <- trace(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 #'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
+#' extracted_traces <- extract_trace_table(test_fragments)
 #'
-#' extracted_traces <- extract_trace_table(fsa_list)
-#'
-extract_trace_table <- function(fragments_trace_list) {
+extract_trace_table <- function(fragments_list) {
   # turn the output into a dataframe
-  plate_list <- lapply(fragments_trace_list, function(x) {
+  plate_list <- lapply(fragments_list, function(x) {
     x$trace_bp_df
   })
 
@@ -33,7 +33,7 @@ extract_trace_table <- function(fragments_trace_list) {
 #'
 #' Extract a table summarizing the ladder models
 #'
-#' @param fragments_trace_list a list of fragments trace objects
+#' @param fragments_list a list of fragments trace objects
 #' @param sort A logical statement for if the samples should be ordered by average ladder R-squared.
 #'
 #' @return a dataframe of ladder quality information
@@ -45,21 +45,21 @@ extract_trace_table <- function(fragments_trace_list) {
 #'
 #' @examples
 #'
-#'   fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' test_fragments <- trace(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 #'
-#'   find_ladders(fsa_list, show_progress_bar = FALSE)
-#'
-#'   extract_ladder_summary(fsa_list, sort = TRUE)
+#'   extract_ladder_summary(test_fragments, sort = TRUE)
 extract_ladder_summary <- function(
-    fragments_trace_list,
+    fragments_list,
     sort = FALSE){
 
   # test to make sure that fragments trace objects
-  if(any(sapply(fragments_trace_list, function(x) class(x)[1] != "fragments_trace"))){
-    stop(call. = FALSE, "Wrong objects supplied. Please supply a list of 'fragments_trace' objects")
+  if(any(sapply(fragments_list, function(x) class(x)[1] != "fragments"))){
+    stop(call. = FALSE, "Wrong objects supplied. Please supply a list of 'fragments' objects")
   }
   
-  summary_list <- lapply(fragments_trace_list, function(fragment){
+  summary_list <- lapply(fragments_list, function(fragment){
     cor_list <- ladder_fit_cor(fragment)
     rsq <- sapply(cor_list, function(x) x$rsq)
 
@@ -81,31 +81,20 @@ extract_ladder_summary <- function(
 }
 
 
-# Extract alleles -------------------------------------------------------
 
 #' Extract Modal Peaks
 #'
 #' Extracts modal peak information from each sample in a list of fragments.
 #'
-#' @param fragments_list A list of fragments_repeats objects containing fragment data.
+#' @param fragments_list A list of fragments objects containing fragment data.
 #'
 #' @return A dataframe containing modal peak information for each sample
 #' @export
 #'
 #' @examples
-#' gm_raw <- trace::example_data
-#'
-#' test_fragments <- peak_table_to_fragments(gm_raw,
-#'   data_format = "genemapper5",
-#'   dye_channel = "B",
-#'   min_size_bp = 400
-#' )
-#'
-#' find_alleles(
-#'   fragments_list = test_fragments,
-#'   peak_region_size_gap_threshold = 6,
-#'   peak_region_signal_threshold_multiplier = 1
-#' )
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' test_fragments <- trace(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 #'
 #' extract_alleles(test_fragments)
 #'
@@ -120,43 +109,22 @@ extract_alleles <- function(fragments_list) {
   return(extracted_df)
 }
 
-# Extract fragments -------------------------------------------------------
 
 #' Extract All Fragments
 #'
 #' Extracts peak data from each sample in a list of fragments.
 #'
-#' @param fragments_list A list of fragments_repeats objects containing fragment data.
+#' @param fragments_list A list of fragments objects containing fragment data.
 #'
 #' @return A dataframe containing peak data for each sample
 #' @export
 #'
 #' @examples
-#' gm_raw <- trace::example_data
-#' metadata <- trace::metadata
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' test_fragments <- trace(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 #'
-#' test_fragments <- peak_table_to_fragments(gm_raw,
-#'   data_format = "genemapper5",
-#'   dye_channel = "B",
-#'   min_size_bp = 400
-#' )
-#'
-#' add_metadata(
-#'   fragments_list = test_fragments,
-#'   metadata_data.frame = metadata
-#' )
-#'
-#' find_alleles(
-#'   fragments_list = test_fragments
-#' )
-#'
-#' call_repeats(
-#'   fragments_list = test_fragments,
-#'   assay_size_without_repeat = 87,
-#'   repeat_size = 3
-#' )
-#'
-#' extract_alleles(test_fragments)
+#' extract_fragments(test_fragments)
 #'
 extract_fragments <- function(fragments_list) {
   suppressWarnings(
@@ -196,38 +164,25 @@ extract_fragments <- function(fragments_list) {
 #'
 #' Extracts a table summarizing the model used to correct repeat length
 #'
-#' @param fragments_list A list of fragments_repeats class objects obtained from the [call_repeats()] function when the `correction = "repeat"` parameter is used.
+#' @param fragments_list A list of fragments class objects obtained from the [call_repeats()] function when the `correction = "repeat"` parameter is used.
 #' @export
 #' @return A data.frame
 #' @details
 #' For each of the samples used for repeat correction, this table pulls out the modal repeat length called by the model (`allele_repeat`), how far that sample is on average from the linear model in repeat units by finding the average residuals (`avg_residual`), and the absolute value of the `avg_residual` (`abs_avg_residual`)
 #' 
 #' @examples
-#'
-#'
-#' fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
-#'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
-#'
-#' fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
-#'
-#' test_alleles <- find_alleles(
-#'   fragments_list 
-#' )
-#' 
-#' add_metadata(
-#'   fragments_list,
-#'   metadata
-#' )
-#'
-#'
-#' call_repeats(
-#'   fragments_list = fragments_list,
-#'   correction = "repeat"
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' test_fragments <- trace(
+#'    fsa_list, 
+#'    grouped = TRUE, 
+#'    metadata_data.frame = metadata, 
+#'    correction = "repeat",
+#'    show_progress_bar = FALSE
 #' )
 #'
 #' # finally extract repeat correction summary
-#' extract_repeat_correction_summary(fragments_list)
+#' extract_repeat_correction_summary(test_fragments)
 #'
 #'
 extract_repeat_correction_summary <- function(

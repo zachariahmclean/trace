@@ -1,26 +1,26 @@
 # helper functions for class ------------------------------------------------------
 
-plot_ladder_helper <- function(fragments_trace,
+plot_ladder_helper <- function(fragments_list,
                                xlim, ylim,
                                plot_title) {
-  plot(fragments_trace$trace_bp_df$scan, fragments_trace$trace_bp_df$ladder_signal,
+  plot(fragments_list$trace_bp_df$scan, fragments_list$trace_bp_df$ladder_signal,
     xlab = "Scan", ylab = "Ladder Signal",
-    main = ifelse(is.null(plot_title), fragments_trace$unique_id, plot_title),
+    main = ifelse(is.null(plot_title), fragments_list$unique_id, plot_title),
     type = "l",
     xlim = xlim,
     ylim = ylim
   )
 
   # Adding text
-  text(fragments_trace$ladder_df$scan, rep(max(fragments_trace$trace_bp_df$ladder_signal) / 3, nrow(fragments_trace$ladder_df)),
-    labels = fragments_trace$ladder_df$size,
+  text(fragments_list$ladder_df$scan, rep(max(fragments_list$trace_bp_df$ladder_signal) / 3, nrow(fragments_list$ladder_df)),
+    labels = fragments_list$ladder_df$size,
     adj = 0.5, cex = 0.7, srt = 90
   )
 
   # Adding vertical lines with transparency
-  for (i in 1:nrow(fragments_trace$ladder_df)) {
+  for (i in 1:nrow(fragments_list$ladder_df)) {
     abline(
-      v = fragments_trace$ladder_df$scan[i],
+      v = fragments_list$ladder_df$scan[i],
       lty = 3,
       col = rgb(1, 0, 0, alpha = 0.3)
     )
@@ -207,11 +207,10 @@ plot_trace_helper <- function(fragments,
   }
 
   # add index peak to the plot if appropriate
-  if(class(fragments)[1] == "fragments_repeats"){
-    if (!is.null(fragments$get_index_peak()$index_repeat) && !is.na(fragments$get_index_peak()$index_repeat)) {
-      abline(v = fragments$get_index_peak()$index_repeat, col = "black", lwd = 2, lty = 3)
-    }
+  if (!is.null(fragments$get_index_peak()$index_repeat) && !is.na(fragments$get_index_peak()$index_repeat)) {
+    abline(v = fragments$get_index_peak()$index_repeat, col = "black", lwd = 2, lty = 3)
   }
+  
 }
 
 
@@ -258,7 +257,7 @@ plot_data_channels_helper <- function(fragment){
 #'
 #' Plot the ladder signal
 #'
-#' @param fragments_trace_list A list of fragments_trace objects containing fragment data.
+#' @param fragments_list A list of fragments objects containing fragment data.
 #' @param n_facet_col A numeric value indicating the number of columns for faceting in the plot.
 #' @param sample_subset A character vector of unique ids for a subset of samples to plot
 #' @param xlim the x limits of the plot. A numeric vector of length two.
@@ -269,38 +268,38 @@ plot_data_channels_helper <- function(fragment){
 #'
 #' @examples
 #'
-#' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
-#'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' fragments_list <- trace(fsa_list)
 #'
 #' # Manually inspect the ladders
-#' plot_ladders(fsa_list[1])
+#' plot_ladders(fragments_list[1])
 #'
 plot_ladders <- function(
-    fragments_trace_list,
+    fragments_list,
     n_facet_col = 1,
     sample_subset = NULL,
     xlim = NULL,
     ylim = NULL) {
   if (!is.null(sample_subset)) {
-    fragments_trace_list <- fragments_trace_list[which(names(fragments_trace_list) %in% sample_subset)]
+    fragments_list <- fragments_list[which(names(fragments_list) %in% sample_subset)]
   }
 
   #save and reset user par settings
   old_par <- graphics::par(no.readonly = TRUE) 
   on.exit(graphics::par(old_par)) 
 
-  graphics::par(mfrow = c(ceiling(length(fragments_trace_list) / n_facet_col), n_facet_col)) # Adjust layout as needed
-  for (i in seq_along(fragments_trace_list)) {
+  graphics::par(mfrow = c(ceiling(length(fragments_list) / n_facet_col), n_facet_col)) # Adjust layout as needed
+  for (i in seq_along(fragments_list)) {
     tryCatch(
       {
-        fragments_trace_list[[i]]$plot_ladder(
+        fragments_list[[i]]$plot_ladder(
           xlim = xlim,
           ylim = ylim
         )
       },
       error = function(e) {
-        warning(sprintf("Error in plotting ladder for fragment %s: %s", names(fragments_trace_list)[i], e$message))
+        warning(sprintf("Error in plotting ladder for fragment %s: %s", names(fragments_list)[i], e$message))
       }
     )
   }
@@ -312,7 +311,7 @@ plot_ladders <- function(
 #'
 #' Plot the raw trace data
 #'
-#' @param fragments_list A list of fragments_repeats or fragments_trace objects containing fragment data.
+#' @param fragments_list A list of fragments or fragments objects containing fragment data.
 #' @param show_peaks If peak data are available, TRUE will plot the peaks on top of the trace as dots.
 #' @param n_facet_col A numeric value indicating the number of columns for faceting in the plot.
 #' @param sample_subset A character vector of unique ids for a subset of samples to plot
@@ -347,22 +346,9 @@ plot_ladders <- function(
 #'
 #' @examples
 #'
-#' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
-#'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
-#'
-#' fragments_list <- find_fragments(fsa_list,
-#'   min_bp_size = 300
-#' )
-#'
-#' find_alleles(
-#'   fragments_list
-#' )
-#'
-#' # Simple conversion from bp size to repeat size
-#' call_repeats(
-#'   fragments_list
-#' )
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' fragments_list <- trace(fsa_list)
 #'
 #' plot_traces(fragments_list, xlim = c(105, 150))
 #'
@@ -408,7 +394,7 @@ plot_traces <- function(
 #'
 #' Plots peak data from a list of fragments.
 #'
-#' @param fragments_list A list of fragments_repeats objects containing fragment data.
+#' @param fragments_list A list of fragments objects containing fragment data.
 #' @param n_facet_col A numeric value indicating the number of columns for faceting in the plot.
 #' @param sample_subset A character vector of unique ids for a subset of samples to plot
 #' @param xlim the x limits of the plot. A numeric vector of length two.
@@ -418,18 +404,10 @@ plot_traces <- function(
 #' @export
 #'
 #' @examples
-#' gm_raw <- trace::example_data
-#'
-#' fragments_list <- peak_table_to_fragments(gm_raw,
-#'   data_format = "genemapper5",
-#'   dye_channel = "B",
-#'   min_size_bp = 300
-#' )
-#'
-#' find_alleles(
-#'   fragments_list
-#' )
-#'
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' fragments_list <- trace(fsa_list)
+#' 
 #' plot_fragments(fragments_list[1])
 plot_fragments <- function(
     fragments_list,
@@ -468,7 +446,7 @@ plot_fragments <- function(
 #'
 #' Plot the overlapping traces of the batch control samples
 #'
-#' @param fragments_list A list of fragments_repeats objects containing fragment data. must have trace information.
+#' @param fragments_list A list of fragments objects containing fragment data. must have trace information.
 #' @param selected_sample A character vector of batch_sample_id for a subset of samples to plot. Or alternatively supply a number to select batch sample by position in alphabetical order.
 #' @param xlim the x limits of the plot. A numeric vector of length two.
 #'
@@ -486,26 +464,10 @@ plot_fragments <- function(
 #' @seealso [call_repeats()] for more info on batch correction.
 #' @examples
 #'
-#' fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' fragments_list <- trace(fsa_list, metadata_data.frame = metadata, correction = "batch")
 #'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
-#'
-#' fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
-#'
-#' test_alleles <- find_alleles(
-#'   fragments_list 
-#' )
-#' 
-#' add_metadata(
-#'   fragments_list,
-#'   metadata
-#' )
-#'
-#'
-#' call_repeats(
-#'   fragments_list = fragments_list,
-#'   correction = "batch"
-#' )
 #'
 #' # traces of bp size shows traces at different sizes
 #' plot_batch_correction_samples(
@@ -665,7 +627,7 @@ plot_batch_correction_samples <- function(
 #'
 #' Plot the raw data from the fsa file
 #'
-#' @param fragments_list A list of fragments_trace objects.
+#' @param fragments_list A list of fragments objects.
 #' @param n_facet_col A numeric value indicating the number of columns for faceting in the plot.
 #' @param sample_subset A character vector of unique ids for a subset of samples to plot
 #'
@@ -713,7 +675,7 @@ plot_data_channels <- function(
 #'
 #' Plots the results of the repeat correction model for a list of fragments.
 #'
-#' @param fragments_list A list of fragments_repeats class objects obtained from the [call_repeats()] function when the `correction = "repeat"` parameter is used.
+#' @param fragments_list A list of fragments class objects obtained from the [call_repeats()] function when the `correction = "repeat"` parameter is used.
 #' @param batch_run_id_subset A character vector for a subset of batch_sample_id to plot. Or alternatively supply a number to select batch sample by position in alphabetical order.
 #' @param n_facet_col A numeric value indicating the number of columns for faceting in the plot.
 #' 
@@ -725,27 +687,9 @@ plot_data_channels <- function(
 #' 
 #' @examples
 #'
-#'
-#' fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
-#'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
-#'
-#' fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
-#'
-#' test_alleles <- find_alleles(
-#'   fragments_list 
-#' )
-#' 
-#' add_metadata(
-#'   fragments_list,
-#'   metadata
-#' )
-#'
-#'
-#' call_repeats(
-#'   fragments_list = fragments_list,
-#'   correction = "repeat"
-#' )
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' fragments_list <- trace(fsa_list, metadata_data.frame = metadata, correction = "repeat")
 #'
 #' # traces of bp size shows traces at different sizes
 #' plot_repeat_correction_model(

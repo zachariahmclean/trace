@@ -5,7 +5,7 @@
 \title{Plot ladder}
 \usage{
 plot_ladders(
-  fragments_trace_list,
+  fragments_list,
   n_facet_col = 1,
   sample_subset = NULL,
   xlim = NULL,
@@ -13,7 +13,7 @@ plot_ladders(
 )
 }
 \arguments{
-\item{fragments_trace_list}{A list of fragments_trace objects containing fragment data.}
+\item{fragments_list}{A list of fragments objects containing fragment data.}
 
 \item{n_facet_col}{A numeric value indicating the number of columns for faceting in the plot.}
 
@@ -31,11 +31,11 @@ Plot the ladder signal
 }
 \examples{
 
-fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
-
-find_ladders(fsa_list, show_progress_bar = FALSE)
+fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+# import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+fragments_list <- trace(fsa_list)
 
 # Manually inspect the ladders
-plot_ladders(fsa_list[1])
+plot_ladders(fragments_list[1])
 
 }

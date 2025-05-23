@@ -132,58 +132,6 @@ step modifies the object in place.
 fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 ```
 
-# Find ladders
-
-The known ladder sizes are assigned to peaks in the ladder channel and
-bp are predicted for each scan.
-
-``` r
-find_ladders(
-  fsa_list,
-  show_progress_bar = FALSE
-)
-```
-
-visually inspect each ladder to make sure that the ladders were
-correctly assigned
-
-``` r
-plot_ladders(fsa_list[1])
-```
-
-<img src="man/figures/README-plot_ladders-1.png" width="100%" />
-
-If the ladders are are not assigned correctly, you can adjust parameters
-or manually using the built-in fix_ladders_interactive() app.
-
-![](man/figures/ladder_fixing.gif)
-
-# Find fragments
-
-The fragment peaks are identified in the raw continuous trace data.
-These objects are assigned because find_fragments transitions to a new
-object since the class structure changes. This reflects the data moving
-from a continuous trace to a peak table.
-
-``` r
-fragments_list <- find_fragments(
-  fsa_list,
-  min_bp_size = 300
-)
-```
-
-Visually inspect the traces and called peaks to make sure they were
-correctly assigned.
-
-``` r
-plot_traces(fragments_list[1],
-  xlim = c(400, 550),
-  ylim = c(0, 1200)
-)
-```
-
-<img src="man/figures/README-plot_traces-1.png" width="100%" />
-
 Alternatively, this is where you would use data exported from Genemapper
 if you would rather use the Genemapper bp sizing and peak identification
 algorithms. However, this is not recommended as some of the
@@ -191,86 +139,74 @@ functionality of this package would not be accessible (mainly in
 `call_repeats()`, with `batch_correction` and repeat calling algorithms)
 
 ``` r
-fragments_list_genemapper <- peak_table_to_fragments(example_data,
-  data_format = "genemapper5",
+fragments_list_genemapper <- genemapper_table_to_fragments(example_data,
   dye_channel = "B",
   min_size_bp = 300
 )
 ```
 
-# Add metadata
+# Process Samples with `trace`
 
-Metadata can be incorporated to allow additional functionality in
-`call_repeats()` (batch or repeat correction) and `assign_index_peaks()`
-(assigning index peak from another sample). Prepare a file (eg
-spreadsheet saved as .csv) with the following columns. If you use the
-specified column names, it will be automatically parsed by
-`add_metadata()`, otherwise you will need to match up which column name
-belongs to which metadata category (as done below in `add_metadata()`):
+The `trace()` function streamlines the processing of fragment analysis
+data, from ladder assignment to repeat calling. Below is an overview of
+the key steps:
 
-| Metadata table column | Functionality metadata is associated with | Description |
+## 1. **Assign Ladders**
+
+Ladder peaks are identified in the ladder channel, and base pair (bp)
+sizes are predicted for each scan.
+
+- **Visual Inspection**: Always inspect ladders to ensure correct
+  assignment.
+- **Manual Adjustment**: If needed, use `fix_ladders_interactive()` to
+  adjust ladder assignments interactively.
+
+![](man/figures/ladder_fixing.gif)
+
+## 2. **Find Fragments**
+
+Fragment peaks are identified in the raw trace data. This step
+transitions the data from a continuous trace to a peak-based
+representation.
+
+## 3. **Add Metadata**
+
+Metadata is used to enable advanced functionality, such as batch
+correction, repeat correction, and index peak assignment. Prepare a
+`.csv` file with the following columns:
+
+| Column Name | Purpose | Description |
 |----|----|----|
-| unique_id | Required for adding metadata using `add_metadata()` | The unique identifier for the fsa file. Usually the sample file name. This must be unique, including across runs. |
-| metrics_group_id | `assign_index_peaks()`, allows setting `grouped` | This groups the samples for instability metric calculations. Provide a group id value for each sample. For example, in a mouse experiment and using the expansion index, you need to group the samples since they have the same metrics baseline control (eg inherited repeat length), so provide the mouse id. |
-| metrics_baseline_control | `assign_index_peaks()`, allows setting `grouped` | This is related to metrics_group_id. Indicate with ‘TRUE’ to specify which sample is the baseline control (eg mouse tail for inherited repeat length, or day-zero sample in cell line experiments) |
-| batch_run_id | `call_repeats()`, allows setting `correction` = “batch” or “repeat” | This groups the samples by batch. Provide a value for each fragment analysis run (eg date). |
-| batch_sample_id | `call_repeats()`, allows setting `correction` = “batch” or “repeat” | This groups the samples across batches. Give a unique sample id to each different sample. |
-| batch_sample_modal_repeat | `call_repeats()`, allows setting `correction` = “repeat” | The validated modal repeat length for the particular `batch_sample_id` sample used to accurately call repeat length. |
+| `unique_id` | Required to link up the metadata file with samples | Unique identifier for each sample (e.g., file name). Must be unique across all runs. |
+| `metrics_group_id` | Group samples for instability metrics (e.g., expansion index) | Group ID for samples sharing a common baseline (e.g., mouse ID or experiment group). |
+| `metrics_baseline_control` | Identify baseline samples (e.g., inherited repeat length or day 0) | Set to `TRUE` for baseline control samples (e.g., mouse tail or starting time point). |
+| `batch_run_id` | Group samples by run for batch or repeat correction | Identifier for each fragment analysis run (e.g., date). |
+| `batch_sample_id` | Link samples across runs for batch or repeat correction | Unique ID for each sample across runs. |
+| `batch_sample_modal_repeat` | Specify validated repeat lengths for repeat correction | Validated modal repeat length for samples used in repeat correction. |
+
+## 4. **Identify Alleles and Call Repeats**
+
+- Identify the main allele (modal peak) for each sample.
+- Convert bp sizes to repeat lengths.
+
+## 5. **Assign Index Peaks**
+
+The index peak is the reference repeat length used for instability
+metrics like expansion index.
+
+- **Grouped Assignment**: Set `grouped = TRUE` to use the modal peak of
+  baseline control samples (e.g., mouse tail or day 0).
+- **Manual Override**: Use `index_override_dataframe` to manually assign
+  index peaks if needed.
 
 ``` r
 
-add_metadata(
-  fragments_list = fragments_list,
+fragments_list <- trace(
+  fsa_list, 
+  min_bp_size = 300,
+  grouped = TRUE, 
   metadata_data.frame = metadata,
-  unique_id = "unique_id",
-  metrics_group_id = "metrics_group_id",
-  metrics_baseline_control = "metrics_baseline_control",
-  batch_run_id = "batch_run_id",
-  batch_sample_id = "batch_sample_id",
-  batch_sample_modal_repeat = "batch_sample_modal_repeat"
-)
-```
-
-# Identify modal peaks and call repeats
-
-Next we identify the modal peaks with `find_alleles()` and convert the
-base pair fragments to repeats with `call_repeats()`.
-
-``` r
-find_alleles(fragments_list)
-
-call_repeats(fragments_list)
-```
-
-We can view the distribution of repeat sizes and the identified modal
-peak with a plotting function.
-
-``` r
-plot_traces(fragments_list[1], xlim = c(110, 150))
-```
-
-<img src="man/figures/README-plot_fragments-1.png" width="100%" />
-
-# Assign index peaks
-
-A key part of several instability metrics is the index peak. This is the
-repeat length used as the reference for relative instability metrics
-calculations, like expansion index or average repeat gain. In the
-metadata, samples are grouped by a `metrics_group_id` and a subset of
-the samples are set as `metrics_baseline_control`, meaning they are the
-samples taken at day 0 in this experiment. This allows us to set
-`grouped = TRUE` and set the index peak for the expansion index and
-other metrics. For mice, if just a few samples have the inherited repeat
-signal shorter than the expanded population, you could not worry about
-this and instead use the `index_override_dataframe` in
-`assign_index_peaks()`.
-
-``` r
-
-assign_index_peaks(
-  fragments_list,
-  grouped = TRUE
-)
+  show_progress_bar = FALSE)
 ```
 
 We can validate that the index peaks were assigned correctly with a

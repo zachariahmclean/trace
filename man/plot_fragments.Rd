@@ -13,7 +13,7 @@ plot_fragments(
 )
 }
 \arguments{
-\item{fragments_list}{A list of fragments_repeats objects containing fragment data.}
+\item{fragments_list}{A list of fragments objects containing fragment data.}
 
 \item{n_facet_col}{A numeric value indicating the number of columns for faceting in the plot.}
 
@@ -30,17 +30,9 @@ A plot object displaying the peak data.
 Plots peak data from a list of fragments.
 }
 \examples{
-gm_raw <- trace::example_data
-
-fragments_list <- peak_table_to_fragments(gm_raw,
-  data_format = "genemapper5",
-  dye_channel = "B",
-  min_size_bp = 300
-)
-
-find_alleles(
-  fragments_list
-)
+fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+# import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+fragments_list <- trace(fsa_list)
 
 plot_fragments(fragments_list[1])
 }

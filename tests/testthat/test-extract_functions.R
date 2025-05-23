@@ -9,9 +9,8 @@ testthat::test_that("remove fragments", {
 
 
   suppressWarnings(
-    test_fragments <- peak_table_to_fragments(
+    test_fragments <- genemapper_table_to_fragments(
       gm_raw,
-      data_format = "genemapper5",
       dye_channel = "B",
       min_size_bp = 300
     )

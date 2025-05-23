@@ -100,6 +100,7 @@ np_repeat <- function(size,
 
 size_period_repeat_caller <- function(
   fragments_repeat,
+  config,
   repeat_size,
   size_period,
   scan_peak_window) {
@@ -114,8 +115,7 @@ size_period_repeat_caller <- function(
                                       ) {
     
     # first filter by previously set size constraints
-    df <- df[which(df$size > fragments_repeat$.__enclos_env__$private$min_bp_size & 
-      df$size < fragments_repeat$.__enclos_env__$private$max_bp_size), ]
+    df <- df[which(df$size > config$min_bp_size & df$size < config$max_bp_size), ]
     
     # filter for the directly wer are iterating over
     if (direction == 1) {
@@ -160,17 +160,13 @@ size_period_repeat_caller <- function(
     fragments_repeat$get_allele_peak()$allele_size,
     size_period,
     direction = 1,
-    window = scan_peak_window,
-    min_bp_size = fragments_repeat$.__enclos_env__$private$min_bp_size,
-    max_bp_size = fragments_repeat$.__enclos_env__$private$max_bp_size)
+    window = scan_peak_window)
 
   neg_peaks <- find_peaks_by_size_period(fragments_repeat$trace_bp_df,
     fragments_repeat$get_allele_peak()$allele_size,
     size_period,
     direction = -1,
-    window = scan_peak_window,
-    min_bp_size = fragments_repeat$.__enclos_env__$private$min_bp_size,
-    max_bp_size = fragments_repeat$.__enclos_env__$private$max_bp_size)
+    window = scan_peak_window)
 
   peak_table <- fragments_repeat$trace_bp_df
   allele_scan <- peak_table[which(peak_table$size == fragments_repeat$get_allele_peak()$allele_size), "scan"]
@@ -427,15 +423,18 @@ model_repeat_length <- function(
 #'
 #' This function calls the repeat lengths for a list of fragments.
 #'
-#' @param fragments_list A list of fragments_repeats objects containing fragment data.
-#' @param assay_size_without_repeat An integer specifying the assay size without repeat for repeat calling. This is the length of the sequence flanking the repeat in the PCR product.
-#' @param repeat_size An integer specifying the repeat size for repeat calling. Default is 3.
-#' @param correction A character vector of either "batch" to carry out a batch correction from common samples across runs (known repeat length not required), or "repeat" to use samples with validated modal repeat lengths to correct the repeat length. Requires metadata to be added (see [add_metadata()]) with both "batch" and "repeat" requiring \code{"batch_run_id"}, "batch" requiring (\code{"batch_sample_id"}) and "repeat" requiring \code{"batch_sample_modal_repeat"} (but also benefits from having \code{"batch_sample_id"}).
-#' @param force_whole_repeat_units A logical value specifying if the peaks should be forced to be whole repeat units apart. Usually the peaks are slightly under the whole repeat unit if left unchanged.
-#' @param force_repeat_pattern A logical value specifying if the peaks should be re called to fit the specific repeat unit pattern. This requires trace information so you must have started with fsa files.
-#' @param force_repeat_pattern_size_period A numeric value to set the peak periodicity bp size. In fragment analysis, the peaks are usually slightly below the actual repeat unit size, so you can use this value to fine tune what the periodicity should be.
-#' @param force_repeat_pattern_size_window A numeric value for the size window when assigning the peak. The algorithm jumps to the predicted scan for the next peak. This value opens a window of the given base pair size neighboring scans to pick the tallest in.
-#'
+#' @param fragments_list A list of fragments objects containing fragment data.
+#' @param config A trace_config object generated using [load_config()].
+#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config`. These parameters include:
+#'   \itemize{
+#'     \item `assay_size_without_repeat` An integer specifying the assay size without repeat for repeat calling. This is the length of the sequence flanking the repeat in the PCR product. Default: `87`.
+#'     \item `repeat_size` An integer specifying the repeat size for repeat calling. Default: `3`.
+#'     \item `correction` A character vector of either "batch" to carry out a batch correction from common samples across runs (known repeat length not required), or "repeat" to use samples with validated modal repeat lengths to correct the repeat length. Requires metadata to be added (see [add_metadata()]) with both "batch" and "repeat" requiring \code{"batch_run_id"}, "batch" requiring (\code{"batch_sample_id"}) and "repeat" requiring \code{"batch_sample_modal_repeat"} (but also benefits from having \code{"batch_sample_id"}). Default: `"none"`.
+#'     \item `force_whole_repeat_units` A logical value specifying if the peaks should be forced to be whole repeat units apart. Usually the peaks are slightly under the whole repeat unit if left unchanged. Default: `FALSE`.
+#'     \item `force_repeat_pattern` A logical value specifying if the peaks should be re called to fit the specific repeat unit pattern. This requires trace information so you must have started with fsa files. Default: `FALSE`.
+#'     \item `force_repeat_pattern_size_period` A numeric value to set the peak periodicity bp size. In fragment analysis, the peaks are usually slightly below the actual repeat unit size, so you can use this value to fine tune what the periodicity should be (eg 3*0.93 = 2.79). Default: `2.79`.
+#'     \item `force_repeat_pattern_size_window` A numeric value for the size window when assigning the peak. The algorithm jumps to the predicted scan for the next peak. This value opens a window of the given base pair size neighboring scans to pick the tallest in. Default: `0.5`. 
+#'   }
 #' @return This function modifies list of fragments objects in place with repeats added.
 #'
 #' @details
@@ -462,7 +461,7 @@ model_repeat_length <- function(
 #' 
 #' @seealso [find_alleles()], [add_metadata()], [plot_batch_correction_samples()], [plot_repeat_correction_model()], [extract_repeat_correction_summary()]
 #'
-#' @export
+#' @keywords internal
 #' 
 #' @importFrom lme4 lmer
 #' @importFrom lme4 ranef
@@ -470,228 +469,253 @@ model_repeat_length <- function(
 #' @examples
 #'
 #' fsa_list <- lapply(cell_line_fsa_list[c(16:19)], function(x) x$clone())
+#' config <- load_config()
 #'
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
+#' trace:::find_ladders(fsa_list, config, show_progress_bar = FALSE)
 #'
-#' fragments_list <- find_fragments(
+#' trace:::find_fragments(
 #'   fsa_list,
-#'   min_bp_size = 300
+#'   config,
+#'   min_bp_size = 300,
+#'   show_progress_bar = FALSE
 #' )
 #'
-#' find_alleles(fragments_list)
+#' trace:::find_alleles(fsa_list, config)
 #' 
-#' add_metadata(fragments_list,
+#' trace:::add_metadata(fsa_list,
 #'    metadata[c(16:19), ]
 #' )
 #'
 #' # Simple conversion from bp size to repeat size
-#' call_repeats(
-#'   fragments_list,
+#' trace:::call_repeats(
+#'   fsa_list,
+#'   config,
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
 #'
-#' plot_traces(fragments_list[1], xlim = c(120, 170))
+#' plot_traces(fsa_list[1], xlim = c(120, 170))
 #'
 #' # Use force_whole_repeat_units algorithm to make sure called
 #' # repeats are the exact number of bp apart
 #'
-#' call_repeats(
-#'   fragments_list,
+#' trace:::call_repeats(
+#'   fsa_list,
+#'   config,
 #'   force_whole_repeat_units = TRUE,
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
 #'
-#' plot_traces(fragments_list[1], xlim = c(120, 170))
+#' plot_traces(fsa_list[1], xlim = c(120, 170))
 #'
 #' 
 #' # apply batch correction
-#' call_repeats(
-#'   fragments_list,
+#' trace:::call_repeats(
+#'   fsa_list,
+#'   config,
 #'   correction = "batch",
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
 #' 
-#' plot_traces(fragments_list[1], xlim = c(120, 170))
+#' plot_traces(fsa_list[1], xlim = c(120, 170))
 #' 
 #' # apply repeat correction
-#' call_repeats(
-#'   fragments_list,
+#' trace:::call_repeats(
+#'   fsa_list,
+#'   config,
 #'   correction = "repeat",
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
 #' 
-#' plot_traces(fragments_list[1], xlim = c(120, 170))
+#' plot_traces(fsa_list[1], xlim = c(120, 170))
 #'
 #' #ensure only periodic peaks are called
-#' call_repeats(
-#'   fragments_list,
-#'   force_repeat_pattern = TRUE,
+#' trace:::call_repeats(
+#'   fsa_list,
+#'   config,
 #'   force_repeat_pattern_size_period = 2.75,
 #'   assay_size_without_repeat = 87,
 #'   repeat_size = 3
 #' )
 #'
-#' plot_traces(fragments_list[1], xlim = c(120, 170))
+#' plot_traces(fsa_list[1], xlim = c(120, 170))
 #' 
 call_repeats <- function(
     fragments_list,
-    assay_size_without_repeat = 87,
-    repeat_size = 3,
-    correction = "none",    
-    force_whole_repeat_units = FALSE,
-    force_repeat_pattern = FALSE,
-    force_repeat_pattern_size_period = repeat_size * 0.93,
-    force_repeat_pattern_size_window = 0.5) {
+    config,
+    ...) {
+  
+  # prepare output file
+  output <- trace_output$new("call_repeats")
+  
+  # load config
+  config <- tryCatch(
+    update_config(config, list(...)),
+    error = function(e) e
+  )
+  if("error" %in% class(config)){
+    output$set_status(
+      "error", 
+      config$message
+    )
+    return(output)
+  }
  
-  ### in this function, we are doing three key things
-      #### 1) use force_repeat_pattern to find repeats and generate a new repeat table dataframe
+  ### in this function, we are doing three key things (NOTE: in separate looping? that doesn't seem like a good idea)
+      #### 1) generate a new repeat table dataframe based on bp size and do use force_repeat_pattern if needed
       #### 2) apply batch correction or repeat correction
       #### 3) call repeats with or without force whole repeat units
   
-  # check to make sure all the required inputs for the function have been given
-  if (fragments_list[[1]]$.__enclos_env__$private$find_main_peaks_used == FALSE) {
-    stop(paste0(fragments_list[[1]]$unique_id, " requires main alleles to be identified before repeats can be called. Find alleles using 'find_main_peaks()' within the class, or use 'find_alleles()' to find the main peaks across a list of 'fragments_repeats' objects"),
-      call. = FALSE
-    )
-  }
-  
   # first use force_repeat_pattern to find repeats and generate a new repeat table dataframe
-  fragments_list <- lapply(fragments_list, function(fragment){
+  for (fragment in fragments_list) {
+    # only continue from here if main peaks were successfully found, otherwise, don't return repeat data (ie it can be an empty df)
+    if (is.na(fragment$get_allele_peak()$allele_size) | is.na(fragment$get_allele_peak()$allele_signal)) {
+      fragment$.__enclos_env__$private$repeats_not_called_reason <- "No main peaks"
+      # populate with empty dataframe to help the rest of the pipeline
+      fragment$repeat_table_df <- data.frame(
+        unique_id = character(),
+        size = numeric(),
+        signal = numeric(),
+        calculated_repeats = numeric(),
+        off_scale = logical()
+      )
+      next
+    } 
+  
+    # re-call peaks or stick with current table
+    if (!config$force_repeat_pattern) {
+      repeat_table_df <- data.frame(
+        unique_id = fragment$peak_table_df$unique_id,
+        size = fragment$peak_table_df$size, 
+        signal = fragment$peak_table_df$signal,
+        calculated_repeats = (fragment$peak_table_df$size- config$assay_size_without_repeat) / config$repeat_size,
+        off_scale = ifelse(any(colnames(fragment$peak_table_df) == "off_scale"),
+        fragment$peak_table_df$off_scale,
+          rep(FALSE, nrow(fragment$peak_table_df))
+        )
+      )
+    } else if (config$force_repeat_pattern) {
+      # check to see that fragments repeats has trace data since that is required.
+      if (is.null(fragment$trace_bp_df)) {
+        output$set_status(
+          "error", 
+          "force_repeat_pattern requires trace data. Use fsa samples rather than peak table for input into the pipeline."
+        )
+        return(output)
+      }
+      
+      # use force_repeat_pattern and catch any errors with that
+      size_period_df <- tryCatch(
+        size_period_repeat_caller(fragment,
+          config = config,
+          repeat_size = config$repeat_size,
+          size_period = config$force_repeat_pattern_size_period,
+          scan_peak_window = config$force_repeat_pattern_size_window
+        ),
+        error = function(e) e
+      )
+      if("error" %in% class(size_period_df)){
+        output$set_status(
+          "error", 
+          paste0("There was an error using force_repeat_pattern for ", fragment$unique_id, ":\n", size_period_df$message)
+        )
+        return(output)
+      }
+      
+      repeat_table_df <- data.frame(
+        unique_id = size_period_df$unique_id,
+        size = size_period_df$size,
+        signal = size_period_df$signal,
+        calculated_repeats = (size_period_df$size - config$assay_size_without_repeat) / config$repeat_size,
+        off_scale = size_period_df$off_scale
+      )
+    } 
+    fragment$repeat_table_df <- repeat_table_df
+  }
 
-      # only continue from here if main peaks were successfully found, otherwise, don't return repeat data (ie it can be an empty df)
-      if (is.na(fragment$get_allele_peak()$allele_size) | is.na(fragment$get_allele_peak()$allele_signal)) {
-        fragment$.__enclos_env__$private$repeats_not_called_reason <- "No main peaks"
-        # populate with empty dataframe to help the rest of the pipeline
-        fragment$repeat_table_df <- data.frame(
-          unique_id = character(),
-          size = numeric(),
-          signal = numeric(),
-          calculated_repeats = numeric(),
-          off_scale = logical()
-        )
-
-        # exit lapply early 
-        return(fragment)
-      } 
-      # re call peaks or stick with current table
-      if(!is.logical(force_repeat_pattern)){
-        stop(
-          call. = FALSE,
-          "force_repeat_pattern must be logical"
-        )
-      } else if (!force_repeat_pattern) {
-        repeat_table_df <- data.frame(
-          unique_id = fragment$peak_table_df$unique_id,
-          size = fragment$peak_table_df$size, 
-          signal = fragment$peak_table_df$signal,
-          calculated_repeats = (fragment$peak_table_df$size- assay_size_without_repeat) / repeat_size,
-          off_scale = ifelse(any(colnames(fragment$peak_table_df) == "off_scale"),
-          fragment$peak_table_df$off_scale,
-            rep(FALSE, nrow(fragment$peak_table_df))
-          )
-        )
-      } else if (force_repeat_pattern) {
-        # check to see that fragments repeats has trace data since that is required.
-        if (is.null(fragment$trace_bp_df)) {
-          stop("force_repeat_pattern requires trace data. Use fsa samples rather than peak table for input into the pipeline.",
-            call. = FALSE
-          )
-        }
-        size_period_df <- size_period_repeat_caller(fragment,
-          repeat_size = repeat_size,
-          size_period = force_repeat_pattern_size_period,
-          scan_peak_window = force_repeat_pattern_size_window
-        )
-       
-        repeat_table_df <- data.frame(
-          unique_id = size_period_df$unique_id,
-          size = size_period_df$size,
-          signal = size_period_df$signal,
-          calculated_repeats = (size_period_df$size - assay_size_without_repeat) / repeat_size,
-          off_scale = size_period_df$off_scale
-        )
-      } 
-      fragment$repeat_table_df <- repeat_table_df
-      return(fragment)
-  })
 
   # now we can do #2 and find correction factors
-  if (correction == "repeat") {
-    model_repeat_length(
-      fragments_list = fragments_list,
-      repeat_size = repeat_size
-    )
-  } else if(correction == "batch"){
-    find_batch_correction_factor(fragments_list)
-  } else if(correction != "none"){
-    stop(call. = FALSE, "Invalid correction type. Select either 'repeat' or 'batch'")
+  tryCatch(
+    if (config$correction == "repeat") {
+      model_repeat_length(
+        fragments_list = fragments_list,
+        repeat_size = config$repeat_size
+      )
+    } else if(config$correction == "batch"){
+      find_batch_correction_factor(fragments_list)
+    } else if(config$correction != "none"){
+      stop("Invalid correction type. Select either 'repeat' or 'batch'")
+    },
+    error = function(e){
+      output$set_status(
+        "error", 
+        paste0("There was an error with the '", config$correction, "' correction:\n", e$message)
+      )
+    }
+  )
+  if(output$status == "error"){
+    return(output)
   }
 
   # call repeats for each sample
-  fragments_list <- lapply(
-    fragments_list,
-    function(fragment) {
-      repeat_table_df <- fragment$repeat_table_df
-      # only continue from here if there actually is data
-      if(nrow(repeat_table_df) == 0){
-        fragment$repeat_table_df$repeats <- numeric()
-        return(fragment) # return early
-      }
-
-      if(correction == "batch"){
-        # re-calculate calculated_repeats repeats but now including batch correction
-        repeat_table_df$calculated_repeats <- (repeat_table_df$size - assay_size_without_repeat - fragment$.__enclos_env__$private$batch_correction_factor) / repeat_size
-      } else if(correction == "repeat"){
-        # Predicted modal repeat size and calculate a repeat correction factor
-        repeat_table_df$batch_run_id <- rep(fragment$batch_run_id, nrow(repeat_table_df))
-        modal_row_df <- repeat_table_df[which(repeat_table_df$size == fragment$get_allele_peak()$allele_size), ]
-        predicted_modal_repeat <- stats::predict.lm(
-          fragment$.__enclos_env__$private$repeat_correction_mod, 
-          modal_row_df
-        )
-        fragment$.__enclos_env__$private$repeat_correction_factor <- predicted_modal_repeat - modal_row_df$calculated_repeats
-
-        # apply correction factor to all calculated repeats
-        repeat_table_df$calculated_repeats  <- repeat_table_df$calculated_repeats + fragment$.__enclos_env__$private$repeat_correction_factor         
-      }
-
-      # Finally call repeats with or without forcing whole repeat units
-      if (force_whole_repeat_units) {
-        repeat_table_df$repeats <- np_repeat(
-          size = repeat_table_df$size,
-          main_peak_size = fragment$get_allele_peak()$allele_size,
-          main_peak_repeat = repeat_table_df$calculated_repeats[which(repeat_table_df$size == fragment$get_allele_peak()$allele_size)],
-          repeat_size = repeat_size
-        )
-      } else{
-        repeat_table_df$repeats <- repeat_table_df$calculated_repeats
-      }
-
-      # Finally save main peak repeat length and repeats data
-      fragment$repeat_table_df <- repeat_table_df
-      allele_subset <- repeat_table_df$repeats[which(repeat_table_df$size == fragment$get_allele_peak()$allele_size)]
-      
-      fragment$set_allele_peak(allele = 1, unit = "repeats", value = allele_subset)
-      if(!is.na(fragment$.__enclos_env__$private$allele_2_size)){
-        allele_2_subset <- repeat_table_df$repeats[which(repeat_table_df$size == fragment$get_allele_peak()$allele_2_size)]
-        fragment$set_allele_peak(allele = 2, unit = "repeats", value = allele_2_subset)
-      }
-      
-      # save useful info that is used elsewhere
-      fragment$.__enclos_env__$private$repeat_size <- repeat_size
-      fragment$.__enclos_env__$private$assay_size_without_repeat <- assay_size_without_repeat
-
-      return(fragment)
+  for (fragment in fragments_list) {
+    repeat_table_df <- fragment$repeat_table_df
+    # only continue from here if there actually is data
+    if(nrow(repeat_table_df) == 0){
+      fragment$repeat_table_df$repeats <- numeric()
+      next
     }
-  )
 
+    if(config$correction == "batch"){
+      # re-calculate calculated_repeats repeats but now including batch correction
+      repeat_table_df$calculated_repeats <- (repeat_table_df$size - config$assay_size_without_repeat - fragment$.__enclos_env__$private$batch_correction_factor) / config$repeat_size
+    } else if(config$correction == "repeat"){
+      # Predicted modal repeat size and calculate a repeat correction factor
+      repeat_table_df$batch_run_id <- rep(fragment$batch_run_id, nrow(repeat_table_df))
+      modal_row_df <- repeat_table_df[which(repeat_table_df$size == fragment$get_allele_peak()$allele_size), ]
+      predicted_modal_repeat <- stats::predict.lm(
+        fragment$.__enclos_env__$private$repeat_correction_mod, 
+        modal_row_df
+      )
+      fragment$.__enclos_env__$private$repeat_correction_factor <- predicted_modal_repeat - modal_row_df$calculated_repeats
+
+      # apply correction factor to all calculated repeats
+      repeat_table_df$calculated_repeats  <- repeat_table_df$calculated_repeats + fragment$.__enclos_env__$private$repeat_correction_factor         
+    }
+
+    # Finally call repeats with or without forcing whole repeat units
+    if (config$force_whole_repeat_units) {
+      repeat_table_df$repeats <- np_repeat(
+        size = repeat_table_df$size,
+        main_peak_size = fragment$get_allele_peak()$allele_size,
+        main_peak_repeat = repeat_table_df$calculated_repeats[which(repeat_table_df$size == fragment$get_allele_peak()$allele_size)],
+        repeat_size = config$repeat_size
+      )
+    } else{
+      repeat_table_df$repeats <- repeat_table_df$calculated_repeats
+    }
+
+    # Finally save main peak repeat length and repeats data
+    fragment$repeat_table_df <- repeat_table_df
+    allele_subset <- repeat_table_df$repeats[which(repeat_table_df$size == fragment$get_allele_peak()$allele_size)]
+    
+    fragment$set_allele_peak(allele = 1, unit = "repeats", value = allele_subset)
+    if(!is.na(fragment$.__enclos_env__$private$allele_2_size)){
+      allele_2_subset <- repeat_table_df$repeats[which(repeat_table_df$size == fragment$get_allele_peak()$allele_2_size)]
+      fragment$set_allele_peak(allele = 2, unit = "repeats", value = allele_2_subset)
+    }
+    
+    # save useful info that is used elsewhere
+    fragment$.__enclos_env__$private$repeat_size <- config$repeat_size
+    fragment$.__enclos_env__$private$assay_size_without_repeat <- config$assay_size_without_repeat
+
+  }
 
   # need to go over samples and apply repeat to all traces if it exists
-  if(correction == "repeat"){
+  if(config$correction == "repeat"){
     # need to figure out correction factor for samples that repeat lengths were not called because no alleles
     repeat_correction_list <- lapply(fragments_list, function(x){
       data.frame(batch_run_id = x$batch_run_id, repeat_correction_factor = x$.__enclos_env__$private$repeat_correction_factor)
@@ -705,30 +729,30 @@ call_repeats <- function(
       if(is.na(fragments_list[[i]]$.__enclos_env__$private$repeat_correction_factor)){
         fragments_list[[i]]$.__enclos_env__$private$repeat_correction_factor <- repeat_correction_factor_by_batch[[fragments_list[[i]]$batch_run_id]]
       }
-      fragments_list[[i]]$trace_bp_df$calculated_repeats <- (fragments_list[[i]]$trace_bp_df$size - assay_size_without_repeat) / repeat_size
+      fragments_list[[i]]$trace_bp_df$calculated_repeats <- (fragments_list[[i]]$trace_bp_df$size - config$assay_size_without_repeat) / config$repeat_size
       fragments_list[[i]]$trace_bp_df$calculated_repeats <- fragments_list[[i]]$trace_bp_df$calculated_repeats + fragments_list[[i]]$.__enclos_env__$private$repeat_correction_factor 
     }
-  } else if(correction == "batch"){
+  } else if(config$correction == "batch"){
     for (i in seq_along(fragments_list)) {
-      fragments_list[[i]]$trace_bp_df$calculated_repeats <- (fragments_list[[i]]$trace_bp_df$size - assay_size_without_repeat - fragments_list[[i]]$.__enclos_env__$private$batch_correction_factor) / repeat_size
+      fragments_list[[i]]$trace_bp_df$calculated_repeats <- (fragments_list[[i]]$trace_bp_df$size - config$assay_size_without_repeat - fragments_list[[i]]$.__enclos_env__$private$batch_correction_factor) / config$repeat_size
     }
   } else{
     for (i in seq_along(fragments_list)) {
-      fragments_list[[i]]$trace_bp_df$calculated_repeats <- (fragments_list[[i]]$trace_bp_df$size - assay_size_without_repeat) / repeat_size
+      fragments_list[[i]]$trace_bp_df$calculated_repeats <- (fragments_list[[i]]$trace_bp_df$size - config$assay_size_without_repeat) / config$repeat_size
     }
   }
 
   # loop over samples to give appropriate warnings about certain events
   repeats_not_called_reason <- sapply(fragments_list, function(x) x$.__enclos_env__$private$repeats_not_called_reason)
   if(any(repeats_not_called_reason %in% "No main peaks")){
-    warning(
+    output$set_status(
+      "warning", 
       paste0(
         "Repeats were not called in the following samples (no allele in sample): ", 
         paste0(names(repeats_not_called_reason)[which(repeats_not_called_reason == "No main peaks")], collapse = ", ")
-    ),
-      call. = FALSE
+    )
     )
   }    
 
-  invisible()
+  return(output)
 }

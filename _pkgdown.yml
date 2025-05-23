@@ -33,8 +33,8 @@ reference:
 - title: Import data
   desc:  Import data from non-fsa formats as a peak table or repeat table
 - contents:
-  - peak_table_to_fragments
-  - repeat_table_to_repeats
+  - genemapper_table_to_fragments
+  - repeat_table_to_fragments
 - title: Package R6 objects
   desc:  documentation for objects used in this package
 - contents:
