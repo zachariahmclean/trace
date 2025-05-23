@@ -20,6 +20,10 @@ added new parameter to search for ladder in the forward or reverse directions
 
 -   Fixed bug in `calculate_instability_metrics()` with missing index samples
 
+# trace 0.6.0
+
+-   Fixed bug in `calculate_instability_metrics()` with missing index samples
+
 # trace 0.5.0
 
 -   `expansion_ratio` metric updated so that it starts at 1 rather than 0

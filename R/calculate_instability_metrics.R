@@ -271,7 +271,7 @@ calculate_instability_metrics <- function(
             allele_signal = x$allele_signal,
             index_repeat = x$allele_repeat,
             peak_threshold = peak_threshold,
-            window_around_index_peak = window_around_index_peak
+            abs_sum = FALSE
           )
           return(x)
         })
