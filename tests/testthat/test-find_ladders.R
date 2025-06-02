@@ -211,6 +211,64 @@ test_that("fix ladders manual", {
 
 
 
+
+test_that("cpp ladder", {
+#   test_processed <- data.frame(signal = cell_line_fsa_list[[1]]$fsa$Data$DATA.105, scan = 0:(length(cell_line_fsa_list[[1]]$fsa$Data$DATA.105) - 1))
+#   test_processed <- test_processed[which(test_processed$scan >= which.max(test_processed$signal)), ]
+#   test_processed$smoothed_signal <- pracma::savgol(
+#     test_processed$signal,
+#     21
+#   )
+
+#   ladder_sizes <- c(50, 75, 100, 139, 150, 160, 200, 300, 350, 400, 450, 490, 500)
+#   ladder_peaks <- find_ladder_peaks(
+#     test_processed,
+#     length(ladder_sizes),
+#     minimum_ladder_signal = 100,
+#     sample_id = names(cell_line_fsa_list[1])
+#   )
+
+#   test_ladder_peaks <- ladder_iteration(ladder_sizes, ladder_peaks,
+#     choose = 13,
+#     max_combinations = 2500000,
+    
+#   )
+
+# library(ggplot2)
+
+# test_processed |>
+#   ggplot(aes(scan, signal)) +
+#   geom_line() +
+#   geom_text(data = test_ladder_peaks,
+#   aes(label = size, y = 500))
+
+
+#   Rcpp::sourceCpp("data-raw/archive/src/ladders_combinations.cpp")
+
+
+
+
+# cpp_result <- ladder_assignment_cpp(ladder_sizes, ladder_peaks,
+#   max_combinations = 2500000,
+#   branching_n = 5L
+# )
   
+  
+
+# library(ggplot2)
+
+# test_processed |>
+# ggplot(aes(scan, signal)) +
+# geom_line() +
+# geom_text(data = data.frame(size = ladder_sizes,
+#         scan = cpp_result[[1]][[which.max(cpp_result[[2]])]]
+#   ),
+# aes(label = size, y = 500))
+
+
+})
+
+
+
   
 

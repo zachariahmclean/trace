@@ -144,8 +144,8 @@ repeat_table_subset <- function(repeat_table_df,
 #' @param window_around_index_peak A numeric vector (length 2) defining the range around the index peak. First number specifies repeats before the index peak, second after. For example, \code{c(-5, 40)} around an index peak of 100 would analyze repeats 95 to 140. The sign of the numbers does not matter (The absolute value is found).
 #' @param percentile_range A numeric vector of percentiles to compute (e.g., c(0.5, 0.75, 0.9, 0.95)).
 #' @param repeat_range A numeric vector specifying ranges of repeats for the inverse quantile computation.
-#' @param index_modal_signal_threshold A single numeric value for the minimum signal of the modal peak for the index samples (basically a quality control for the samples used to set the index peak or to calculate average_repeat_change or instability_index_change). This is only relevant when grouped = TRUE for the index peak assignment. 
-#' @param index_signal_sum_threshold A single numeric value for the minimum sum of all peaks for each index sample (basically a quality control for the samples used to set the index peak or to calculate average_repeat_change or instability_index_change). This is only relevant when grouped = TRUE for the index peak assignment. 
+#' @param index_modal_signal_threshold A single numeric value for the minimum signal of the modal peak for the index samples (basically a quality control for the samples used to set the index peak or to calculate average_repeat_change or instability_index_change). This is only relevant when grouped = TRUE for the index peak assignment.
+#' @param index_signal_sum_threshold A single numeric value for the minimum sum of all peaks for each index sample (basically a quality control for the samples used to set the index peak or to calculate average_repeat_change or instability_index_change). This is only relevant when grouped = TRUE for the index peak assignment.
 #'
 #' @return A data.frame with calculated instability metrics for each sample.
 #' @details
@@ -166,7 +166,7 @@ repeat_table_subset <- function(repeat_table_df,
 #' - `upper_repeat_threshold`: The upper repeat limit based of the index repeat of each sample.
 #' - `index_modal_signal_threshold`: The index_modal_signal_threshold parameter used.
 #' - `index_signal_sum_threshold`: The index_signal_sum_threshold parameter used.
-#' 
+#'
 #' ## General sample metrics
 #' - `modal_peak_repeat`: The repeat size of the modal peak.
 #' - `modal_peak_signal`: The signal of the modal peak.
@@ -191,7 +191,7 @@ repeat_table_subset <- function(repeat_table_df,
 #' ## Repeat instability metrics
 #' - `modal_repeat_change`: The difference between the modal repeat and the index repeat.
 #' - `average_repeat_change`: The weighted mean of the sample (weighted by peak signal) subtracted by the weighted mean repeat of the index sample(s).
-#' - `instability_index_change`: The instability index of the sample subtracted by the instability index of the index sample(s). This will be very similar to the average_repeat_change, with the key difference of instability_index_change being that it is an internally calculated metric for each sample, and therefore the random slight fluctuations of bp size (or systematic if across plates for example) will be removed. However, it requires the index peak to be correctly set for each sample, and if set incorrectly, can produce large arbitrary differences.  
+#' - `instability_index_change`: The instability index of the sample subtracted by the instability index of the index sample(s). This will be very similar to the average_repeat_change, with the key difference of instability_index_change being that it is an internally calculated metric for each sample, and therefore the random slight fluctuations of bp size (or systematic if across plates for example) will be removed. However, it requires the index peak to be correctly set for each sample, and if set incorrectly, can produce large arbitrary differences.
 #' - `instability_index`: The instability index based on peak signal and distance to the index peak. (See Lee et al., 2010, \doi{10.1186/1752-0509-4-29}).
 #' - `instability_index_abs`: The absolute instability index. The absolute value is taken for the "Change from the main allele".
 #' - `expansion_index`: The instability index for expansion peaks only.
@@ -225,7 +225,7 @@ calculate_instability_metrics <- function(
   # copy each object to make sure that they are not modified in place from this function
   # want users to be able to rerun with index thresholds without having to rerun the whole pipeline
   fragments_list <- lapply(fragments_list, function(x) x$clone())
-  
+
   # calculate metrics
   metrics_list <- lapply(fragments_list, function(fragments_repeats) {
 
@@ -271,17 +271,17 @@ calculate_instability_metrics <- function(
             allele_signal = x$allele_signal,
             index_repeat = x$allele_repeat,
             peak_threshold = peak_threshold,
-            abs_sum = FALSE
+            window_around_index_peak = window_around_index_peak
           )
           return(x)
         })
-        
-        ## filter based on height and or signal sum        
+
+        ## filter based on height and or signal sum
         if(!is.na(index_modal_signal_threshold)){
           above_signal_threshold <- sapply(index_sample_list_filtered, function(x) x$allele_signal > index_modal_signal_threshold)
           index_sample_list_filtered <- index_sample_list_filtered[above_signal_threshold]
         }
-          
+
         if(!is.na(index_signal_sum_threshold)){
           above_sum_threshold <- sapply(index_sample_list_filtered, function(x) sum(x$repeat_table_df$signal) > index_signal_sum_threshold)
           index_sample_list_filtered <- index_sample_list_filtered[above_sum_threshold]
@@ -296,7 +296,7 @@ calculate_instability_metrics <- function(
             weighted.mean(x$repeat_table_df$repeats, x$repeat_table_df$signal)
           })
           index_weighted_mean_repeat <- median(control_weighted_mean_repeat, na.rm = TRUE)
-    
+
           control_instability_index <- sapply(index_sample_list_filtered, function(x){
             instability_index(
               # can use the modal as the index peak since these are the index samples
@@ -310,8 +310,8 @@ calculate_instability_metrics <- function(
           })
           index_instability_index <- median(control_instability_index, na.rm = TRUE)
         }
-      } 
-    } 
+      }
+    }
 
     # first subset to make some dataframe that are just for contractions or expansions
     size_filtered_df$repeat_delta_index_peak <- size_filtered_df$repeats - fragments_repeats$get_index_peak()$index_repeat
@@ -417,7 +417,7 @@ calculate_instability_metrics <- function(
         peak_threshold = peak_threshold,
         abs_sum = FALSE
       ),
-      expansion_ratio = sum(expansion_filtered$peak_percent), 
+      expansion_ratio = sum(expansion_filtered$peak_percent),
       contraction_ratio = sum(contraction_filtered$peak_percent)
     )
 
@@ -441,7 +441,7 @@ calculate_instability_metrics <- function(
 
     metrics <- cbind(metrics, expansion_percentile)
     metrics <- cbind(metrics, expansion_repeat)
-        
+
     return(metrics)
   })
 

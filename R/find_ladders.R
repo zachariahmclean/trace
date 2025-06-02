@@ -211,6 +211,7 @@ ladder_iteration <- function(reference_sizes, observed_sizes, choose = 5,
         best_rsq <- result$final_rsq
       }
     }
+   
     
     return(best_result)
   }

@@ -29,18 +29,15 @@ now.
 
 # How to use the package
 
-For an easy way to get started with your own data or to run an example,
-use `trace::generate_trace_template()` to generate a document with the
-pipeline pre-populated.
+Either you can use the code described below, or our [Shiny
+app](https://traceshiny.mgh.harvard.edu/) to use an interactive
+non-coding version.
 
 In this package, each sample is represented by an R6 ‘fragments’ object,
 which are organized in lists. Functions in the package iterate over
 these lists, so you usually don’t need to interact with the objects
 directly. If you do, the attributes of the objects can be accessed with
-\$, and note that most functions modify the objects in place, so
-re-assignment isn’t necessary. The only exception to that
-`find_fragments()`, which transitions to a new object since the class
-structure changes.
+\$.
 
 There are several important factors to a successful repeat instability
 experiment and things to consider when using this package:
@@ -90,12 +87,15 @@ experiment and things to consider when using this package:
     run.
 
 - If starting from fsa files, the GeneScan™ 1200 LIZ™ dye Size Standard
-  ladder assignment may not work very well. The ladder identification
-  algorithm is optimized for GeneScan™ 500 LIZ™ or GeneScan™ 600 LIZ™ or
-  other ladders with relatively few peaks. The 1200 LIZ™ ladder has a
-  challenging pattern of ladder peaks to automatically assign. However,
-  these ladders can be fixed by playing with the various parameters or
-  manually with the built-in fix_ladders_interactive() app.
+  ladder assignment may not work very well due to how the ladder
+  assignment algorithm works. It is optimized for scenarios where all
+  peaks of the ladder are resolved, which is usually the case for
+  GeneScan™ 500 LIZ™ or GeneScan™ 600 LIZ™. To work in this package,
+  Ladders like 1200 LIZ™ need to be run on the instrument in such a way
+  that all of the peaks are resolved, otherwise they all blend together
+  at the end. However, these ladders can be fixed by playing with the
+  various parameters or manually with the built-in
+  fix_ladders_interactive() app.
 
 # Installation
 
@@ -103,16 +103,6 @@ Install the package from CRAN:
 
 ``` r
 install.packages("trace")
-```
-
-## Development version
-
-You can install the development version from
-[GitHub](https://github.com/zachariahmclean/trace) with:
-
-``` r
-if (!require("pak", quietly = TRUE)) install.packages("pak")
-pak::pak("zachariahmclean/trace")
 ```
 
 # Import data
@@ -151,7 +141,22 @@ The `trace()` function streamlines the processing of fragment analysis
 data, from ladder assignment to repeat calling. Below is an overview of
 the key steps:
 
-## 1. **Assign Ladders**
+## 1. **Add Metadata**
+
+Metadata is used to enable advanced functionality, such as batch
+correction, repeat correction, and index peak assignment. Prepare a
+`.csv` file with the following columns:
+
+| Column Name                 | Purpose                                                            | Description                                                                           |
+|-----------------------------|--------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| `unique_id`                 | Required to link up the metadata file with samples                 | Unique identifier for each sample (e.g., file name). Must be unique across all runs.  |
+| `metrics_group_id`          | Group samples for instability metrics (e.g., expansion index)      | Group ID for samples sharing a common baseline (e.g., mouse ID or experiment group).  |
+| `metrics_baseline_control`  | Identify baseline samples (e.g., inherited repeat length or day 0) | Set to `TRUE` for baseline control samples (e.g., mouse tail or starting time point). |
+| `batch_run_id`              | Group samples by run for batch or repeat correction                | Identifier for each fragment analysis run (e.g., date).                               |
+| `batch_sample_id`           | Link samples across runs for batch or repeat correction            | Unique ID for each sample across runs.                                                |
+| `batch_sample_modal_repeat` | Specify validated repeat lengths for repeat correction             | Validated modal repeat length for samples used in repeat correction.                  |
+
+## 2. **Assign Ladders**
 
 Ladder peaks are identified in the ladder channel, and base pair (bp)
 sizes are predicted for each scan.
@@ -163,31 +168,25 @@ sizes are predicted for each scan.
 
 ![](man/figures/ladder_fixing.gif)
 
-## 2. **Find Fragments**
+## 3. **Find Fragments**
 
 Fragment peaks are identified in the raw trace data. This step
 transitions the data from a continuous trace to a peak-based
 representation.
 
-## 3. **Add Metadata**
+## 4. **Identify Alleles**
 
-Metadata is used to enable advanced functionality, such as batch
-correction, repeat correction, and index peak assignment. Prepare a
-`.csv` file with the following columns:
+- Identify the main allele (modal peak) for each sample. Can handle
+  samples with two alleles, but metrics are only calculated for the
+  larger of the two.
 
-| Column Name | Purpose | Description |
-|----|----|----|
-| `unique_id` | Required to link up the metadata file with samples | Unique identifier for each sample (e.g., file name). Must be unique across all runs. |
-| `metrics_group_id` | Group samples for instability metrics (e.g., expansion index) | Group ID for samples sharing a common baseline (e.g., mouse ID or experiment group). |
-| `metrics_baseline_control` | Identify baseline samples (e.g., inherited repeat length or day 0) | Set to `TRUE` for baseline control samples (e.g., mouse tail or starting time point). |
-| `batch_run_id` | Group samples by run for batch or repeat correction | Identifier for each fragment analysis run (e.g., date). |
-| `batch_sample_id` | Link samples across runs for batch or repeat correction | Unique ID for each sample across runs. |
-| `batch_sample_modal_repeat` | Specify validated repeat lengths for repeat correction | Validated modal repeat length for samples used in repeat correction. |
+## **5. Call Repeats**
 
-## 4. **Identify Alleles and Call Repeats**
-
-- Identify the main allele (modal peak) for each sample.
-- Convert bp sizes to repeat lengths.
+- Base pair sizes are converted to repeat lengths. This step has a lot
+  of additional functionality including:
+  - Batch correction or accurate repeat sizing.
+  - Forcing whole repeat units between peaks (usually underestimated in
+    fragment analysis data)
 
 ## 5. **Assign Index Peaks**
 
@@ -198,6 +197,10 @@ metrics like expansion index.
   baseline control samples (e.g., mouse tail or day 0).
 - **Manual Override**: Use `index_override_dataframe` to manually assign
   index peaks if needed.
+
+## Main function
+
+To carry out this pipeline, call the main function:
 
 ``` r
 
