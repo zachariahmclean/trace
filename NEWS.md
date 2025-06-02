@@ -1,13 +1,14 @@
+# trace 1.0.0
 -   Major Improvements
     -   Consolidated Workflow with `trace()` Function
 
         -   Simplified three-step workflow:
-            1.  Read in data
+            1.  Read in data (e.g., `read_fsa()`)
             2.  Process with main `trace()` function
             3.  Analyze with extraction functions (e.g., `calculate_instability_metrics()`)
         -   Deprecated functions (now internal-only):
             -   `add_metadata()`, `find_ladders()`, `find_fragments()`, `find_alleles()`, `call_repeats()`, `assign_index_peaks()`
-            -   These now require configuration via YAML file or `...` parameters in `trace()`
+            -   If used for legacy reasons, these now require configuration via YAML file
         -   Configuration options:
             -   Parameters can be passed via `...` or YAML config file
             -   YAML support enables reproducible analysis configurations and easier sharing of processing parameters
