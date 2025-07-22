@@ -73,6 +73,10 @@ mean_rsq <- function(scan, size){
 
 ladder_iteration <- function(reference_sizes, observed_sizes, choose = 5, 
                               max_combinations = 10000, r_squared_threshold = 0.9, top_n_branching = 3) {
+
+  # Initialize counter for total combinations tested in parent environment
+  total_combinations_tested <- 0
+
   find_best_combinations <- function(recombinations, reference_sizes, top_n) {
     rsq_vector <- vector("numeric", ncol(recombinations))
     for (i in 1:ncol(recombinations)) {
@@ -138,6 +142,9 @@ ladder_iteration <- function(reference_sizes, observed_sizes, choose = 5,
         paste0("Too many combinations to test (", n_recombinations, "). Adjust parameters or max_combinations.")
       )
     }
+
+    # Increment the total number of combinations tested
+    total_combinations_tested <<- total_combinations_tested + n_recombinations
    
     recombinations <- utils::combn(remaining_obs[1:start_window], current_choose)
    
@@ -240,8 +247,13 @@ ladder_iteration <- function(reference_sizes, observed_sizes, choose = 5,
   if (is.null(result)) {
     stop("Could not find a valid assignment")
   }
+
+  # Add the total combinations tested to the result
+  final_result <- data.frame(scan = result$assigned_observed, size = result$assigned_reference)
+  attr(final_result, "total_combinations_tested") <- total_combinations_tested
   
-  return(data.frame(scan = result$assigned_observed, size = result$assigned_reference))
+  return(final_result)
+
 }
 
 
@@ -280,10 +292,13 @@ exhaustive_ladder_matching <- function(reference_sizes, observed_sizes, max_comb
 
     }
 
-    return(data.frame(
+    best_comb <- data.frame(
       scan = obs[best_combo],
       size = ref
-    ))
+    )
+    attr(best_comb, "total_combinations_tested") <- n_combinations
+
+    return(best_comb)
   }
 
   if(length(observed_sizes) > length(reference_sizes)){
@@ -489,6 +504,9 @@ find_ladders <- function(
     combined_ladder_peaks <- rbind(peaks_fit_df, peaks_not_fit_df)
     combined_ladder_peaks <- combined_ladder_peaks[order(combined_ladder_peaks$scan), ]
 
+    # add back in attr
+    attr(combined_ladder_peaks, "total_combinations_tested") <- attr(peaks_fit_df, "total_combinations_tested")
+
     return(combined_ladder_peaks)
   }
 
@@ -573,6 +591,9 @@ find_ladders <- function(
     }
 
     fragments_list[[i]]$ladder_df <- ladder_df
+    if(!is.null(ladder_df) || nrow(ladder_df) > 0){
+      fragments_list[[i]]$ladder_total_combinations_tested <- attr(ladder_df, "total_combinations_tested")
+    }
 
     # ladder correlation stats
     # make a warning if one of the ladder modes is bad

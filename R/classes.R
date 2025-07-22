@@ -48,6 +48,9 @@ fragments <- R6::R6Class("fragments",
     #' @field ladder_df A dataframe of the identified ladder from `find_ladders()`. Scan is the scan number of peak and size is the associated bp size. 
     ladder_df = NULL,
 
+    #' @field ladder_total_combinations_tested A numeric value indicating how many total combinations were tested during ladder fit
+    ladder_total_combinations_tested = NA_real_,
+
     #' @field trace_bp_df A dataframe of bp size for every scan from `find_ladders()`.
     trace_bp_df = NULL,
 

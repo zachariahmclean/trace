@@ -38,6 +38,8 @@ This is the parent class of both fragments and fragments object. The idea is tha
 
 \item{\code{ladder_df}}{A dataframe of the identified ladder from \code{find_ladders()}. Scan is the scan number of peak and size is the associated bp size.}
 
+\item{\code{ladder_total_combinations_tested}}{A numeric value indicating how many total combinations were tested during ladder fit}
+
 \item{\code{trace_bp_df}}{A dataframe of bp size for every scan from \code{find_ladders()}.}
 
 \item{\code{peak_table_df}}{A dataframe containing the fragment peak level information.}
