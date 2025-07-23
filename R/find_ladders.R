@@ -56,12 +56,16 @@ find_ladder_peaks <- function(ladder_df,
   return(ladder_peaks)
 }
 
-mean_rsq <- function(scan, size){
-  cors <- vector("numeric", length = length(scan) - 2)
+mean_rsq <- function(scan, size, choose){
+
+  # set cor window size to be one less than selected window size for ladder chunking
+  window_size = choose -1
+
+  cors <- vector("numeric", length = length(scan) - window_size)
 
   for (i in seq_along(cors)) {
-    xi <- scan[i:(i + 2)]
-    yi <- size[i:(i + 2)]
+    xi <- scan[i:(i + window_size)]
+    yi <- size[i:(i + window_size)]
     cors[i] <- stats::cor(yi, xi)^2
   }
 
@@ -80,8 +84,7 @@ ladder_iteration <- function(reference_sizes, observed_sizes, choose = 5,
   find_best_combinations <- function(recombinations, reference_sizes, top_n) {
     rsq_vector <- vector("numeric", ncol(recombinations))
     for (i in 1:ncol(recombinations)) {
-      #rsq_vector[[i]] <- stats::cor(reference_sizes, recombinations[, i])^2
-      rsq_vector[[i]] <- mean_rsq(recombinations[, i], reference_sizes)
+      rsq_vector[[i]] <- stats::cor(reference_sizes, recombinations[, i])^2
     }
     
     # Return top N combinations
@@ -178,7 +181,7 @@ ladder_iteration <- function(reference_sizes, observed_sizes, choose = 5,
       
       # Calculate overall R² so far
       overall_rsq <- if (length(new_assigned_obs) > 2) {
-        mean_rsq(new_assigned_ref, new_assigned_obs)
+        mean_rsq(new_assigned_ref, new_assigned_obs, choose)
       } else {
         1.0 # Not enough points for correlation
       }
@@ -282,7 +285,7 @@ exhaustive_ladder_matching <- function(reference_sizes, observed_sizes, max_comb
       selected_values <- obs[indices]
       
       # Calculate R-squared for this assignment
-      current_rsq <- mean_rsq(selected_values, ref)
+      current_rsq <- mean_rsq(selected_values, ref, choose)
       
       # Track best combination
       if(current_rsq > best_rsq) {
