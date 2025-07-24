@@ -285,7 +285,7 @@ exhaustive_ladder_matching <- function(reference_sizes, observed_sizes, max_comb
       selected_values <- obs[indices]
       
       # Calculate R-squared for this assignment
-      current_rsq <- mean_rsq(selected_values, ref, choose)
+      current_rsq <- mean_rsq(selected_values, ref, length(ref))
       
       # Track best combination
       if(current_rsq > best_rsq) {
