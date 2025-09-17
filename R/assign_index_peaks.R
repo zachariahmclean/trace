@@ -17,7 +17,7 @@
 #'     \item `grouped` Logical value indicating whether samples should be grouped to share a common index peak. `FALSE` will assign the sample's own modal allele as the index peak. `TRUE` will use metadata to assign the index peak based on the modal peak of another sample (see below for more details). Default: `FALSE`.
 #'    } 
 #'
-#' @return This function modifies list of fragments objects in place with index_repeat and index_signal added.
+#' @return This function modifies list of fragments objects in place with index repeat added.
 #' @details
 #' A key part of instability metrics is the index peak. This is the repeat
 #' length used as the reference peak for relative instability metrics calculations, like expansion index.
@@ -93,14 +93,10 @@ assign_index_peaks <- function(
   }
   
   if (config$grouped == TRUE) {
-    # what we're doing here is pulling out the key data for all the samples that are metrics controls
-    # each sample will then have the data for their appropriate control inserted inside
-    # that can then be used in the calculation of instability metrics
+    # what we're doing here is pulling out the samples that are metrics controls
+    # and inserted inside so that they can then be used in the calculation of instability metrics
 
-    # we need to insert the whole peak table of the control because the calculation of the weighted mean
-    # looks at a specific subset of the table, which is not set until the calculate metrics function
-
-    # make a list of dataframes and alleles for each of the controls for the groups
+    # First split the controls by their group id
     metrics_group_ids <- sapply(fragments_list, function(x) x$metrics_group_id)
     unique_metrics_group_ids <- unique(metrics_group_ids)
 
@@ -112,25 +108,19 @@ assign_index_peaks <- function(
         # since there can be more than one control, make a list of them
         baseline_control_list[[fragments_list[[i]]$metrics_group_id]] <- c(
           baseline_control_list[[fragments_list[[i]]$metrics_group_id]],
-          list(
-            list(
-              allele_repeat = fragments_list[[i]]$get_allele_peak()$allele_repeat,
-              allele_signal = fragments_list[[i]]$get_allele_peak()$allele_signal,
-              repeat_table_df = fragments_list[[i]]$repeat_table_df,
-              batch_run_id = fragments_list[[i]]$batch_run_id,
-              unique_id = fragments_list[[i]]$unique_id
-            )
-          )
+          list(fragments_list[[i]])
         )
       }
     }
 
     # do some quality control
     ## missing alleles
-    controls_missing_allele <- logical(length(baseline_control_list))
-    for (i in seq_along(baseline_control_list)) {
-      controls_missing_allele[i] <- all(sapply(baseline_control_list[[fragments_list[[i]]$metrics_group_id]], function(x) is.na(x$allele_repeat)))
-      } 
+    controls_missing_allele <- lapply(baseline_control_list, function(x){
+      missing = sapply(x, function(y) is.na(y$get_allele_peak()$allele_repeat))
+      return(all(missing))
+    })
+    controls_missing_allele <- as.logical(controls_missing_allele)
+
     if (any(controls_missing_allele)){
       output$set_status(
         "warning",
@@ -153,12 +143,12 @@ assign_index_peaks <- function(
       )
     }
 
-    # loop over each sample and put data inside
+    # loop over each sample and put data inside and set index peak
     batch_id_mismatch <- character()
     for (i in seq_along(fragments_list)) {
       # if the group has no metrics_baseline_control it will be NULL so length == 0
       if(length(baseline_control_list[[fragments_list[[i]]$metrics_group_id]]) > 0){
-        control_index_median_repeat <- median(sapply(baseline_control_list[[fragments_list[[i]]$metrics_group_id]], function(x) x$allele_repeat), na.rm = TRUE)
+        control_index_median_repeat <- median(sapply(baseline_control_list[[fragments_list[[i]]$metrics_group_id]], function(x) x$get_allele_peak()$allele_repeat), na.rm = TRUE)
       } else{
         control_index_median_repeat <- NA_real_
       }

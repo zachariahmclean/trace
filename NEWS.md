@@ -1,5 +1,5 @@
 # trace 1.0.0
--   Major Improvements
+-   Major Changes
     -   Consolidated Workflow with `trace()` Function
 
         -   Simplified three-step workflow:
@@ -8,7 +8,7 @@
             3.  Analyze with extraction functions (e.g., `calculate_instability_metrics()`)
         -   Deprecated functions (now internal-only):
             -   `add_metadata()`, `find_ladders()`, `find_fragments()`, `find_alleles()`, `call_repeats()`, `assign_index_peaks()`
-            -   If used for legacy reasons, these now require configuration via YAML file
+            -   If used for legacy reasons (eg `trace:::find_ladders()`), these now require configuration via YAML file (see each functions help for more detail)
         -   Configuration options:
             -   Parameters can be passed via `...` or YAML config file
             -   YAML support enables reproducible analysis configurations and easier sharing of processing parameters
@@ -20,8 +20,8 @@
                 -   `ladder_top_n_branching`: Controls number of branches evaluated at each step
                 -   `ladder_branching_r_squared_threshold`: Aggressiveness of branch pruning
                 -   `ladder_assign_left_to_right`: Direction of assignment (small→large or large→small)
-        -   Parameter updates:
-            -   `minimum_peak_signal` → `minimum_ladder_signal`
+        -   Parameter name updates:
+            -   `minimum_peak_signal` to `minimum_ladder_signal`
             -   `scan_subset` split into `min_scan` and `max_scan`
 
     -   Improved Metrics Calculations
@@ -30,11 +30,12 @@
             -   New parameters: `index_modal_signal_threshold`, `index_signal_sum_threshold`
         -   Fixed calculations:
             -   Corrected weighting in skewness and kurtosis calculations
--   Data Handling Improvements
+            -   Fixed issue with average_repeat_change being non-zero for some of the index samples
+-   Data Handling Changes for Package Simplicity
     -   Streamlined Data Import
 
         -   Function updates:
-            -   `repeat_table_to_repeats()` → `repeat_table_to_fragments()` (now requires specific column names)
+            -   `repeat_table_to_repeats()` to `repeat_table_to_fragments()` (now requires specific column names)
             -   `peak_table_to_fragments()` split into:
                 -   `genemapper_table_to_fragments()` (for GeneMapper files)
                 -   `size_table_to_fragments()` (generic import)
@@ -50,7 +51,7 @@
 
     -   Fragment Detection Improvements
 
-        -   New `peak_scan_ramp` parameter in `trace()` (default relaxed from 6 to 5 to improve peak detection)
+        -   New `peak_scan_ramp` parameter in `trace()` (default relaxed from 6 to 5 to improve peak detection at longer sizes)
 
     -   Internal Changes
 

@@ -171,7 +171,6 @@ repeat_table_subset <- function(repeat_table_df,
 #' - `modal_peak_repeat`: The repeat size of the modal peak.
 #' - `modal_peak_signal`: The signal of the modal peak.
 #' - `index_peak_repeat`: The repeat size of the index peak (the repeat value closest to the modal peak of the index sample).
-#' - `index_peak_signal`: The signal of the index peak.
 #' - `index_weighted_mean_repeat`: The weighted mean repeat size (weighted on the signal of the peaks) of the index sample.
 #' - `n_peaks_total`: The total number of peaks in the repeat table.
 #' - `n_peaks_analysis_subset`: The number of peaks in the analysis subset.
@@ -259,51 +258,64 @@ calculate_instability_metrics <- function(
     if(!is.null(fragments_repeats$.__enclos_env__$private$index_samples) && length(fragments_repeats$.__enclos_env__$private$index_samples) > 0){
 
       # filter for index samples with data
-      not_na_allele <- sapply(fragments_repeats$.__enclos_env__$private$index_samples, function(x) !is.na(x$allele_repeat))
+
+
+      not_na_allele <- sapply(fragments_repeats$.__enclos_env__$private$index_samples, function(x) !is.na(x$get_index_peak()$index_repeat))
       index_sample_list_filtered <- fragments_repeats$.__enclos_env__$private$index_samples[not_na_allele]
+      index_table_list <- list()
 
       if(length(index_sample_list_filtered) == 0){
         metrics_qc_message <- "Index sample(s) do not have called alleles"
       } else {
-        index_sample_list_filtered <- lapply(index_sample_list_filtered, function(x){
-          x$repeat_table_df <- repeat_table_subset(
+        index_table_list <- lapply(index_sample_list_filtered, function(x){
+
+
+          df <- repeat_table_subset(
             repeat_table_df = x$repeat_table_df,
-            allele_signal = x$allele_signal,
-            index_repeat = x$allele_repeat,
+            allele_signal = x$get_allele_peak()$allele_signal, 
+            index_repeat = x$get_index_peak()$index_repeat,
             peak_threshold = peak_threshold,
             window_around_index_peak = window_around_index_peak
           )
-          return(x)
+
+
+          index_peak_signal = x$repeat_table_df[which(x$repeat_table_df$repeats == x$get_index_peak()$index_repeat), "signal"]
+          index_peak_signal = ifelse(length(index_peak_signal) == 0, x$get_allele_peak()$allele_signal, index_peak_signal)
+
+          attr(df,"index_signal") <- index_peak_signal
+          attr(df,"allele_signal") <- x$get_allele_peak()$allele_signal
+          attr(df,"index_repeat") <- x$get_index_peak()$index_repeat
+
+          return(df)
         })
 
         ## filter based on height and or signal sum
         if(!is.na(index_modal_signal_threshold)){
-          above_signal_threshold <- sapply(index_sample_list_filtered, function(x) x$allele_signal > index_modal_signal_threshold)
-          index_sample_list_filtered <- index_sample_list_filtered[above_signal_threshold]
+          above_signal_threshold <- sapply(index_table_list, function(x) attr(x,"index_signal") > index_modal_signal_threshold)
+          index_table_list <- index_table_list[above_signal_threshold]
         }
 
         if(!is.na(index_signal_sum_threshold)){
-          above_sum_threshold <- sapply(index_sample_list_filtered, function(x) sum(x$repeat_table_df$signal) > index_signal_sum_threshold)
-          index_sample_list_filtered <- index_sample_list_filtered[above_sum_threshold]
+          above_sum_threshold <- sapply(index_table_list, function(x) sum(x$signal) > index_signal_sum_threshold)
+          index_table_list <- index_table_list[above_sum_threshold]
         }
 
         # only continue if index samples survived the filtering
-        if(length(index_sample_list_filtered) == 0){
+        if(length(index_table_list) == 0){
           metrics_qc_message <- "index threshold filter removed all index samples (therefore index peak assignment was also removed)"
           fragments_repeats$set_index_peak(NA_real_)
         } else{
-          control_weighted_mean_repeat <- sapply(index_sample_list_filtered, function(x){
-            weighted.mean(x$repeat_table_df$repeats, x$repeat_table_df$signal)
+          control_weighted_mean_repeat <- sapply(index_table_list, function(x){
+            weighted.mean(x$repeats, x$signal)
           })
           index_weighted_mean_repeat <- median(control_weighted_mean_repeat, na.rm = TRUE)
 
-          control_instability_index <- sapply(index_sample_list_filtered, function(x){
+          control_instability_index <- sapply(index_table_list, function(x){
             instability_index(
-              # can use the modal as the index peak since these are the index samples
-              repeats = x$repeat_table_df$repeats,
-              signals = x$repeat_table_df$signal,
-              index_peak_signal = x$allele_signal,
-              index_peak_repeat = x$allele_repeat,
+              repeats = x$repeats,
+              signals = x$signal,
+              index_peak_signal = attr(x,"allele_signal"),
+              index_peak_repeat = attr(x,"index_repeat"),
               peak_threshold = peak_threshold,
               abs_sum = FALSE
             )
@@ -359,7 +371,6 @@ calculate_instability_metrics <- function(
       modal_peak_repeat = fragments_repeats$get_allele_peak()$allele_repeat,
       modal_peak_signal = fragments_repeats$get_allele_peak()$allele_signal,
       index_peak_repeat = fragments_repeats$get_index_peak()$index_repeat,
-      index_peak_signal = fragments_repeats$get_index_peak()$index_signal,
       index_weighted_mean_repeat = index_weighted_mean_repeat,
       n_peaks_total = nrow(fragments_repeats$repeat_table_df),
       n_peaks_analysis_subset = nrow(size_filtered_df),

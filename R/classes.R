@@ -187,8 +187,7 @@ fragments <- R6::R6Class("fragments",
     #' This returns a list with the index peak information for this object.
     get_index_peak = function(){
       index <- list(
-        index_repeat = private$index_repeat,
-        index_signal = private$index_signal
+        index_repeat = private$index_repeat
       )
       return(index)
     },
@@ -197,25 +196,31 @@ fragments <- R6::R6Class("fragments",
     #' This sets the index repeat length. It searches through the repeat table and finds the closest peak to the value that's provided.
     #' @param value Numeric vector (length one) of the repeat length to set as index peak.
     set_index_peak = function(value){
-      if(is.null(self$repeat_table_df)){
-        stop("Index assignment requires repeats to be called", call. = FALSE )
+      if (is.na(value)) {
+          private$index_repeat <- NA_real_
+          invisible(self)
+      } else if(is.null(self$repeat_table_df)){
+          stop("Index assignment requires repeats to be called", call. = FALSE )
+      } else{
+          if(nrow(self$repeat_table_df) > 0){
+            size_diff <- self$repeat_table_df$repeats - value
+            index_df <- self$repeat_table_df[which.min(abs(size_diff)), , drop = FALSE]
+          } else{ 
+            index_df <- self$repeat_table_df
+          }
+    
+          # deal with case where there are more than one potential peak or the identified peak is too far away, so instead just use the supplied index value
+          private$index_repeat <-  ifelse(
+            nrow(index_df) > 1 || abs(index_df$repeats - value) > 1,
+            value,
+            index_df$repeats
+        )
+          
+          invisible(self)
       }
-
-      if(!is.na(value) && nrow(self$repeat_table_df) > 0){
-        size_diff <- self$repeat_table_df$repeats - value
-        index_df <- self$repeat_table_df[which.min(abs(size_diff)), , drop = FALSE]
-
-        if(nrow(index_df) > 1){
-          stop("More than one peak was selected with the value provided", call. = FALSE)
-        }
-      } else{ 
-        # deal with cases where nrow repeat_table_df == 0
-        value <- NA_real_
-      }
-      private$index_repeat <- ifelse(!is.na(value), index_df$repeats, NA_real_)
-      private$index_signal <- ifelse(!is.na(value), index_df$signal, NA_real_)
       
-      invisible(self)
+
+      
     },
 
     #' @description
@@ -255,7 +260,6 @@ fragments <- R6::R6Class("fragments",
 
     #assign_index_peak data
     index_repeat = NA_real_,
-    index_signal = NA_real_,
     index_samples = NULL,
     assigned_index_peak_grouped = NULL,
 

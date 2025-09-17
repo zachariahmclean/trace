@@ -67,7 +67,6 @@ Each of the columns in the supplied dataframe are explained below:
 \item \code{modal_peak_repeat}: The repeat size of the modal peak.
 \item \code{modal_peak_signal}: The signal of the modal peak.
 \item \code{index_peak_repeat}: The repeat size of the index peak (the repeat value closest to the modal peak of the index sample).
-\item \code{index_peak_signal}: The signal of the index peak.
 \item \code{index_weighted_mean_repeat}: The weighted mean repeat size (weighted on the signal of the peaks) of the index sample.
 \item \code{n_peaks_total}: The total number of peaks in the repeat table.
 \item \code{n_peaks_analysis_subset}: The number of peaks in the analysis subset.

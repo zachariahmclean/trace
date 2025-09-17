@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-This package provides a pipeline for short tandem repeat instability analysis from fragment analysis data. The inputs are fsa files or peak tables (e.g. Genemapper 5 software peak table output), and a user supplied metadata data-frame. The functions identify ladders, calls peaks, and calculate repeat instability metrics (i.e. expansion index or average repeat gain).
+This package provides a pipeline for short tandem repeat instability analysis from capillary electrophoresis fragment analysis data (e.g fsa files). The main function processes the data and then and then repeat instability metrics are calculated (i.e. expansion index or average repeat gain).
 
 This code is not for clinical use. There are features for accurate repeat sizing if you use validated control samples, but integer repeat units are not returned.
 
@@ -31,7 +31,7 @@ If you use this package, please cite [this](https://www.nature.com/articles/s414
 
 Either you can use the code described below, or our [Shiny app](https://traceshiny.mgh.harvard.edu/) to use an interactive non-coding version.
 
-In this package, each sample is represented by an R6 'fragments' object, which are organized in lists. Functions in the package iterate over these lists, so you usually don't need to interact with the objects directly. If you do, the attributes of the objects can be accessed with \$.
+In this package, each sample is represented by an R6 'fragments' object, which are organized in lists. You usually don't need to interact with the objects directly. If you do, the attributes of the objects can be accessed with \$.
 
 There are several important factors to a successful repeat instability experiment and things to consider when using this package:
 
@@ -45,7 +45,7 @@ There are several important factors to a successful repeat instability experimen
 
     -   There are two main correction approaches that are somewhat related: either 'batch' or 'repeat' in `call_repeats()`. Batch correction is relatively simple and just requires you to link samples across batches by indicating them from metadata. But even though the repeat size that is return will be precise, it will not be accurate and underestimates the real repeat length. By contrast, repeat correction can be used to accurately call repeat lengths (which also corrects the batch effects). However, the repeat correction will only be as good as your sample(s) used to call the repeat length, so this can a challenging and advanced feature. You need to use a sample that reliably returns the same peak as the modal peak, or you need to be willing to understand the shape of the distribution and manually validate the repeat length of each control sample for each run.
 
--   If starting from fsa files, the GeneScan™ 1200 LIZ™ dye Size Standard ladder assignment may not work very well due to how the ladder assignment algorithm works. It is optimized for scenarios where all peaks of the ladder are resolved, which is usually the case for GeneScan™ 500 LIZ™ or GeneScan™ 600 LIZ™. To work in this package, Ladders like 1200 LIZ™ need to be run on the instrument in such a way that all of the peaks are resolved, otherwise they all blend together at the end. However, these ladders can be fixed by playing with the various parameters or manually with the built-in fix_ladders_interactive() app.
+-   If starting from fsa files, the GeneScan™ 1200 LIZ™ dye Size Standard ladder assignment may not work very well due to how the ladder assignment algorithm works. It is optimized for scenarios where all peaks of the ladder are resolved, which is usually the case for GeneScan™ 500 LIZ™ or GeneScan™ 600 LIZ™. To work in this package, Ladders like 1200 LIZ™ need to be run on the instrument in such a way that all of the peaks are resolved, otherwise they all blend together at the end. However, these ladders can be fixed by playing with the various parameters (or supplying a truncated version of the GeneScan™ 1200 LIZ™) or manually with the built-in fix_ladders_interactive() app.
 
 # Installation
 
@@ -69,7 +69,7 @@ First, we read in the raw data. In this case we will used example data within th
 fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 ```
 
-Alternatively, this is where you would use data exported from Genemapper if you would rather use the Genemapper bp sizing and peak identification algorithms. However, this is not recommended as some of the functionality of this package would not be accessible (mainly in `call_repeats()`, with `batch_correction` and repeat calling algorithms)
+Alternatively, this is where you would use data exported from Genemapper if you would rather use the Genemapper bp sizing and peak identification algorithms. 
 
 ```{r genemapper_table_to_fragments,warning=FALSE}
 fragments_list_genemapper <- genemapper_table_to_fragments(example_data,
@@ -80,7 +80,7 @@ fragments_list_genemapper <- genemapper_table_to_fragments(example_data,
 
 # Process Samples with `trace`
 
-The `trace()` function streamlines the processing of fragment analysis data, from ladder assignment to repeat calling. Below is an overview of the key steps:
+The `trace()` function streamlines the processing of fragment analysis data, from ladder assignment to repeat calling. Below is an overview of the key steps that are within `trace()`:
 
 ## 1. **Add Metadata**
 
@@ -148,7 +148,7 @@ plot_traces(fragments_list[1], xlim = c(110, 150))
 
 # Calculate instability metrics
 
-All of the information we need to calculate the repeat instability metrics has now been identified. We can finally use `calculate_instability_metrics` to generate a dataframe of per-sample metrics.
+All of the information we need to calculate the repeat instability metrics has been identified. We can use `calculate_instability_metrics()` to generate a dataframe of per-sample metrics.
 
 ```{r calculate_instability_metrics, warning=FALSE, message=FALSE}
 metrics_grouped_df <- calculate_instability_metrics(

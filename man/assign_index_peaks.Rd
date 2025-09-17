@@ -24,7 +24,7 @@ assign_index_peaks(
 }}
 }
 \value{
-This function modifies list of fragments objects in place with index_repeat and index_signal added.
+This function modifies list of fragments objects in place with index repeat added.
 }
 \description{
 Assign index peaks in preparation for calculation of instability metrics

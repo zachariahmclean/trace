@@ -8,11 +8,10 @@
 <!-- badges: end -->
 
 This package provides a pipeline for short tandem repeat instability
-analysis from fragment analysis data. The inputs are fsa files or peak
-tables (e.g. Genemapper 5 software peak table output), and a user
-supplied metadata data-frame. The functions identify ladders, calls
-peaks, and calculate repeat instability metrics (i.e. expansion index or
-average repeat gain).
+analysis from capillary electrophoresis fragment analysis data (e.g fsa
+files). The main function processes the data and then and then repeat
+instability metrics are calculated (i.e. expansion index or average
+repeat gain).
 
 This code is not for clinical use. There are features for accurate
 repeat sizing if you use validated control samples, but integer repeat
@@ -34,10 +33,9 @@ app](https://traceshiny.mgh.harvard.edu/) to use an interactive
 non-coding version.
 
 In this package, each sample is represented by an R6 ‘fragments’ object,
-which are organized in lists. Functions in the package iterate over
-these lists, so you usually don’t need to interact with the objects
-directly. If you do, the attributes of the objects can be accessed with
-\$.
+which are organized in lists. You usually don’t need to interact with
+the objects directly. If you do, the attributes of the objects can be
+accessed with \$.
 
 There are several important factors to a successful repeat instability
 experiment and things to consider when using this package:
@@ -94,8 +92,9 @@ experiment and things to consider when using this package:
   Ladders like 1200 LIZ™ need to be run on the instrument in such a way
   that all of the peaks are resolved, otherwise they all blend together
   at the end. However, these ladders can be fixed by playing with the
-  various parameters or manually with the built-in
-  fix_ladders_interactive() app.
+  various parameters (or supplying a truncated version of the GeneScan™
+  1200 LIZ™) or manually with the built-in fix_ladders_interactive()
+  app.
 
 # Installation
 
@@ -124,9 +123,7 @@ fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 
 Alternatively, this is where you would use data exported from Genemapper
 if you would rather use the Genemapper bp sizing and peak identification
-algorithms. However, this is not recommended as some of the
-functionality of this package would not be accessible (mainly in
-`call_repeats()`, with `batch_correction` and repeat calling algorithms)
+algorithms.
 
 ``` r
 fragments_list_genemapper <- genemapper_table_to_fragments(example_data,
@@ -139,7 +136,7 @@ fragments_list_genemapper <- genemapper_table_to_fragments(example_data,
 
 The `trace()` function streamlines the processing of fragment analysis
 data, from ladder assignment to repeat calling. Below is an overview of
-the key steps:
+the key steps that are within `trace()`:
 
 ## 1. **Add Metadata**
 
@@ -147,14 +144,14 @@ Metadata is used to enable advanced functionality, such as batch
 correction, repeat correction, and index peak assignment. Prepare a
 `.csv` file with the following columns:
 
-| Column Name                 | Purpose                                                            | Description                                                                           |
-|-----------------------------|--------------------------------------------------------------------|---------------------------------------------------------------------------------------|
-| `unique_id`                 | Required to link up the metadata file with samples                 | Unique identifier for each sample (e.g., file name). Must be unique across all runs.  |
-| `metrics_group_id`          | Group samples for instability metrics (e.g., expansion index)      | Group ID for samples sharing a common baseline (e.g., mouse ID or experiment group).  |
-| `metrics_baseline_control`  | Identify baseline samples (e.g., inherited repeat length or day 0) | Set to `TRUE` for baseline control samples (e.g., mouse tail or starting time point). |
-| `batch_run_id`              | Group samples by run for batch or repeat correction                | Identifier for each fragment analysis run (e.g., date).                               |
-| `batch_sample_id`           | Link samples across runs for batch or repeat correction            | Unique ID for each sample across runs.                                                |
-| `batch_sample_modal_repeat` | Specify validated repeat lengths for repeat correction             | Validated modal repeat length for samples used in repeat correction.                  |
+| Column Name | Purpose | Description |
+|----|----|----|
+| `unique_id` | Required to link up the metadata file with samples | Unique identifier for each sample (e.g., file name). Must be unique across all runs. |
+| `metrics_group_id` | Group samples for instability metrics (e.g., expansion index) | Group ID for samples sharing a common baseline (e.g., mouse ID or experiment group). |
+| `metrics_baseline_control` | Identify baseline samples (e.g., inherited repeat length or day 0) | Set to `TRUE` for baseline control samples (e.g., mouse tail or starting time point). |
+| `batch_run_id` | Group samples by run for batch or repeat correction | Identifier for each fragment analysis run (e.g., date). |
+| `batch_sample_id` | Link samples across runs for batch or repeat correction | Unique ID for each sample across runs. |
+| `batch_sample_modal_repeat` | Specify validated repeat lengths for repeat correction | Validated modal repeat length for samples used in repeat correction. |
 
 ## 2. **Assign Ladders**
 
@@ -226,8 +223,8 @@ plot_traces(fragments_list[1], xlim = c(110, 150))
 # Calculate instability metrics
 
 All of the information we need to calculate the repeat instability
-metrics has now been identified. We can finally use
-`calculate_instability_metrics` to generate a dataframe of per-sample
+metrics has been identified. We can use
+`calculate_instability_metrics()` to generate a dataframe of per-sample
 metrics.
 
 ``` r
