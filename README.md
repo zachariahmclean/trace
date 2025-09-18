@@ -242,14 +242,6 @@ manuscript](https://www.nature.com/articles/s41467-024-47485-0).
 ``` r
 library(ggplot2)
 library(dplyr)
-#> 
-#> Attaching package: 'dplyr'
-#> The following objects are masked from 'package:stats':
-#> 
-#>     filter, lag
-#> The following objects are masked from 'package:base':
-#> 
-#>     intersect, setdiff, setequal, union
 
 metrics_grouped_df |>
   left_join(metadata, by = join_by(unique_id)) |>

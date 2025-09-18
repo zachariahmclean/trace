@@ -160,7 +160,7 @@ metrics_grouped_df <- calculate_instability_metrics(
 
 These metrics can then be used to quantify repeat instability. For example, this reproduces a subset of Figure 7e of [our manuscript](https://www.nature.com/articles/s41467-024-47485-0).
 
-```{r ggplot}
+```{r ggplot, warning=FALSE, message=FALSE}
 library(ggplot2)
 library(dplyr)
 

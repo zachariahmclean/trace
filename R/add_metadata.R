@@ -5,12 +5,12 @@
 #' This function adds metadata information to a list of fragments.
 #'
 #' @param fragments_list A list of fragment objects to which metadata will be added.
-#' @param metadata_data.frame A data frame containing the metadata information. Dataframe must have the column names 'unique_id', 'metrics_group_id', 'metrics_baseline_control', 'batch_run_id', 'batch_sample_id', 'batch_sample_modal_repeat'.
+#' @param metadata_data.frame A data frame containing the metadata information. If a column is missing, it will be assumed that metadata is not required and all of those values set to NA. Dataframe column names must be exactly: 'unique_id', 'metrics_group_id', 'metrics_baseline_control', 'batch_run_id', 'batch_sample_id', 'batch_sample_modal_repeat'.
 #'
 #' @return This function modifies list of fragments objects in place with metadata added.
 #'
 #' @details 
-#' This function adds specified metadata attributes to each fragment in the list. It matches the unique sample identifiers from the fragments list with those in the metadata data frame. This metadata is only required if using the functionality described below. All columns are required even if they are empty.
+#' This function adds specified metadata attributes to each fragment in the list. It matches the unique sample identifiers from the fragments list with those in the metadata data frame. This metadata is only required if using the functionality described below.
 #'
 #' There are two key things metadata are required for. First is the grouping of samples (metrics_group_id & metrics_baseline_control) for the calculation of metrics and is used in [assign_index_peaks()]. For example, specifying a sample where the modal allele is the inherited repeat length (eg a mouse tail sample) or sample(s) at the start of a time-course experiment. This is indicated with a TRUE in the metrics_baseline_control column of the metadata. Samples are then grouped together with the metrics_group_id column of the metadata. Multiple samples can be metrics_baseline_control, which can be helpful for the average repeat gain metric to have a more accurate representation of the average repeat at the start of the experiment.
 #' 
@@ -43,15 +43,17 @@ add_metadata <- function(
   output <- trace_output$new("add_metadata")
 
   # make sure df has the required columns
-  if(!all(c(
+  metadata_params <- c(
     "unique_id", "metrics_group_id", "metrics_baseline_control", 
     "batch_run_id", "batch_sample_id", "batch_sample_modal_repeat"
-  ) %in% names(metadata_data.frame))){
+  )
+  if(!all(metadata_params %in% names(metadata_data.frame))){
+    missing_columns <- metadata_params[which(!(metadata_params %in% names(metadata_data.frame)))]
+
     output$set_status(
-      "error", 
-      "Dataframe must have the column names 'unique_id', 'metrics_group_id', 'metrics_baseline_control', 'batch_run_id', 'batch_sample_id', 'batch_sample_modal_repeat'"
+      "warning", 
+      paste0("The following metadata columns were not supplied, so are skipped: ", paste0(missing_columns, collapse = ", "))
     )
-    return(output)
   }
 
   ## check if user has any duplicated unique ids
@@ -96,13 +98,12 @@ add_metadata <- function(
     
       # filter for row of sample
       sample_metadata <- metadata_data.frame[which(metadata_data.frame$unique_id == fragments$unique_id), , drop = FALSE]
-      if(nrow(sample_metadata))
     
-      fragments$metrics_group_id <- as.character(sample_metadata$metrics_group_id) 
-      fragments$metrics_baseline_control <- ifelse(is.na(sample_metadata$metrics_baseline_control) || !as.logical(sample_metadata$metrics_baseline_control), FALSE, TRUE)
-      fragments$batch_run_id <- as.character(sample_metadata$batch_run_id)
-      fragments$batch_sample_id <- as.character(sample_metadata$batch_sample_id)
-      fragments$batch_sample_modal_repeat <- as.numeric(sample_metadata$batch_sample_modal_repeat)
+      if("metrics_group_id" %in% colnames(metadata_data.frame)) fragments$metrics_group_id <- as.character(sample_metadata$metrics_group_id) 
+      if("metrics_baseline_control" %in% colnames(metadata_data.frame)) fragments$metrics_baseline_control <- ifelse(is.na(sample_metadata$metrics_baseline_control) || !as.logical(sample_metadata$metrics_baseline_control), FALSE, TRUE)
+      if("batch_run_id" %in% colnames(metadata_data.frame)) fragments$batch_run_id <- as.character(sample_metadata$batch_run_id)
+      if("batch_sample_id" %in% colnames(metadata_data.frame)) fragments$batch_sample_id <- as.character(sample_metadata$batch_sample_id)
+      if("batch_sample_modal_repeat" %in% colnames(metadata_data.frame)) fragments$batch_sample_modal_repeat <- as.numeric(sample_metadata$batch_sample_modal_repeat)
     
       return(fragments)
     }

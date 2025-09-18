@@ -42,7 +42,7 @@
 
     -   Strict Metadata Requirements
 
-        -   Required columns (must exist even if empty):
+        -   Require exact columns (if those column names not detected, those metadata will be skipped):
             -   `unique_id`, `metrics_group_id`, `metrics_baseline_control` , `batch_run_id`, `batch_sample_id`, `batch_sample_modal_repeat`
 -   Other Changes
     -   Parameter Default Updates

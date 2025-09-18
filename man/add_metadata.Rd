@@ -9,7 +9,7 @@ add_metadata(fragments_list, metadata_data.frame)
 \arguments{
 \item{fragments_list}{A list of fragment objects to which metadata will be added.}
 
-\item{metadata_data.frame}{A data frame containing the metadata information. Dataframe must have the column names 'unique_id', 'metrics_group_id', 'metrics_baseline_control', 'batch_run_id', 'batch_sample_id', 'batch_sample_modal_repeat'.}
+\item{metadata_data.frame}{A data frame containing the metadata information. If a column is missing, it will be assumed that metadata is not required and all of those values set to NA. Dataframe column names must be exactly: 'unique_id', 'metrics_group_id', 'metrics_baseline_control', 'batch_run_id', 'batch_sample_id', 'batch_sample_modal_repeat'.}
 }
 \value{
 This function modifies list of fragments objects in place with metadata added.
@@ -18,7 +18,7 @@ This function modifies list of fragments objects in place with metadata added.
 This function adds metadata information to a list of fragments.
 }
 \details{
-This function adds specified metadata attributes to each fragment in the list. It matches the unique sample identifiers from the fragments list with those in the metadata data frame. This metadata is only required if using the functionality described below. All columns are required even if they are empty.
+This function adds specified metadata attributes to each fragment in the list. It matches the unique sample identifiers from the fragments list with those in the metadata data frame. This metadata is only required if using the functionality described below.
 
 There are two key things metadata are required for. First is the grouping of samples (metrics_group_id & metrics_baseline_control) for the calculation of metrics and is used in \code{\link[=assign_index_peaks]{assign_index_peaks()}}. For example, specifying a sample where the modal allele is the inherited repeat length (eg a mouse tail sample) or sample(s) at the start of a time-course experiment. This is indicated with a TRUE in the metrics_baseline_control column of the metadata. Samples are then grouped together with the metrics_group_id column of the metadata. Multiple samples can be metrics_baseline_control, which can be helpful for the average repeat gain metric to have a more accurate representation of the average repeat at the start of the experiment.
 
