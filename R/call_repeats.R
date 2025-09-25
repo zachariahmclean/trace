@@ -718,7 +718,9 @@ call_repeats <- function(
   if(config$correction == "repeat"){
     # need to figure out correction factor for samples that repeat lengths were not called because no alleles
     repeat_correction_list <- lapply(fragments_list, function(x){
-      data.frame(batch_run_id = x$batch_run_id, repeat_correction_factor = x$.__enclos_env__$private$repeat_correction_factor)
+      if(length(x$.__enclos_env__$private$repeat_correction_factor) > 0){
+        data.frame(batch_run_id = x$batch_run_id, repeat_correction_factor = x$.__enclos_env__$private$repeat_correction_factor)
+      }
     })
     repeat_correction_df <- do.call(rbind, repeat_correction_list)
     repeat_correction_factor_by_batch <- lapply(
