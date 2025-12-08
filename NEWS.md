@@ -8,7 +8,7 @@
             3.  Analyze with extraction functions (e.g., `calculate_instability_metrics()`)
         -   Deprecated functions (now internal-only):
             -   `add_metadata()`, `find_ladders()`, `find_fragments()`, `find_alleles()`, `call_repeats()`, `assign_index_peaks()`
-            -   If used for legacy reasons (eg `trace:::find_ladders()`), these now require configuration via YAML file (see each functions help for more detail)
+            -   If used for legacy reasons access via the internal package with ':::' (eg `trace:::find_ladders()`), these now require configuration via YAML file (see each functions help for more detail)
         -   Configuration options:
             -   Parameters can be passed via `...` or YAML config file
             -   YAML support enables reproducible analysis configurations and easier sharing of processing parameters
@@ -21,8 +21,8 @@
                 -   `ladder_branching_r_squared_threshold`: Aggressiveness of branch pruning
                 -   `ladder_assign_left_to_right`: Direction of assignment (small→large or large→small)
         -   Parameter name updates:
-            -   `minimum_peak_signal` to `minimum_ladder_signal`
-            -   `scan_subset` split into `min_scan` and `max_scan`
+            -   For ladder processing, `minimum_peak_signal` to `minimum_ladder_signal`
+            -   For ladder processing, `scan_subset` split into `min_scan` and `max_scan`
 
     -   Improved Metrics Calculations
 

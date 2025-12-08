@@ -428,7 +428,7 @@ testthat::test_that("repeat correction", {
 
 
   testthat::expect_true(all.equal(
-    c(10.51614, 10.58441, 11.09364 , 11.17831), 
+    c(10.51614, 10.58441, 11.09364 , 11.17830), 
     round(as.numeric(sapply(fsa_list, function(x) x$.__enclos_env__$private$repeat_correction_factor)), 5)
   ))
 

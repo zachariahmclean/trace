@@ -29,8 +29,8 @@ now.
 # How to use the package
 
 Either you can use the code described below, or our [Shiny
-app](https://traceshiny.mgh.harvard.edu/) to use an interactive
-non-coding version.
+app](https://traceshiny.mgh.harvard.edu/app/traceShiny) to use an
+interactive non-coding version.
 
 In this package, each sample is represented by an R6 ‘fragments’ object,
 which are organized in lists. You usually don’t need to interact with
