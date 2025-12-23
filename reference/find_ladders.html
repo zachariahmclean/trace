@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,7 +18,8 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/plotting_traces.html">Plotting traces</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/experimental_considerations.html">Experimental considerations</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting_traces.html">Plotting traces</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -42,95 +43,50 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">find_ladders</span><span class="op">(</span></span>
-<span>  <span class="va">fragments_trace</span>,</span>
-<span>  ladder_channel <span class="op">=</span> <span class="st">"DATA.105"</span>,</span>
-<span>  signal_channel <span class="op">=</span> <span class="st">"DATA.1"</span>,</span>
-<span>  ladder_sizes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">75</span>, <span class="fl">100</span>, <span class="fl">139</span>, <span class="fl">150</span>, <span class="fl">160</span>, <span class="fl">200</span>, <span class="fl">250</span>, <span class="fl">300</span>, <span class="fl">340</span>, <span class="fl">350</span>, <span class="fl">400</span>, <span class="fl">450</span>, <span class="fl">490</span>,</span>
-<span>    <span class="fl">500</span><span class="op">)</span>,</span>
-<span>  ladder_start_scan <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  minimum_peak_signal <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  scan_subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ladder_selection_window <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>  max_combinations <span class="op">=</span> <span class="fl">2500000</span>,</span>
-<span>  warning_rsq_threshold <span class="op">=</span> <span class="fl">0.998</span>,</span>
-<span>  show_progress_bar <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">find_ladders</span><span class="op">(</span><span class="va">fragments_list</span>, <span class="va">config</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-fragments-trace">fragments_trace<a class="anchor" aria-label="anchor" href="#arg-fragments-trace"></a></dt>
+<dl><dt id="arg-fragments-list">fragments_list<a class="anchor" aria-label="anchor" href="#arg-fragments-list"></a></dt>
 <dd><p>list from 'read_fsa' function</p></dd>
 
 
-<dt id="arg-ladder-channel">ladder_channel<a class="anchor" aria-label="anchor" href="#arg-ladder-channel"></a></dt>
-<dd><p>string: which channel in the fsa file contains the
-ladder signal</p></dd>
+<dt id="arg-config">config<a class="anchor" aria-label="anchor" href="#arg-config"></a></dt>
+<dd><p>A trace_config object generated using <code><a href="load_config.html">load_config()</a></code>.</p></dd>
 
 
-<dt id="arg-signal-channel">signal_channel<a class="anchor" aria-label="anchor" href="#arg-signal-channel"></a></dt>
-<dd><p>string: which channel in the fsa file contains the data
-signal</p></dd>
-
-
-<dt id="arg-ladder-sizes">ladder_sizes<a class="anchor" aria-label="anchor" href="#arg-ladder-sizes"></a></dt>
-<dd><p>numeric vector: bp sizes of ladder used in fragment analysis.
-defaults to GeneScan™ 500 LIZ™</p></dd>
-
-
-<dt id="arg-ladder-start-scan">ladder_start_scan<a class="anchor" aria-label="anchor" href="#arg-ladder-start-scan"></a></dt>
-<dd><p>numeric: indicate the scan number to start looking for
-ladder peaks. Usually this can be automatically found (when set to NULL) since
-there's a big spike right at the start. However, if your ladder peaks
-are taller than the big spike, you will need to set this starting scan
-number manually.</p></dd>
-
-
-<dt id="arg-minimum-peak-signal">minimum_peak_signal<a class="anchor" aria-label="anchor" href="#arg-minimum-peak-signal"></a></dt>
-<dd><p>numeric: minimum signal of peak from smoothed signal.</p></dd>
-
-
-<dt id="arg-scan-subset">scan_subset<a class="anchor" aria-label="anchor" href="#arg-scan-subset"></a></dt>
-<dd><p>numeric vector (length 2): filter the ladder and data signal
-between the selected scans (eg scan_subset = c(3000, 5000)).
-to pracma::savgol().</p></dd>
-
-
-<dt id="arg-ladder-selection-window">ladder_selection_window<a class="anchor" aria-label="anchor" href="#arg-ladder-selection-window"></a></dt>
-<dd><p>numeric: in the ladder assigning algorithm,
-the we iterate through the scans in blocks and test their linear fit ( We can assume that the ladder is linear over a short distance)
-This value defines how large that block of peaks should be.</p></dd>
-
-
-<dt id="arg-max-combinations">max_combinations<a class="anchor" aria-label="anchor" href="#arg-max-combinations"></a></dt>
-<dd><p>numeric: what is the maximum number of ladder
-combinations that should be tested</p></dd>
-
-
-<dt id="arg-warning-rsq-threshold">warning_rsq_threshold<a class="anchor" aria-label="anchor" href="#arg-warning-rsq-threshold"></a></dt>
-<dd><p>The value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold.</p></dd>
-
-
-<dt id="arg-show-progress-bar">show_progress_bar<a class="anchor" aria-label="anchor" href="#arg-show-progress-bar"></a></dt>
-<dd><p>show progress bar</p></dd>
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the <code>config</code>. These parameters include:</p><ul><li><p><code>ladder_channel</code>: string, which channel in the fsa file contains the ladder signal. Default: <code>"DATA.105"</code>.</p></li>
+<li><p><code>signal_channel</code>: string, which channel in the fsa file contains the data signal. Default: <code>"DATA.1"</code>.</p></li>
+<li><p><code>ladder_sizes</code>: numeric vector, bp sizes of ladder used in fragment analysis. Default: <code>c(50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500)</code>.</p></li>
+<li><p><code>ladder_start_scan</code>: single numeric indicating the scan number to start looking for ladder peaks (only required when ladder signal does not have large spike at start). Usually this can be automatically found (when set to NA) through the detection of the large spike at the start of the signal. Default: <code>NA</code>.</p></li>
+<li><p><code>minimum_ladder_signal</code>: single numeric for minimum signal of peak from smoothed signal. Default: <code>NA</code>.</p></li>
+<li><p><code>ladder_assign_left_to_right</code>: single logical for if the ladder should be assigned from the smallest base pair size to largest (TRUE), or if the order should be reversed and assigned from largest to smallest (FALSE), which can be helpful since the end often has cleaner signal than the start. Default: <code>TRUE</code>.</p></li>
+<li><p><code>ladder_selection_window</code>: single numeric for the ladder assigning algorithm. We iterate through the scans in blocks and test their linear fit (We can assume that the ladder is linear over a short distance). This value defines how large that block of peaks should be. Larger values should be better because the fit is tested in greater context, but larger numbers will make the fit increasingly slower. Default: <code>5</code>.</p></li>
+<li><p><code>ladder_top_n_branching</code>: single numeric. The ladder assigning algorithm branches as it tests the various combinations. This value defines how many branches should be created. If the correct combination is not found, you could try increasing this value, but it will make it increasingly slower. Default: <code>5</code>.</p></li>
+<li><p><code>ladder_branching_r_squared_threshold</code>: single numeric. The branches of the ladder assigning algorithm are pruned by R-squared values above this threshold to discard fits that are not promising. If the correct combination is not found, you could try decreasing this value, but it will make it increasingly slower. Default: <code>0.99</code>.</p></li>
+<li><p><code>min_scan</code>: single numeric indicating the lower scan limit to filter out scans below. Default: <code>NA</code>.</p></li>
+<li><p><code>max_scan</code>: single numeric indicating the upper scan limit to filter out scans above Default: <code>NA</code>.</p></li>
+<li><p><code>max_combinations</code>: single numeric indicating what is the maximum number of ladder combinations that should be tested. Default: <code>2500000</code>.</p></li>
+<li><p><code>warning_rsq_threshold</code>: single numeric for the value for which this function will warn you when parts of the ladder have R-squared values below the specified threshold. Default: <code>0.998</code>.</p></li>
+<li><p><code>show_progress_bar</code>: single logical for showing progress bar. Default: <code>TRUE</code>.</p></li>
+</ul></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>This function modifies list of fragments_trace objects in place with the ladder assigned and base pair calculated.</p>
+    <p>This function modifies list of fragments objects in place with the ladder assigned and base pair calculated.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This function takes a list of fragments_trace files (the output from read_fsa) and identifies
+    <p>This function takes a list of fragments files (the output from read_fsa) and identifies
 the ladders in the ladder channel which is used to call the bp size. The output
-is a list of fragments_traces.</p>
+is a list of fragments.</p>
 <p>In this package, base pair (bp) sizes are assigned using a generalized additive model (GAM) with cubic regression splines. The model is fit to known ladder fragment sizes and their corresponding scan positions, capturing the relationship between scan number and bp size. Once trained, the model predicts bp sizes for all scans by interpolating between the known ladder points. This approach provides a flexible and accurate assignment of bp sizes, accommodating the slightly non-linear relationship.</p>
 <p>Use <code><a href="plot_data_channels.html">plot_data_channels()</a></code> to plot the raw data on the fsa file to identify which channel the ladder and data are in.</p>
-<p>The ladder peaks are assigned from largest to smallest. I would recommend excluding
-size standard peaks less than 50 bp (eg size standard 35 bp).</p>
 <p>Each ladder should be manually inspected to make sure that is has been correctly assigned.</p>
     </div>
     <div class="section level2">
@@ -144,8 +100,9 @@ incorrectly assigned peaks.</p></div>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fsa_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">cell_line_fsa_list</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">config</span> <span class="op">&lt;-</span> <span class="fu"><a href="load_config.html">load_config</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">find_ladders</span><span class="op">(</span><span class="va">fsa_list</span>, show_progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">trace</span><span class="fu">:::</span><span class="fu">find_ladders</span><span class="op">(</span><span class="va">fsa_list</span>, <span class="va">config</span>, show_progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Manually inspect the ladders</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="plot_ladders.html">plot_ladders</a></span><span class="op">(</span><span class="va">fsa_list</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
@@ -162,7 +119,7 @@ incorrectly assigned peaks.</p></div>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

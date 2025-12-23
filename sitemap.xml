@@ -2,9 +2,11 @@
 <url><loc>https://zachariahmclean.github.io/trace/404.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/LICENSE-text.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/LICENSE.html</loc></url>
+<url><loc>https://zachariahmclean.github.io/trace/articles/experimental_considerations.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/articles/index.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/articles/plotting_traces.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/authors.html</loc></url>
+<url><loc>https://zachariahmclean.github.io/trace/dev_notes.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/index.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/news/index.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/add_metadata.html</loc></url>
@@ -25,12 +27,10 @@
 <url><loc>https://zachariahmclean.github.io/trace/reference/fix_ladders_interactive.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/fix_ladders_manual.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/fragments.html</loc></url>
-<url><loc>https://zachariahmclean.github.io/trace/reference/fragments_repeats.html</loc></url>
-<url><loc>https://zachariahmclean.github.io/trace/reference/fragments_trace.html</loc></url>
-<url><loc>https://zachariahmclean.github.io/trace/reference/generate_trace_template.html</loc></url>
+<url><loc>https://zachariahmclean.github.io/trace/reference/genemapper_table_to_fragments.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/index.html</loc></url>
+<url><loc>https://zachariahmclean.github.io/trace/reference/load_config.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/metadata.html</loc></url>
-<url><loc>https://zachariahmclean.github.io/trace/reference/peak_table_to_fragments.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/plot_batch_correction_samples.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/plot_data_channels.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/plot_fragments.html</loc></url>
@@ -39,7 +39,9 @@
 <url><loc>https://zachariahmclean.github.io/trace/reference/plot_traces.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/read_fsa.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/remove_fragments.html</loc></url>
-<url><loc>https://zachariahmclean.github.io/trace/reference/repeat_table_to_repeats.html</loc></url>
+<url><loc>https://zachariahmclean.github.io/trace/reference/repeat_table_to_fragments.html</loc></url>
+<url><loc>https://zachariahmclean.github.io/trace/reference/size_table_to_fragments.html</loc></url>
 <url><loc>https://zachariahmclean.github.io/trace/reference/trace-package.html</loc></url>
+<url><loc>https://zachariahmclean.github.io/trace/reference/trace.html</loc></url>
 </urlset>
 

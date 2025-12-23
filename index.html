@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,7 +35,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/plotting_traces.html">Plotting traces</a></li>
+<li><a class="dropdown-item" href="articles/experimental_considerations.html">Experimental considerations</a></li>
+    <li><a class="dropdown-item" href="articles/plotting_traces.html">Plotting traces</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -57,7 +58,7 @@
 <!-- badges: start -->
 
 <!-- badges: end -->
-<p>This package provides a pipeline for short tandem repeat instability analysis from fragment analysis data. The inputs are fsa files or peak tables (e.g. Genemapper 5 software peak table output), and a user supplied metadata data-frame. The functions identify ladders, calls peaks, and calculate repeat instability metrics (i.e. expansion index or average repeat gain).</p>
+<p>This package provides a pipeline for short tandem repeat instability analysis from capillary electrophoresis fragment analysis data (e.g fsa files). The main function processes the data and then and then repeat instability metrics are calculated (i.e. expansion index or average repeat gain).</p>
 <p>This code is not for clinical use. There are features for accurate repeat sizing if you use validated control samples, but integer repeat units are not returned.</p>
 <p>To report bugs or feature requests, please visit the Github issue tracker <a href="https://github.com/zachariahmclean/trace/issues" class="external-link">here</a>. For assistance or any other inquires, contact <a href="mailto:zmclean@mgh.harvard.edu?subject=%5BGitHub%5D%20trace">Zach McLean</a>.</p>
 <p>If you use this package, please cite <a href="https://www.nature.com/articles/s41467-024-47485-0" class="external-link">this</a> paper for now.</p>
@@ -65,21 +66,9 @@
 <div class="section level1">
 <h1 id="how-to-use-the-package">How to use the package<a class="anchor" aria-label="anchor" href="#how-to-use-the-package"></a>
 </h1>
-<p>For an easy way to get started with your own data or to run an example, use <code><a href="reference/generate_trace_template.html">trace::generate_trace_template()</a></code> to generate a document with the pipeline pre-populated.</p>
-<p>In this package, each sample is represented by an R6 ‘fragments’ object, which are organized in lists. Functions in the package iterate over these lists, so you usually don’t need to interact with the objects directly. If you do, the attributes of the objects can be accessed with $, and note that most functions modify the objects in place, so re-assignment isn’t necessary. The only exception to that <code><a href="reference/find_fragments.html">find_fragments()</a></code>, which transitions to a new object since the class structure changes.</p>
-<p>There are several important factors to a successful repeat instability experiment and things to consider when using this package:</p>
-<ul>
-<li><p>(required) Each sample has a unique id, usually the file name</p></li>
-<li><p>(optional) Baseline control for your experiment. For example, specifying a sample where the modal allele is the inherited repeat length (eg a mouse tail sample) or a sample at the start of a time-course experiment. This is indicated with a <code>TRUE</code> in the <code>metrics_baseline_control</code> column of the metadata. Samples are then grouped together with the <code>metrics_group_id</code> column of the metadata. Multiple samples can be <code>metrics_baseline_control</code>, which can be helpful for the average repeat gain metric to have a more accurate representation of the average repeat at the start of the experiment.</p></li>
-<li>
-<p>(optional) Batch or repeat length correction for systematic batch effects that occur with repeat-containing amplicons in capillary electrophoresis.</p>
-<ul>
-<li><p>Repeat containing amplicons do not run linearly with internal ladder sizes in capillary electrophoresis resulting is an underestimation of repeat length if you just convert from base-pair size. These differences are not always consistent across runs which can result in batch effects in the repeat size. So, if the repeat length is to be directly compared for samples from different runs, this batch effect needs to be corrected. This is only relevant when the absolute size of a amplicons are compared for grouping metrics as described above (otherwise instability metrics are all relative and it doesn’t matter that there’s systematic batch effects across runs), when plotting traces from different runs, or if an accurate repeat length is desired.</p></li>
-<li><p>There are two main correction approaches that are somewhat related: either ‘batch’ or ‘repeat’ in <code><a href="reference/call_repeats.html">call_repeats()</a></code>. Batch correction is relatively simple and just requires you to link samples across batches by indicating them from metadata. But even though the repeat size that is return will be precise, it will not be accurate and underestimates the real repeat length. By contrast, repeat correction can be used to accurately call repeat lengths (which also corrects the batch effects). However, the repeat correction will only be as good as your sample(s) used to call the repeat length, so this can a challenging and advanced feature. You need to use a sample that reliably returns the same peak as the modal peak, or you need to be willing to understand the shape of the distribution and manually validate the repeat length of each control sample for each run.</p></li>
-</ul>
-</li>
-<li><p>If starting from fsa files, the GeneScan™ 1200 LIZ™ dye Size Standard ladder assignment may not work very well. The ladder identification algorithm is optimized for GeneScan™ 500 LIZ™ or GeneScan™ 600 LIZ™ or other ladders with relatively few peaks. The 1200 LIZ™ ladder has a challenging pattern of ladder peaks to automatically assign. However, these ladders can be fixed by playing with the various parameters or manually with the built-in fix_ladders_interactive() app.</p></li>
-</ul>
+<p>Either you can use the code described below, or our <a href="https://traceshiny.mgh.harvard.edu/app/traceShiny" class="external-link">Shiny app</a> to use an interactive non-coding version.</p>
+<p>In this package, each sample is represented by an R6 ‘fragments’ object, which are organized in lists. You usually don’t need to interact with the objects directly. If you do, the attributes of the objects can be accessed with $.</p>
+<p>There are several important factors to a successful repeat instability experiment and things to consider when using this package which are discussed in an <a href="https://zachariahmclean.github.io/trace/articles/experimental_considerations.html">article</a>.</p>
 </div>
 <div class="section level1">
 <h1 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -87,69 +76,33 @@
 <p>Install the package from CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"trace"</span><span class="op">)</span></span></code></pre></div>
-<div class="section level2">
-<h2 id="development-version">Development version<a class="anchor" aria-label="anchor" href="#development-version"></a>
-</h2>
-<p>You can install the development version from <a href="https://github.com/zachariahmclean/trace" class="external-link">GitHub</a> with:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://pak.r-lib.org/" class="external-link">"pak"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"zachariahmclean/trace"</span><span class="op">)</span></span></code></pre></div>
-</div>
 </div>
 <div class="section level1">
 <h1 id="import-data">Import data<a class="anchor" aria-label="anchor" href="#import-data"></a>
 </h1>
 <p>Load the package:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://zachariahmclean.github.io/trace/">trace</a></span><span class="op">)</span></span></code></pre></div>
 <p>First, we read in the raw data. In this case we will used example data within this package, but usually this would be fsa files that are read in using <code><a href="reference/read_fsa.html">read_fsa()</a></code>. The example data is also cloned since the next step modifies the object in place.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fsa_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">cell_line_fsa_list</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level1">
-<h1 id="find-ladders">Find ladders<a class="anchor" aria-label="anchor" href="#find-ladders"></a>
-</h1>
-<p>The known ladder sizes are assigned to peaks in the ladder channel and bp are predicted for each scan.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/find_ladders.html">find_ladders</a></span><span class="op">(</span></span>
-<span>  <span class="va">fsa_list</span>,</span>
-<span>  show_progress_bar <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>visually inspect each ladder to make sure that the ladders were correctly assigned</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/plot_ladders.html">plot_ladders</a></span><span class="op">(</span><span class="va">fsa_list</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-plot_ladders-1.png" width="100%"></p>
-<p>If the ladders are are not assigned correctly, you can adjust parameters or manually using the built-in fix_ladders_interactive() app.</p>
-<p><img src="reference/figures/ladder_fixing.gif"></p>
-</div>
-<div class="section level1">
-<h1 id="find-fragments">Find fragments<a class="anchor" aria-label="anchor" href="#find-fragments"></a>
-</h1>
-<p>The fragment peaks are identified in the raw continuous trace data. These objects are assigned because find_fragments transitions to a new object since the class structure changes. This reflects the data moving from a continuous trace to a peak table.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fragments_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/find_fragments.html">find_fragments</a></span><span class="op">(</span></span>
-<span>  <span class="va">fsa_list</span>,</span>
-<span>  min_bp_size <span class="op">=</span> <span class="fl">300</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>Visually inspect the traces and called peaks to make sure they were correctly assigned.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/plot_traces.html">plot_traces</a></span><span class="op">(</span><span class="va">fragments_list</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
-<span>  xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">400</span>, <span class="fl">550</span><span class="op">)</span>,</span>
-<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1200</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-plot_traces-1.png" width="100%"></p>
-<p>Alternatively, this is where you would use data exported from Genemapper if you would rather use the Genemapper bp sizing and peak identification algorithms. However, this is not recommended as some of the functionality of this package would not be accessible (mainly in <code><a href="reference/call_repeats.html">call_repeats()</a></code>, with <code>batch_correction</code> and repeat calling algorithms)</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fragments_list_genemapper</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/peak_table_to_fragments.html">peak_table_to_fragments</a></span><span class="op">(</span><span class="va">example_data</span>,</span>
-<span>  data_format <span class="op">=</span> <span class="st">"genemapper5"</span>,</span>
+<p>Alternatively, this is where you would use data exported from Genemapper if you would rather use the Genemapper bp sizing and peak identification algorithms.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fragments_list_genemapper</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/genemapper_table_to_fragments.html">genemapper_table_to_fragments</a></span><span class="op">(</span><span class="va">example_data</span>,</span>
 <span>  dye_channel <span class="op">=</span> <span class="st">"B"</span>,</span>
 <span>  min_size_bp <span class="op">=</span> <span class="fl">300</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level1">
-<h1 id="add-metadata">Add metadata<a class="anchor" aria-label="anchor" href="#add-metadata"></a>
+<h1 id="process-samples-with-trace">Process Samples with <code>trace</code>
+<a class="anchor" aria-label="anchor" href="#process-samples-with-trace"></a>
 </h1>
-<p>Metadata can be incorporated to allow additional functionality in <code><a href="reference/call_repeats.html">call_repeats()</a></code> (batch or repeat correction) and <code><a href="reference/assign_index_peaks.html">assign_index_peaks()</a></code> (assigning index peak from another sample). Prepare a file (eg spreadsheet saved as .csv) with the following columns. If you use the specified column names, it will be automatically parsed by <code><a href="reference/add_metadata.html">add_metadata()</a></code>, otherwise you will need to match up which column name belongs to which metadata category (as done below in <code><a href="reference/add_metadata.html">add_metadata()</a></code>):</p>
+<p>The <code><a href="reference/trace.html">trace()</a></code> function streamlines the processing of fragment analysis data, from ladder assignment to repeat calling. Below is an overview of the key steps that are within <code><a href="reference/trace.html">trace()</a></code>:</p>
+<div class="section level2">
+<h2 id="id_1-add-metadata">1. <strong>Add Metadata</strong>
+<a class="anchor" aria-label="anchor" href="#id_1-add-metadata"></a>
+</h2>
+<p>Metadata is used to enable advanced functionality, such as batch correction, repeat correction, and index peak assignment. Prepare a <code>.csv</code> file with the following columns:</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -157,114 +110,128 @@
 <col width="33%">
 </colgroup>
 <thead><tr class="header">
-<th>Metadata table column</th>
-<th>Functionality metadata is associated with</th>
+<th>Column Name</th>
+<th>Purpose</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>unique_id</td>
-<td>Required for adding metadata using <code><a href="reference/add_metadata.html">add_metadata()</a></code>
-</td>
-<td>The unique identifier for the fsa file. Usually the sample file name. This must be unique, including across runs.</td>
+<td><code>unique_id</code></td>
+<td>Required to link up the metadata file with samples</td>
+<td>Unique identifier for each sample (e.g., file name). Must be unique across all runs.</td>
 </tr>
 <tr class="even">
-<td>metrics_group_id</td>
-<td>
-<code><a href="reference/assign_index_peaks.html">assign_index_peaks()</a></code>, allows setting <code>grouped</code>
-</td>
-<td>This groups the samples for instability metric calculations. Provide a group id value for each sample. For example, in a mouse experiment and using the expansion index, you need to group the samples since they have the same metrics baseline control (eg inherited repeat length), so provide the mouse id.</td>
+<td><code>metrics_group_id</code></td>
+<td>Group samples for instability metrics (e.g., expansion index)</td>
+<td>Group ID for samples sharing a common baseline (e.g., mouse ID or experiment group).</td>
 </tr>
 <tr class="odd">
-<td>metrics_baseline_control</td>
-<td>
-<code><a href="reference/assign_index_peaks.html">assign_index_peaks()</a></code>, allows setting <code>grouped</code>
-</td>
-<td>This is related to metrics_group_id. Indicate with ‘TRUE’ to specify which sample is the baseline control (eg mouse tail for inherited repeat length, or day-zero sample in cell line experiments)</td>
+<td><code>metrics_baseline_control</code></td>
+<td>Identify baseline samples (e.g., inherited repeat length or day 0)</td>
+<td>Set to <code>TRUE</code> for baseline control samples (e.g., mouse tail or starting time point).</td>
 </tr>
 <tr class="even">
-<td>batch_run_id</td>
-<td>
-<code><a href="reference/call_repeats.html">call_repeats()</a></code>, allows setting <code>correction</code> = “batch” or “repeat”</td>
-<td>This groups the samples by batch. Provide a value for each fragment analysis run (eg date).</td>
+<td><code>batch_run_id</code></td>
+<td>Group samples by run for batch or repeat correction</td>
+<td>Identifier for each fragment analysis run (e.g., date).</td>
 </tr>
 <tr class="odd">
-<td>batch_sample_id</td>
-<td>
-<code><a href="reference/call_repeats.html">call_repeats()</a></code>, allows setting <code>correction</code> = “batch” or “repeat”</td>
-<td>This groups the samples across batches. Give a unique sample id to each different sample.</td>
+<td><code>batch_sample_id</code></td>
+<td>Link samples across runs for batch or repeat correction</td>
+<td>Unique ID for each sample across runs.</td>
 </tr>
 <tr class="even">
-<td>batch_sample_modal_repeat</td>
-<td>
-<code><a href="reference/call_repeats.html">call_repeats()</a></code>, allows setting <code>correction</code> = “repeat”</td>
-<td>The validated modal repeat length for the particular <code>batch_sample_id</code> sample used to accurately call repeat length.</td>
+<td><code>batch_sample_modal_repeat</code></td>
+<td>Specify validated repeat lengths for repeat correction</td>
+<td>Validated modal repeat length for samples used in repeat correction.</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+</div>
+<div class="section level2">
+<h2 id="id_2-assign-ladders">2. <strong>Assign Ladders</strong>
+<a class="anchor" aria-label="anchor" href="#id_2-assign-ladders"></a>
+</h2>
+<p>Ladder peaks are identified in the ladder channel, and base pair (bp) sizes are predicted for each scan.</p>
+<ul>
+<li>
+<strong>Visual Inspection</strong>: Always inspect ladders to ensure correct assignment.</li>
+<li>
+<strong>Manual Adjustment</strong>: If needed, use <code><a href="reference/fix_ladders_interactive.html">fix_ladders_interactive()</a></code> to adjust ladder assignments interactively.</li>
+</ul>
+<p><img src="reference/figures/ladder_fixing.gif"></p>
+</div>
+<div class="section level2">
+<h2 id="id_3-find-fragments">3. <strong>Find Fragments</strong>
+<a class="anchor" aria-label="anchor" href="#id_3-find-fragments"></a>
+</h2>
+<p>Fragment peaks are identified in the raw trace data. This step transitions the data from a continuous trace to a peak-based representation.</p>
+</div>
+<div class="section level2">
+<h2 id="id_4-identify-alleles">4. <strong>Identify Alleles</strong>
+<a class="anchor" aria-label="anchor" href="#id_4-identify-alleles"></a>
+</h2>
+<ul>
+<li>Identify the main allele (modal peak) for each sample. Can handle samples with two alleles, but metrics are only calculated for the larger of the two.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="id_5-call-repeats">
+<strong>5. Call Repeats</strong><a class="anchor" aria-label="anchor" href="#id_5-call-repeats"></a>
+</h2>
+<ul>
+<li>Base pair sizes are converted to repeat lengths. This step has a lot of additional functionality including:
+<ul>
+<li>Batch correction or accurate repeat sizing.</li>
+<li>Forcing whole repeat units between peaks (usually underestimated in fragment analysis data)</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="id_5-assign-index-peaks">5. <strong>Assign Index Peaks</strong>
+<a class="anchor" aria-label="anchor" href="#id_5-assign-index-peaks"></a>
+</h2>
+<p>The index peak is the reference repeat length used for instability metrics like expansion index.</p>
+<ul>
+<li>
+<strong>Grouped Assignment</strong>: Set <code>grouped = TRUE</code> to use the modal peak of baseline control samples (e.g., mouse tail or day 0).</li>
+<li>
+<strong>Manual Override</strong>: Use <code>index_override_dataframe</code> to manually assign index peaks if needed.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="main-function">Main function<a class="anchor" aria-label="anchor" href="#main-function"></a>
+</h2>
+<p>To carry out this pipeline, call the main function:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="reference/add_metadata.html">add_metadata</a></span><span class="op">(</span></span>
-<span>  fragments_list <span class="op">=</span> <span class="va">fragments_list</span>,</span>
+<span><span class="va">fragments_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/trace.html">trace</a></span><span class="op">(</span></span>
+<span>  <span class="va">fsa_list</span>, </span>
+<span>  min_bp_size <span class="op">=</span> <span class="fl">300</span>,</span>
+<span>  grouped <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>  metadata_data.frame <span class="op">=</span> <span class="va">metadata</span>,</span>
-<span>  unique_id <span class="op">=</span> <span class="st">"unique_id"</span>,</span>
-<span>  metrics_group_id <span class="op">=</span> <span class="st">"metrics_group_id"</span>,</span>
-<span>  metrics_baseline_control <span class="op">=</span> <span class="st">"metrics_baseline_control"</span>,</span>
-<span>  batch_run_id <span class="op">=</span> <span class="st">"batch_run_id"</span>,</span>
-<span>  batch_sample_id <span class="op">=</span> <span class="st">"batch_sample_id"</span>,</span>
-<span>  batch_sample_modal_repeat <span class="op">=</span> <span class="st">"batch_sample_modal_repeat"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level1">
-<h1 id="identify-modal-peaks-and-call-repeats">Identify modal peaks and call repeats<a class="anchor" aria-label="anchor" href="#identify-modal-peaks-and-call-repeats"></a>
-</h1>
-<p>Next we identify the modal peaks with <code><a href="reference/find_alleles.html">find_alleles()</a></code> and convert the base pair fragments to repeats with <code><a href="reference/call_repeats.html">call_repeats()</a></code>.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/find_alleles.html">find_alleles</a></span><span class="op">(</span><span class="va">fragments_list</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/call_repeats.html">call_repeats</a></span><span class="op">(</span><span class="va">fragments_list</span><span class="op">)</span></span></code></pre></div>
-<p>We can view the distribution of repeat sizes and the identified modal peak with a plotting function.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/plot_traces.html">plot_traces</a></span><span class="op">(</span><span class="va">fragments_list</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">110</span>, <span class="fl">150</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-plot_fragments-1.png" width="100%"></p>
-</div>
-<div class="section level1">
-<h1 id="assign-index-peaks">Assign index peaks<a class="anchor" aria-label="anchor" href="#assign-index-peaks"></a>
-</h1>
-<p>A key part of several instability metrics is the index peak. This is the repeat length used as the reference for relative instability metrics calculations, like expansion index or average repeat gain. In the metadata, samples are grouped by a <code>metrics_group_id</code> and a subset of the samples are set as <code>metrics_baseline_control</code>, meaning they are the samples taken at day 0 in this experiment. This allows us to set <code>grouped = TRUE</code> and set the index peak for the expansion index and other metrics. For mice, if just a few samples have the inherited repeat signal shorter than the expanded population, you could not worry about this and instead use the <code>index_override_dataframe</code> in <code><a href="reference/assign_index_peaks.html">assign_index_peaks()</a></code>.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="reference/assign_index_peaks.html">assign_index_peaks</a></span><span class="op">(</span></span>
-<span>  <span class="va">fragments_list</span>,</span>
-<span>  grouped <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span>  show_progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>We can validate that the index peaks were assigned correctly with a dotted vertical line added to the trace. This is perhaps more useful in the context of mice where you can visually see when the inherited repeat length should be in the bimodal distribution.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_traces.html">plot_traces</a></span><span class="op">(</span><span class="va">fragments_list</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">110</span>, <span class="fl">150</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-2-1.png" width="100%"></p>
+<p><img src="reference/figures/README-unnamed-chunk-2-1.png" alt="" width="100%"></p>
+</div>
 </div>
 <div class="section level1">
 <h1 id="calculate-instability-metrics">Calculate instability metrics<a class="anchor" aria-label="anchor" href="#calculate-instability-metrics"></a>
 </h1>
-<p>All of the information we need to calculate the repeat instability metrics has now been identified. We can finally use <code>calculate_instability_metrics</code> to generate a dataframe of per-sample metrics.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<p>All of the information we need to calculate the repeat instability metrics has been identified. We can use <code><a href="reference/calculate_instability_metrics.html">calculate_instability_metrics()</a></code> to generate a dataframe of per-sample metrics.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">metrics_grouped_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/calculate_instability_metrics.html">calculate_instability_metrics</a></span><span class="op">(</span></span>
 <span>  fragments_list <span class="op">=</span> <span class="va">fragments_list</span>,</span>
 <span>  peak_threshold <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  window_around_index_peak <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">40</span>, <span class="fl">40</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>These metrics can then be used to quantify repeat instability. For example, this reproduces a subset of Figure 7e of <a href="https://www.nature.com/articles/s41467-024-47485-0" class="external-link">our manuscript</a>.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     filter, lag</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
 <span></span>
 <span><span class="va">metrics_grouped_df</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">metadata</span>, by <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/join_by.html" class="external-link">join_by</a></span><span class="op">(</span><span class="va">unique_id</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -277,7 +244,7 @@
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html" class="external-link">geom_jitter</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Average repeat gain"</span>,</span>
 <span>         x <span class="op">=</span> <span class="st">"Branaplam (nM)"</span><span class="op">)</span> </span></code></pre></div>
-<p><img src="reference/figures/README-ggplot-1.png" width="100%"></p>
+<p><img src="reference/figures/README-ggplot-1.png" alt="" width="100%"></p>
 </div>
 
   </main><aside class="col-md-3"><div class="links">
@@ -306,8 +273,8 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Zachariah McLean <br><small class="roles"> Author, maintainer, copyright holder </small> <a href="https://orcid.org/0000-0002-0968-0538" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
-<li>Kevin Correia <br><small class="roles"> Author </small>  </li>
+<li>Zachariah McLean <br><small class="roles"> Author, maintainer, copyright holder </small> <a href="https://orcid.org/0000-0002-0968-0538" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Kevin Correia <br><small class="roles"> Author </small>   </li>
 <li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
@@ -328,7 +295,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

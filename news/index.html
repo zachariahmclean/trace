@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,7 +18,8 @@
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/plotting_traces.html">Plotting traces</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/experimental_considerations.html">Experimental considerations</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting_traces.html">Plotting traces</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -36,8 +37,96 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.6.0" id="trace-060">trace 0.6.0<a class="anchor" aria-label="anchor" href="#trace-060"></a></h2>
-<ul><li>Fixed bug in <code><a href="../reference/calculate_instability_metrics.html">calculate_instability_metrics()</a></code> with missing index samples</li>
+<h2 class="pkg-version" data-toc-text="1.0.0" id="trace-100">trace 1.0.0<a class="anchor" aria-label="anchor" href="#trace-100"></a></h2><p class="text-muted">CRAN release: 2025-12-22</p>
+<ul><li>Major Changes
+<ul><li>
+<p>Consolidated Workflow with <code><a href="../reference/trace.html">trace()</a></code> Function</p>
+<ul><li>Simplified three-step workflow:
+<ol style="list-style-type: decimal"><li>Read in data (e.g., <code><a href="../reference/read_fsa.html">read_fsa()</a></code>)</li>
+<li>Process with main <code><a href="../reference/trace.html">trace()</a></code> function</li>
+<li>Analyze with extraction functions (e.g., <code><a href="../reference/calculate_instability_metrics.html">calculate_instability_metrics()</a></code>)</li>
+</ol></li>
+<li>Deprecated functions (now internal-only):
+<ul><li>
+<code><a href="../reference/add_metadata.html">add_metadata()</a></code>, <code><a href="../reference/find_ladders.html">find_ladders()</a></code>, <code><a href="../reference/find_fragments.html">find_fragments()</a></code>, <code><a href="../reference/find_alleles.html">find_alleles()</a></code>, <code><a href="../reference/call_repeats.html">call_repeats()</a></code>, <code><a href="../reference/assign_index_peaks.html">assign_index_peaks()</a></code>
+</li>
+<li>If used for legacy reasons access via the internal package with ‘:::’ (eg <code>trace:::find_ladders()</code>), these now require configuration via YAML file (see each functions help for more detail)</li>
+</ul></li>
+<li>Configuration options:
+<ul><li>Parameters can be passed via <code>...</code> or YAML config file</li>
+<li>YAML support enables reproducible analysis configurations and easier sharing of processing parameters</li>
+</ul></li>
+</ul></li>
+<li>
+<p>Enhanced Ladder Assignment Algorithm</p>
+<ul><li>New branching approach selects best overall fit rather than greedy assignment
+<ul><li>Parameters:
+<ul><li>
+<code>ladder_top_n_branching</code>: Controls number of branches evaluated at each step</li>
+<li>
+<code>ladder_branching_r_squared_threshold</code>: Aggressiveness of branch pruning</li>
+<li>
+<code>ladder_assign_left_to_right</code>: Direction of assignment (small→large or large→small)</li>
+</ul></li>
+</ul></li>
+<li>Parameter name updates:
+<ul><li>For ladder processing, <code>minimum_peak_signal</code> to <code>minimum_ladder_signal</code>
+</li>
+<li>For ladder processing, <code>scan_subset</code> split into <code>min_scan</code> and <code>max_scan</code>
+</li>
+</ul></li>
+</ul></li>
+<li>
+<p>Improved Metrics Calculations</p>
+<ul><li>Enhanced quality filtering in <code><a href="../reference/calculate_instability_metrics.html">calculate_instability_metrics()</a></code>:
+<ul><li>New parameters: <code>index_modal_signal_threshold</code>, <code>index_signal_sum_threshold</code>
+</li>
+</ul></li>
+<li>Fixed calculations:
+<ul><li>Corrected weighting in skewness and kurtosis calculations</li>
+<li>Fixed issue with average_repeat_change being non-zero for some of the index samples</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>Data Handling Changes for Package Simplicity
+<ul><li>
+<p>Streamlined Data Import</p>
+<ul><li>Function updates:
+<ul><li>
+<code>repeat_table_to_repeats()</code> to <code><a href="../reference/repeat_table_to_fragments.html">repeat_table_to_fragments()</a></code> (now requires specific column names)</li>
+<li>
+<code>peak_table_to_fragments()</code> split into:
+<ul><li>
+<code><a href="../reference/genemapper_table_to_fragments.html">genemapper_table_to_fragments()</a></code> (for GeneMapper files)</li>
+<li>
+<code><a href="../reference/size_table_to_fragments.html">size_table_to_fragments()</a></code> (generic import)</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>
+<p>Strict Metadata Requirements</p>
+<ul><li>Require exact columns (if those column names not detected, those metadata will be skipped):
+<ul><li>
+<code>unique_id</code>, <code>metrics_group_id</code>, <code>metrics_baseline_control</code> , <code>batch_run_id</code>, <code>batch_sample_id</code>, <code>batch_sample_modal_repeat</code>
+</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>Other Changes
+<ul><li>
+<p>Parameter Default Updates</p>
+<ul><li>Changed many defaults from <code>NULL</code> to <code>NA</code> to support configuration files</li>
+</ul></li>
+<li>
+<p>Fragment Detection Improvements</p>
+<ul><li>New <code>peak_scan_ramp</code> parameter in <code><a href="../reference/trace.html">trace()</a></code> (default relaxed from 6 to 5 to improve peak detection at longer sizes)</li>
+</ul></li>
+<li>
+<p>Internal Changes</p>
+<ul><li>
+<code><a href="../reference/find_fragments.html">find_fragments()</a></code> now modifies in place (advanced usage only)</li>
+</ul></li>
+</ul></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.0" id="trace-050">trace 0.5.0<a class="anchor" aria-label="anchor" href="#trace-050"></a></h2><p class="text-muted">CRAN release: 2025-01-16</p>
@@ -92,7 +181,7 @@
 </ul></li>
 <li><p>Renamed <code>spike_location</code> parameter in <code><a href="../reference/find_ladders.html">find_ladders()</a></code> to <code>ladder_start_scan</code></p></li>
 <li><p>Removed <code>fix_ladders_auto()</code> function</p></li>
-<li><p>The function <code>generate_instability_template()</code> was renamed to <code><a href="../reference/generate_trace_template.html">generate_trace_template()</a></code></p></li>
+<li><p>The function <code>generate_instability_template()</code> was renamed to <code>generate_trace_template()</code></p></li>
 <li><p><code>fragment_trace</code> class is now instantiated after <code><a href="../reference/read_fsa.html">read_fsa()</a></code> function rather than <code><a href="../reference/find_ladders.html">find_ladders()</a></code></p></li>
 <li><p>Throughout the package renamed any mention of <code>height</code> to <code>signal</code> for consistency</p></li>
 </ul></div>
@@ -122,7 +211,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,7 +18,8 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/plotting_traces.html">Plotting traces</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/experimental_considerations.html">Experimental considerations</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting_traces.html">Plotting traces</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -37,10 +38,9 @@
     <div class="section level2">
       <h2 id="main-functions">Main functions<a class="anchor" aria-label="anchor" href="#main-functions"></a></h2>
 
-      <div class="section-desc"><p>Process fsa files to generate instability metrics</p></div>
+      <div class="section-desc"><p>Process fsa files to generate instability metrics using these three functions</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -51,43 +51,15 @@
 
         </dt>
         <dd>Read fsa file</dd>
-      </dl><dl><dt>
 
-          <code><a href="add_metadata.html">add_metadata()</a></code>
+        <dt>
 
-        </dt>
-        <dd>Add Metadata to Fragments List</dd>
-      </dl><dl><dt>
-
-          <code><a href="find_ladders.html">find_ladders()</a></code>
+          <code><a href="trace.html">trace()</a></code>
 
         </dt>
-        <dd>Ladder and bp sizing</dd>
-      </dl><dl><dt>
+        <dd>Main function for sample processing</dd>
 
-          <code><a href="find_fragments.html">find_fragments()</a></code>
-
-        </dt>
-        <dd>Find fragment peaks</dd>
-      </dl><dl><dt>
-
-          <code><a href="find_alleles.html">find_alleles()</a></code>
-
-        </dt>
-        <dd>Find Alleles</dd>
-      </dl><dl><dt>
-
-          <code><a href="call_repeats.html">call_repeats()</a></code>
-
-        </dt>
-        <dd>Call Repeats for Fragments</dd>
-      </dl><dl><dt>
-
-          <code><a href="assign_index_peaks.html">assign_index_peaks()</a></code>
-
-        </dt>
-        <dd>Assign index peaks</dd>
-      </dl><dl><dt>
+        <dt>
 
           <code><a href="calculate_instability_metrics.html">calculate_instability_metrics()</a></code>
 
@@ -98,8 +70,7 @@
 
       <div class="section-desc"><p>Explore data through plots</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -110,31 +81,36 @@
 
         </dt>
         <dd>Plot correction samples</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot_data_channels.html">plot_data_channels()</a></code>
 
         </dt>
         <dd>plot_data_channels</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot_fragments.html">plot_fragments()</a></code>
 
         </dt>
         <dd>Plot Peak Data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot_ladders.html">plot_ladders()</a></code>
 
         </dt>
         <dd>Plot ladder</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot_repeat_correction_model.html">plot_repeat_correction_model()</a></code>
 
         </dt>
         <dd>Plot Repeat Correction Model</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot_traces.html">plot_traces()</a></code>
 
@@ -145,8 +121,7 @@
 
       <div class="section-desc"><p>Functions for fixing ladders</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -157,19 +132,12 @@
 
         </dt>
         <dd>Fix ladders interactively</dd>
-      </dl><dl><dt>
-
-          <code><a href="fix_ladders_manual.html">fix_ladders_manual()</a></code>
-
-        </dt>
-        <dd>Fix ladders manually</dd>
       </dl></div><div class="section level2">
       <h2 id="helper-functions">Helper functions<a class="anchor" aria-label="anchor" href="#helper-functions"></a></h2>
 
       <div class="section-desc"><p>Useful functions for extracting information samples or modifying lists of objects</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -180,83 +148,84 @@
 
         </dt>
         <dd>Extract Modal Peaks</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="extract_fragments.html">extract_fragments()</a></code>
 
         </dt>
         <dd>Extract All Fragments</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="extract_ladder_summary.html">extract_ladder_summary()</a></code>
 
         </dt>
         <dd>Extract ladder summary</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="extract_repeat_correction_summary.html">extract_repeat_correction_summary()</a></code>
 
         </dt>
         <dd>Extract repeat correction summary</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="extract_trace_table.html">extract_trace_table()</a></code>
 
         </dt>
         <dd>Extract traces</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="remove_fragments.html">remove_fragments()</a></code>
 
         </dt>
         <dd>Remove Samples from List</dd>
-      </dl></div><div class="section level2">
-      <h2 id="generate-template">Generate template<a class="anchor" aria-label="anchor" href="#generate-template"></a></h2>
 
-      <div class="section-desc"><p>Functions that generate templates</p></div>
+        <dt>
 
-
-    </div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="generate_trace_template.html">generate_trace_template()</a></code>
+          <code><a href="load_config.html">load_config()</a></code>
 
         </dt>
-        <dd>Generate a Quarto file that has the instability pipeline preset</dd>
+        <dd>Load Trace Config File</dd>
       </dl></div><div class="section level2">
       <h2 id="import-data">Import data<a class="anchor" aria-label="anchor" href="#import-data"></a></h2>
 
       <div class="section-desc"><p>Import data from non-fsa formats as a peak table or repeat table</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
 
       <dl><dt>
 
-          <code><a href="peak_table_to_fragments.html">peak_table_to_fragments()</a></code>
+          <code><a href="genemapper_table_to_fragments.html">genemapper_table_to_fragments()</a></code>
 
         </dt>
-        <dd>Convert Peak Table to Fragments_repeats class</dd>
-      </dl><dl><dt>
+        <dd>Convert Genemapper Peak Table to fragments class</dd>
 
-          <code><a href="repeat_table_to_repeats.html">repeat_table_to_repeats()</a></code>
+        <dt>
+
+          <code><a href="repeat_table_to_fragments.html">repeat_table_to_fragments()</a></code>
 
         </dt>
         <dd>Convert Repeat Table to Repeats Fragments</dd>
+
+        <dt>
+
+          <code><a href="size_table_to_fragments.html">size_table_to_fragments()</a></code>
+
+        </dt>
+        <dd>Convert Size Table to Fragments</dd>
       </dl></div><div class="section level2">
-      <h2 id="package-r-objects">Package R6 objects<a class="anchor" aria-label="anchor" href="#package-r-objects"></a></h2>
+      <h2 id="package-objects">Package objects<a class="anchor" aria-label="anchor" href="#package-objects"></a></h2>
 
       <div class="section-desc"><p>documentation for objects used in this package</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -267,25 +236,12 @@
 
         </dt>
         <dd>fragments object</dd>
-      </dl><dl><dt>
-
-          <code><a href="fragments_trace.html">fragments_trace</a></code>
-
-        </dt>
-        <dd>fragments_trace object</dd>
-      </dl><dl><dt>
-
-          <code><a href="fragments_repeats.html">fragments_repeats</a></code>
-
-        </dt>
-        <dd>fragments_repeats object</dd>
       </dl></div><div class="section level2">
       <h2 id="example-data">Example data<a class="anchor" aria-label="anchor" href="#example-data"></a></h2>
 
       <div class="section-desc"><p>A collection of data that can be used for example analyses</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -296,19 +252,22 @@
 
         </dt>
         <dd>A list of fsa files</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="metadata.html">metadata</a></code>
 
         </dt>
         <dd>metadata</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="example_data.html">example_data</a></code>
 
         </dt>
         <dd>example_data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="example_data_repeat_table.html">example_data_repeat_table</a></code>
 
@@ -324,7 +283,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

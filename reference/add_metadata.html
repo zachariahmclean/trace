@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,7 +18,8 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/plotting_traces.html">Plotting traces</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/experimental_considerations.html">Experimental considerations</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting_traces.html">Plotting traces</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -42,16 +43,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_metadata</span><span class="op">(</span></span>
-<span>  <span class="va">fragments_list</span>,</span>
-<span>  <span class="va">metadata_data.frame</span>,</span>
-<span>  unique_id <span class="op">=</span> <span class="st">"unique_id"</span>,</span>
-<span>  metrics_group_id <span class="op">=</span> <span class="st">"metrics_group_id"</span>,</span>
-<span>  metrics_baseline_control <span class="op">=</span> <span class="st">"metrics_baseline_control"</span>,</span>
-<span>  batch_run_id <span class="op">=</span> <span class="st">"batch_run_id"</span>,</span>
-<span>  batch_sample_id <span class="op">=</span> <span class="st">"batch_sample_id"</span>,</span>
-<span>  batch_sample_modal_repeat <span class="op">=</span> <span class="st">"batch_sample_modal_repeat"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_metadata</span><span class="op">(</span><span class="va">fragments_list</span>, <span class="va">metadata_data.frame</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -63,31 +55,7 @@
 
 
 <dt id="arg-metadata-data-frame">metadata_data.frame<a class="anchor" aria-label="anchor" href="#arg-metadata-data-frame"></a></dt>
-<dd><p>A data frame containing the metadata information.</p></dd>
-
-
-<dt id="arg-unique-id">unique_id<a class="anchor" aria-label="anchor" href="#arg-unique-id"></a></dt>
-<dd><p>(required) A character string indicating the column name for unique sample identifiers in the metadata.</p></dd>
-
-
-<dt id="arg-metrics-group-id">metrics_group_id<a class="anchor" aria-label="anchor" href="#arg-metrics-group-id"></a></dt>
-<dd><p>(optional) A character string indicating the column name for sample group identifiers in the metadata. This is for the logical grouping of samples for metrics calculations (see <code><a href="assign_index_peaks.html">assign_index_peaks()</a></code>). To skip, provide NA.</p></dd>
-
-
-<dt id="arg-metrics-baseline-control">metrics_baseline_control<a class="anchor" aria-label="anchor" href="#arg-metrics-baseline-control"></a></dt>
-<dd><p>(optional) A character string indicating the column name for baseline control indicators in the metadata. This is to identify the baseline control samples for grouping of samples for metrics calculations (see <code><a href="assign_index_peaks.html">assign_index_peaks()</a></code>). To skip, provide NA.</p></dd>
-
-
-<dt id="arg-batch-run-id">batch_run_id<a class="anchor" aria-label="anchor" href="#arg-batch-run-id"></a></dt>
-<dd><p>(optional) A character string indicating the column name for the batch run identifiers in the metadata. This is for either batch correction or repeat correction in <code><a href="call_repeats.html">call_repeats()</a></code>. To skip, provide NA.</p></dd>
-
-
-<dt id="arg-batch-sample-id">batch_sample_id<a class="anchor" aria-label="anchor" href="#arg-batch-sample-id"></a></dt>
-<dd><p>(optional) A character string indicating the column name for an id of the size standard. For example, a sample code. This is for either batch correction or repeat correction in <code><a href="call_repeats.html">call_repeats()</a></code>. To skip, provide NA.</p></dd>
-
-
-<dt id="arg-batch-sample-modal-repeat">batch_sample_modal_repeat<a class="anchor" aria-label="anchor" href="#arg-batch-sample-modal-repeat"></a></dt>
-<dd><p>(optional) A character string indicating column name for the validated modal repeat length of size standard sample. This is for either repeat correction in <code><a href="call_repeats.html">call_repeats()</a></code>. To skip, provide NA.</p></dd>
+<dd><p>A data frame containing the metadata information. If a column is missing, it will be assumed that metadata is not required and all of those values set to NA. Dataframe column names must be exactly: 'unique_id', 'metrics_group_id', 'metrics_baseline_control', 'batch_run_id', 'batch_sample_id', 'batch_sample_modal_repeat'.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -96,7 +64,7 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This function adds specified metadata attributes to each fragment in the list. It matches the unique sample identifiers from the fragments list with those in the metadata data frame. To skip any of the optional columns, make parameter NA.</p>
+    <p>This function adds specified metadata attributes to each fragment in the list. It matches the unique sample identifiers from the fragments list with those in the metadata data frame. This metadata is only required if using the functionality described below.</p>
 <p>There are two key things metadata are required for. First is the grouping of samples (metrics_group_id &amp; metrics_baseline_control) for the calculation of metrics and is used in <code><a href="assign_index_peaks.html">assign_index_peaks()</a></code>. For example, specifying a sample where the modal allele is the inherited repeat length (eg a mouse tail sample) or sample(s) at the start of a time-course experiment. This is indicated with a TRUE in the metrics_baseline_control column of the metadata. Samples are then grouped together with the metrics_group_id column of the metadata. Multiple samples can be metrics_baseline_control, which can be helpful for the average repeat gain metric to have a more accurate representation of the average repeat at the start of the experiment.</p>
 <p>The second key thing metadata can be used for is corrections in <code><a href="call_repeats.html">call_repeats()</a></code>. There are two main correction approaches in <code><a href="call_repeats.html">call_repeats()</a></code> that are somewhat related: either 'batch' or 'repeat'. Batch correction is relatively simple and just requires you to link samples across batches to correct batch-batch variation in repeat sizes. However, even though the repeat size that is return will be precise, it will not be accurate and underestimates the real repeat length. By contrast, repeat correction can be used to accurately call repeat lengths (which also corrects the batch effects). However, the repeat correction will only be as good as your sample used to call the repeat length so this is a challenging and advanced feature. You need to use a sample that reliably returns the same peak as the modal peak, or you need to be willing to understand the shape of the distribution and manually validate the repeat length of each batch_sample_id for each run.</p>
 <p>Batch correction uses common sample(s) across fragment analysis runs to correct systematic batch effects that occur with repeat-containing amplicons in capillary electrophoresis. There are slight fluctuations of size across runs for amplicons containing repeats that result in systematic differences around 1-3 base pairs. So, if samples are to be analyzed for different runs, the absolute bp size is not comparable unless this batch effect is corrected. This is only relevant when the absolute size of a amplicons are compared for grouping metrics as described above (otherwise instability metrics are all relative and it doesn’t matter that there’s systematic batch effects across runs) or when plotting traces from different runs. This correction can be achieved by running a couple of samples in every fragment analysis run, or having a single run that takes a couple of samples from every run together, thereby linking them. These samples are then indicated in the metadata with batch_run_id (to group samples by fragment analysis run) and batch_sample_id (to enable linking samples across batches).</p>
@@ -109,36 +77,15 @@
 <span class="r-in"><span><span class="va">gm_raw</span> <span class="op">&lt;-</span> <span class="fu">trace</span><span class="fu">::</span><span class="va"><a href="example_data.html">example_data</a></span></span></span>
 <span class="r-in"><span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu">trace</span><span class="fu">::</span><span class="va"><a href="metadata.html">metadata</a></span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">test_fragments</span> <span class="op">&lt;-</span> <span class="fu"><a href="peak_table_to_fragments.html">peak_table_to_fragments</a></span><span class="op">(</span><span class="va">gm_raw</span>,</span></span>
-<span class="r-in"><span>  data_format <span class="op">=</span> <span class="st">"genemapper5"</span>,</span></span>
+<span class="r-in"><span><span class="va">test_fragments</span> <span class="op">&lt;-</span> <span class="fu"><a href="genemapper_table_to_fragments.html">genemapper_table_to_fragments</a></span><span class="op">(</span><span class="va">gm_raw</span>,</span></span>
 <span class="r-in"><span>  dye_channel <span class="op">=</span> <span class="st">"B"</span>,</span></span>
 <span class="r-in"><span>  min_size_bp <span class="op">=</span> <span class="fl">300</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">add_metadata</span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="fu">trace</span><span class="fu">:::</span><span class="fu">add_metadata</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  fragments_list <span class="op">=</span> <span class="va">test_fragments</span>,</span></span>
-<span class="r-in"><span>  metadata_data.frame <span class="op">=</span> <span class="va">metadata</span>,</span></span>
-<span class="r-in"><span>  unique_id <span class="op">=</span> <span class="st">"unique_id"</span>,</span></span>
-<span class="r-in"><span>  metrics_group_id <span class="op">=</span> <span class="st">"metrics_group_id"</span>,</span></span>
-<span class="r-in"><span>  metrics_baseline_control <span class="op">=</span> <span class="st">"metrics_baseline_control"</span>,</span></span>
-<span class="r-in"><span>  batch_run_id <span class="op">=</span> <span class="st">"batch_run_id"</span>,</span></span>
-<span class="r-in"><span>  batch_sample_id <span class="op">=</span> <span class="st">"batch_sample_id"</span>,</span></span>
-<span class="r-in"><span>  batch_sample_modal_repeat <span class="op">=</span> <span class="st">"batch_sample_modal_repeat"</span></span></span>
+<span class="r-in"><span>  metadata_data.frame <span class="op">=</span> <span class="va">metadata</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># skip unwanted metadata by using NA</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">add_metadata</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  fragments_list <span class="op">=</span> <span class="va">test_fragments</span>,</span></span>
-<span class="r-in"><span>  metadata_data.frame <span class="op">=</span> <span class="va">metadata</span>,</span></span>
-<span class="r-in"><span>  unique_id <span class="op">=</span> <span class="st">"unique_id"</span>,</span></span>
-<span class="r-in"><span>  metrics_group_id <span class="op">=</span> <span class="st">"metrics_group_id"</span>,</span></span>
-<span class="r-in"><span>  metrics_baseline_control <span class="op">=</span> <span class="st">"metrics_baseline_control"</span>,</span></span>
-<span class="r-in"><span>  batch_run_id <span class="op">=</span> <span class="cn">NA</span>,</span></span>
-<span class="r-in"><span>  batch_sample_id <span class="op">=</span> <span class="cn">NA</span>,</span></span>
-<span class="r-in"><span>  batch_sample_modal_repeat <span class="op">=</span> <span class="cn">NA</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -150,7 +97,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

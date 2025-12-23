@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,7 +18,8 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/plotting_traces.html">Plotting traces</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/experimental_considerations.html">Experimental considerations</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting_traces.html">Plotting traces</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -50,7 +51,7 @@
 
 
 <dl><dt id="arg-fragments-list">fragments_list<a class="anchor" aria-label="anchor" href="#arg-fragments-list"></a></dt>
-<dd><p>A list of fragments_repeats class objects obtained from the <code><a href="call_repeats.html">call_repeats()</a></code> function when the <code>correction = "repeat"</code> parameter is used.</p></dd>
+<dd><p>A list of fragments class objects obtained from the <code><a href="call_repeats.html">call_repeats()</a></code> function when the <code>correction = "repeat"</code> parameter is used.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -64,34 +65,25 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">fsa_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">cell_line_fsa_list</span><span class="op">[</span><span class="fl">16</span><span class="op">:</span><span class="fl">19</span><span class="op">]</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="find_ladders.html">find_ladders</a></span><span class="op">(</span><span class="va">fsa_list</span>, show_progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">fragments_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="find_fragments.html">find_fragments</a></span><span class="op">(</span><span class="va">fsa_list</span>, min_bp_size <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">test_alleles</span> <span class="op">&lt;-</span> <span class="fu"><a href="find_alleles.html">find_alleles</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">fragments_list</span> </span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">fsa_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">cell_line_fsa_list</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># import data with read_fsa() to generate an equivalent list to cell_line_fsa_list</span></span></span>
+<span class="r-in"><span><span class="va">test_fragments</span> <span class="op">&lt;-</span> <span class="fu"><a href="trace.html">trace</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>   <span class="va">fsa_list</span>, </span></span>
+<span class="r-in"><span>   grouped <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
+<span class="r-in"><span>   metadata_data.frame <span class="op">=</span> <span class="va">metadata</span>, </span></span>
+<span class="r-in"><span>   correction <span class="op">=</span> <span class="st">"repeat"</span>,</span></span>
+<span class="r-in"><span>   show_progress_bar <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="add_metadata.html">add_metadata</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">fragments_list</span>,</span></span>
-<span class="r-in"><span>  <span class="va">metadata</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The following unique ids in the metadata file do not have a corresponding sample: 20230413_A07.fsa, 20230413_A08.fsa, 20230413_A09.fsa, 20230413_C01.fsa, 20230413_C02.fsa, 20230413_C03.fsa, 20230413_D07.fsa, 20230413_D08.fsa, 20230413_D09.fsa, 20230413_F01.fsa, 20230413_F02.fsa, 20230413_F03.fsa, 20230413_G07.fsa, 20230413_G08.fsa, 20230413_G09.fsa</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="call_repeats.html">call_repeats</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  fragments_list <span class="op">=</span> <span class="va">fragments_list</span>,</span></span>
-<span class="r-in"><span>  correction <span class="op">=</span> <span class="st">"repeat"</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Finding ladders</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Finding fragments</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Finding alleles</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Calling repeats</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Repeat correction model: 4 samples used to build model</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Repeat correction model: 2.88 bp increase per repeat</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Repeat correction model: 2.87 bp increase per repeat</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Assigning index peaks</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># finally extract repeat correction summary</span></span></span>
-<span class="r-in"><span><span class="fu">extract_repeat_correction_summary</span><span class="op">(</span><span class="va">fragments_list</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">extract_repeat_correction_summary</span><span class="op">(</span><span class="va">test_fragments</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                   unique_id batch_run_id batch_sample_id</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_H07.fsa           20230413_H07.fsa     20230414        S-21-211</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_H08.fsa           20230413_H08.fsa     20230414        S-21-212</span>
@@ -100,13 +92,13 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       batch_sample_modal_repeat allele_repeat avg_residual</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_H07.fsa                            120      119.9629   0.01585004</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_H08.fsa                            122      122.0190  -0.01585004</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> S-21-211_20220630.fsa                       120      119.9798   0.01988041</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> S-21-212_20220630.fsa                       122      122.0081  -0.01704035</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> S-21-211_20220630.fsa                       120      119.9821   0.01776718</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> S-21-212_20220630.fsa                       122      122.0069  -0.01522901</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       abs_avg_residual</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_H07.fsa            0.01585004</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 20230413_H08.fsa            0.01585004</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> S-21-211_20220630.fsa       0.01988041</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> S-21-212_20220630.fsa       0.01704035</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> S-21-211_20220630.fsa       0.01776718</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> S-21-212_20220630.fsa       0.01522901</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
@@ -120,7 +112,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

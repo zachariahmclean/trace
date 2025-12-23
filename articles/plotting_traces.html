@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,7 +33,8 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/plotting_traces.html">Plotting traces</a></li>
+<li><a class="dropdown-item" href="../articles/experimental_considerations.html">Experimental considerations</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting_traces.html">Plotting traces</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -74,55 +75,36 @@
 <p>lets first generate some example data by cloning the example data
 that comes with the package.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fsa_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">cell_line_fsa_list</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/find_ladders.html">find_ladders</a></span><span class="op">(</span></span>
-<span>  <span class="va">fsa_list</span>,</span>
-<span>  show_progress_bar <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fragments_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/find_fragments.html">find_fragments</a></span><span class="op">(</span></span>
-<span>  <span class="va">fsa_list</span>,</span>
+<code class="sourceCode R"><span><span class="va">fsa_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">cell_line_fsa_list</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fsa_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/trace.html">trace</a></span><span class="op">(</span></span>
+<span>  <span class="va">fsa_list</span>, </span>
+<span>  show_progress_bar <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  min_bp_size <span class="op">=</span> <span class="fl">300</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="../reference/add_metadata.html">add_metadata</a></span><span class="op">(</span></span>
-<span>  fragments_list <span class="op">=</span> <span class="va">fragments_list</span>,</span>
-<span>  metadata_data.frame <span class="op">=</span> <span class="va">metadata</span>,</span>
-<span>  unique_id <span class="op">=</span> <span class="st">"unique_id"</span>,</span>
-<span>  metrics_group_id <span class="op">=</span> <span class="st">"metrics_group_id"</span>,</span>
-<span>  metrics_baseline_control <span class="op">=</span> <span class="st">"metrics_baseline_control"</span>,</span>
-<span>  batch_run_id <span class="op">=</span> <span class="st">"batch_run_id"</span>,</span>
-<span>  batch_sample_id <span class="op">=</span> <span class="st">"batch_sample_id"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/find_alleles.html">find_alleles</a></span><span class="op">(</span></span>
-<span>  fragments_list <span class="op">=</span> <span class="va">fragments_list</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/call_repeats.html">call_repeats</a></span><span class="op">(</span></span>
-<span>  fragments_list <span class="op">=</span> <span class="va">fragments_list</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="op">)</span></span>
+<span><span class="co">#&gt; Finding ladders</span></span>
+<span><span class="co">#&gt; Finding fragments</span></span>
+<span><span class="co">#&gt; Finding alleles</span></span>
+<span><span class="co">#&gt; Calling repeats</span></span>
+<span><span class="co">#&gt; Assigning index peaks</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="plotting-a-trace">plotting a trace<a class="anchor" aria-label="anchor" href="#plotting-a-trace"></a>
 </h2>
 <p>There are functions built into this package for plotting traces</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_traces.html">plot_traces</a></span><span class="op">(</span><span class="va">fragments_list</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">150</span><span class="op">)</span>, show_peaks <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="plotting_traces_files/figure-html/unnamed-chunk-2-1.png" width="691.2"></p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_traces.html">plot_traces</a></span><span class="op">(</span><span class="va">fsa_list</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">150</span><span class="op">)</span>, show_peaks <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="plotting_traces_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="691.2"></p>
 <p>This is convenient for quickly visualizing traces, but since it’s
 built using base r plotting, it’s not very user friendly and difficult
 to customize. We can be easily replicate this in ggplot2 for more
 flexibility and customization.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/extract_trace_table.html">extract_trace_table</a></span><span class="op">(</span><span class="va">fragments_list</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/extract_trace_table.html">extract_trace_table</a></span><span class="op">(</span><span class="va">fsa_list</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/between.html" class="external-link">between</a></span><span class="op">(</span><span class="va">calculated_repeats</span>, <span class="fl">100</span>, <span class="fl">150</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">calculated_repeats</span>, <span class="va">signal</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> </span></code></pre></div>
-<p><img src="plotting_traces_files/figure-html/unnamed-chunk-3-1.png" width="691.2"></p>
+<p><img src="plotting_traces_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="691.2"></p>
 </div>
 <div class="section level2">
 <h2 id="extract-raw-traces">Extract raw traces<a class="anchor" aria-label="anchor" href="#extract-raw-traces"></a>
@@ -135,9 +117,9 @@ trace data too. This also incorporates any batch correction (if used
 comparison of traces across different fragment analysis runs. Without a
 batch correction, the traces may not be comparable across fragment
 analysis runs and be off-alignment by several +- ~3 bp.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">traces_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_trace_table.html">extract_trace_table</a></span><span class="op">(</span><span class="va">fragments_list</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">traces_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_trace_table.html">extract_trace_table</a></span><span class="op">(</span><span class="va">fsa_list</span><span class="op">)</span></span></code></pre></div>
 <p>This is quite a large dataframe (550k rows) since it contains each
 scan (5961 per sample) from all samples in the example dataset. If you
 know exactly what samples you want to plot, you could first subset
@@ -145,11 +127,11 @@ repeats_list before passing to extract_trace_table. It’s just a regular
 list, named with the unique id for each sample. So it can be subsetted
 with the unique id names. As an example, lets pull out a couple of
 unique ids from our metadata:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">samples_for_plotting</span> <span class="op">&lt;-</span> <span class="va">metadata</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">metadata</span><span class="op">$</span><span class="va">metrics_group_id</span> <span class="op">==</span> <span class="st">"CC6"</span><span class="op">)</span>, <span class="st">"unique_id"</span><span class="op">]</span></span>
 <span></span>
-<span><span class="va">traces_for_plotting_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_trace_table.html">extract_trace_table</a></span><span class="op">(</span><span class="va">fragments_list</span><span class="op">[</span><span class="va">samples_for_plotting</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">traces_for_plotting_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_trace_table.html">extract_trace_table</a></span><span class="op">(</span><span class="va">fsa_list</span><span class="op">[</span><span class="va">samples_for_plotting</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p>This is a long dataframe, meaning that the trace table for each
 sample was bound by rows. They are uniquely identified with the
 unique_id column in the dataframe.</p>
@@ -201,7 +183,7 @@ scan. Note this could be from any channel.</td>
 <h2 id="join-metadata">Join metadata<a class="anchor" aria-label="anchor" href="#join-metadata"></a>
 </h2>
 <p>We can join metadata to this table for downstream plotting</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">traces_for_plotting_with_metadata_df</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span></span>
 <span>  <span class="va">traces_for_plotting_df</span>,</span>
 <span>  <span class="va">metadata</span>,</span>
@@ -219,7 +201,7 @@ interest</li>
 <li>geom_line needs <code>aes(group = unique_id)</code> to make sure
 each sample’s traces is plotted separately</li>
 </ul>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">traces_for_plotting_with_metadata_df</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/between.html" class="external-link">between</a></span><span class="op">(</span><span class="va">calculated_repeats</span>, <span class="fl">100</span>, <span class="fl">150</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">calculated_repeats</span>,</span>
@@ -227,7 +209,7 @@ each sample’s traces is plotted separately</li>
 <span>             colour <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">treatment</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>group <span class="op">=</span> <span class="va">unique_id</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/vars.html" class="external-link">vars</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Day"</span>, <span class="va">day</span>, <span class="va">treatment</span>, <span class="st">"nM Branaplam"</span><span class="op">)</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="plotting_traces_files/figure-html/unnamed-chunk-7-1.png" width="691.2"></p>
+<p><img src="plotting_traces_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="691.2"></p>
 <p>This plot is plotting the traces from within the same group on top of
 each other. This shows us that our replicate samples were very
 reproducible and are basically on top of each other.</p>
@@ -236,9 +218,9 @@ can solve that by calculating a relative signal value. This means we
 also need to filter out the sample that had a failed PCR (low signal).
 To help with this, lets also extract the allele information and pull out
 the id of the sample to exclude.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">alleles_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_alleles.html">extract_alleles</a></span><span class="op">(</span><span class="va">fragments_list</span><span class="op">[</span><span class="va">samples_for_plotting</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">alleles_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_alleles.html">extract_alleles</a></span><span class="op">(</span><span class="va">fsa_list</span><span class="op">[</span><span class="va">samples_for_plotting</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">sample_to_exclude</span> <span class="op">&lt;-</span> <span class="va">alleles_df</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">alleles_df</span><span class="op">$</span><span class="va">allele_repeat</span><span class="op">)</span><span class="op">)</span>, <span class="st">"unique_id"</span><span class="op">]</span></span>
 <span></span>
@@ -257,7 +239,7 @@ the id of the sample to exclude.</p>
 <span>             colour <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">treatment</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>group <span class="op">=</span> <span class="va">unique_id</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/vars.html" class="external-link">vars</a></span><span class="op">(</span><span class="va">day_treatment</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="plotting_traces_files/figure-html/unnamed-chunk-8-1.png" width="691.2"></p>
+<p><img src="plotting_traces_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="691.2"></p>
 <p>We can also use some tricks to overlay the traces on top of a
 reference trace. Some key things with this plot:</p>
 <ul>
@@ -267,7 +249,7 @@ filter)</p></li>
 geom_line(data = _ ) with a dataset that has the faceting column
 removed.</p></li>
 </ul>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span></span>
 <span><span class="va">d0_trace</span> <span class="op">&lt;-</span> <span class="va">traces_for_plotting_with_metadata_df</span> <span class="op">|&gt;</span></span>
@@ -288,7 +270,7 @@ removed.</p></li>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/vars.html" class="external-link">vars</a></span><span class="op">(</span><span class="va">day_treatment</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="st">""</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="plotting_traces_files/figure-html/unnamed-chunk-9-1.png" width="691.2"></p>
+<p><img src="plotting_traces_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="691.2"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -301,7 +283,7 @@ removed.</p></li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

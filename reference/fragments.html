@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">trace</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,7 +18,8 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/plotting_traces.html">Plotting traces</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/experimental_considerations.html">Experimental considerations</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting_traces.html">Plotting traces</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -43,12 +44,16 @@
 
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This is the parent class of both fragments_trace and fragments_repeats object. The idea is that shared fields and methods are both inherited from this object, but it is not itself directly used.</p>
+    <p>This is the parent class of both fragments and fragments object. The idea is that shared fields and methods are both inherited from this object, but it is not itself directly used.</p>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
     <p></p><div class="r6-fields"><dl><dt><code>unique_id</code></dt>
 <dd><p>unique id of the sample usually the file name</p></dd>
+
+
+<dt><code>input_method</code></dt>
+<dd><p>pathway used to import data (either 'fsa', 'size', or 'repeats')</p></dd>
 
 
 <dt><code>metrics_group_id</code></dt>
@@ -71,6 +76,46 @@
 <dd><p>Validated repeat length for the modal repeat repeat in that sample. Associated with <code><a href="add_metadata.html">add_metadata()</a></code>.</p></dd>
 
 
+<dt><code>fsa</code></dt>
+<dd><p>The whole fsa file, output from seqinr::read.abif()</p></dd>
+
+
+<dt><code>raw_ladder</code></dt>
+<dd><p>The raw data from the ladder channel</p></dd>
+
+
+<dt><code>raw_data</code></dt>
+<dd><p>The raw data from the sample channel</p></dd>
+
+
+<dt><code>scan</code></dt>
+<dd><p>The scan number</p></dd>
+
+
+<dt><code>off_scale_scans</code></dt>
+<dd><p>vector indicating which scales were too big and off scale. Note can be in any channel</p></dd>
+
+
+<dt><code>ladder_df</code></dt>
+<dd><p>A dataframe of the identified ladder from <code><a href="find_ladders.html">find_ladders()</a></code>. Scan is the scan number of peak and size is the associated bp size.</p></dd>
+
+
+<dt><code>ladder_total_combinations_tested</code></dt>
+<dd><p>A numeric value indicating how many total combinations were tested during ladder fit</p></dd>
+
+
+<dt><code>trace_bp_df</code></dt>
+<dd><p>A dataframe of bp size for every scan from <code><a href="find_ladders.html">find_ladders()</a></code>.</p></dd>
+
+
+<dt><code>peak_table_df</code></dt>
+<dd><p>A dataframe containing the fragment peak level information.</p></dd>
+
+
+<dt><code>repeat_table_df</code></dt>
+<dd><p>A dataframe containing the fragment peak level information with the repeat size added. May or may not be the same as peak_table_df depending on what options are chosen in <code>call_repeats</code>.</p></dd>
+
+
 </dl><p></p></div>
     </div>
     <div class="section level2">
@@ -82,18 +127,33 @@
 <ul><li><p><a href="#method-fragments-new"><code>fragments$new()</code></a></p></li>
 <li><p><a href="#method-fragments-print"><code>fragments$print()</code></a></p></li>
 <li><p><a href="#method-fragments-plot_trace"><code>fragments$plot_trace()</code></a></p></li>
+<li><p><a href="#method-fragments-plot_ladder"><code>fragments$plot_ladder()</code></a></p></li>
+<li><p><a href="#method-fragments-plot_data_channels"><code>fragments$plot_data_channels()</code></a></p></li>
+<li><p><a href="#method-fragments-get_allele_peak"><code>fragments$get_allele_peak()</code></a></p></li>
+<li><p><a href="#method-fragments-set_allele_peak"><code>fragments$set_allele_peak()</code></a></p></li>
+<li><p><a href="#method-fragments-get_index_peak"><code>fragments$get_index_peak()</code></a></p></li>
+<li><p><a href="#method-fragments-set_index_peak"><code>fragments$set_index_peak()</code></a></p></li>
+<li><p><a href="#method-fragments-plot_fragments"><code>fragments$plot_fragments()</code></a></p></li>
 <li><p><a href="#method-fragments-clone"><code>fragments$clone()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-fragments-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>initialization function that is not used since the child classes are the main object of this package.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/fragments.html">fragments</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">unique_id</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/fragments.html">fragments</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">unique_id</span>, <span class="va">input_method</span>, <span class="va">object</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>unique_id</code></dt>
 <dd><p>unique_id</p></dd>
+
+
+<dt><code>input_method</code></dt>
+<dd><p>pathway used to import data (either 'fsa', 'size', or 'repeats')</p></dd>
+
+
+<dt><code>object</code></dt>
+<dd><p>object to be inserted into either 'fsa', 'peak_table_df', or 'repeat_table_df'</p></dd>
 
 
 </dl><p></p></div>
@@ -124,7 +184,7 @@
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>show_peaks</code></dt>
-<dd><p>A logical to say if the called peaks should be plotted on top of the trace. Only valid for fragments_repeats objects.</p></dd>
+<dd><p>A logical to say if the called peaks should be plotted on top of the trace. Only valid for fragments objects.</p></dd>
 
 
 <dt><code>x_axis</code></dt>
@@ -154,15 +214,135 @@
 <p>A base R plot</p>
 </div>
 
-</div><p></p><hr><a id="method-fragments-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
-<p>The objects of this class are cloneable with this method.</p><div class="section">
+</div><p></p><hr><a id="method-fragments-plot_ladder"></a><div class="section">
+<h3 id="method-plot-ladder-">Method <code>plot_ladder()</code><a class="anchor" aria-label="anchor" href="#method-plot-ladder-"></a></h3>
+<p>plot the ladder data</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">fragments</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">fragments</span><span class="op">$</span><span class="fu">plot_ladder</span><span class="op">(</span>xlim <span class="op">=</span> <span class="cn">NULL</span>, ylim <span class="op">=</span> <span class="cn">NULL</span>, plot_title <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>xlim</code></dt>
+<dd><p>numeric vector length two specifying the x axis limits</p></dd>
+
+
+<dt><code>ylim</code></dt>
+<dd><p>numeric vector length two specifying the y axis limits</p></dd>
+
+
+<dt><code>plot_title</code></dt>
+<dd><p>A character string for setting the plot title. Defaults to the unique id of the object</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
+<p>A base R plot</p>
+</div>
+
+</div><p></p><hr><a id="method-fragments-plot_data_channels"></a><div class="section">
+<h3 id="method-plot-data-channels-">Method <code><a href="plot_data_channels.html">plot_data_channels()</a></code><a class="anchor" aria-label="anchor" href="#method-plot-data-channels-"></a></h3>
+<p>plot the raw data channels in the fsa file. It identifies every channel that has "DATA" in its name.</p><div class="section">
+<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">fragments</span><span class="op">$</span><span class="fu">plot_data_channels</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
+<p>A base R plot</p>
+</div>
+
+</div><p></p><hr><a id="method-fragments-get_allele_peak"></a><div class="section">
+<h3 id="method-get-allele-peak-">Method <code>get_allele_peak()</code><a class="anchor" aria-label="anchor" href="#method-get-allele-peak-"></a></h3>
+<p>This returns a list with the allele information for this object.</p><div class="section">
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">fragments</span><span class="op">$</span><span class="fu">get_allele_peak</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+
+</div><p></p><hr><a id="method-fragments-set_allele_peak"></a><div class="section">
+<h3 id="method-set-allele-peak-">Method <code>set_allele_peak()</code><a class="anchor" aria-label="anchor" href="#method-set-allele-peak-"></a></h3>
+<p>This sets a single allele size/repeat. It searches through the appropriate peak table and finds the closest peak to the value that's provided.</p><div class="section">
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">fragments</span><span class="op">$</span><span class="fu">set_allele_peak</span><span class="op">(</span><span class="va">allele</span>, <span class="va">unit</span>, <span class="va">value</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>allele</code></dt>
+<dd><p>Either <code>1</code> or <code>2</code>, indicating which allele information should be set. Allele 1 is the only one used for repeat instability metrics calculations.</p></dd>
+
+
+<dt><code>unit</code></dt>
+<dd><p>Either "size" or "repeats" to indicate if the value you're providing is bp size or repeat length.</p></dd>
+
+
+<dt><code>value</code></dt>
+<dd><p>Numeric vector (length one) of the size/repeat length to set.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-fragments-get_index_peak"></a><div class="section">
+<h3 id="method-get-index-peak-">Method <code>get_index_peak()</code><a class="anchor" aria-label="anchor" href="#method-get-index-peak-"></a></h3>
+<p>This returns a list with the index peak information for this object.</p><div class="section">
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">fragments</span><span class="op">$</span><span class="fu">get_index_peak</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+
+</div><p></p><hr><a id="method-fragments-set_index_peak"></a><div class="section">
+<h3 id="method-set-index-peak-">Method <code>set_index_peak()</code><a class="anchor" aria-label="anchor" href="#method-set-index-peak-"></a></h3>
+<p>This sets the index repeat length. It searches through the repeat table and finds the closest peak to the value that's provided.</p><div class="section">
+<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">fragments</span><span class="op">$</span><span class="fu">set_index_peak</span><span class="op">(</span><span class="va">value</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>value</code></dt>
+<dd><p>Numeric vector (length one) of the repeat length to set as index peak.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-fragments-plot_fragments"></a><div class="section">
+<h3 id="method-plot-fragments-">Method <code><a href="plot_fragments.html">plot_fragments()</a></code><a class="anchor" aria-label="anchor" href="#method-plot-fragments-"></a></h3>
+<p>This plots the peak/repeat table as a histogram</p><div class="section">
+<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">fragments</span><span class="op">$</span><span class="fu">plot_fragments</span><span class="op">(</span>ylim <span class="op">=</span> <span class="cn">NULL</span>, xlim <span class="op">=</span> <span class="cn">NULL</span>, plot_title <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>ylim</code></dt>
+<dd><p>numeric vector length two specifying the y axis limits</p></dd>
+
+
+<dt><code>xlim</code></dt>
+<dd><p>numeric vector length two specifying the x axis limits</p></dd>
+
+
+<dt><code>plot_title</code></dt>
+<dd><p>A character string for setting the plot title. Defaults to the unique id of the object</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-fragments-clone"></a><div class="section">
+<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+<p>The objects of this class are cloneable with this method.</p><div class="section">
+<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">fragments</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 
@@ -183,7 +363,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
