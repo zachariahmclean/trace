@@ -1,10 +1,66 @@
-# trace 0.6.0
+# trace 1.0.0
+-   Major Changes
+    -   Consolidated Workflow with `trace()` Function
 
--   Fixed bug in `calculate_instability_metrics()` with missing index samples
+        -   Simplified three-step workflow:
+            1.  Read in data (e.g., `read_fsa()`)
+            2.  Process with main `trace()` function
+            3.  Analyze with extraction functions (e.g., `calculate_instability_metrics()`)
+        -   Deprecated functions (now internal-only):
+            -   `add_metadata()`, `find_ladders()`, `find_fragments()`, `find_alleles()`, `call_repeats()`, `assign_index_peaks()`
+            -   If used for legacy reasons access via the internal package with ':::' (eg `trace:::find_ladders()`), these now require configuration via YAML file (see each functions help for more detail)
+        -   Configuration options:
+            -   Parameters can be passed via `...` or YAML config file
+            -   YAML support enables reproducible analysis configurations and easier sharing of processing parameters
+
+    -   Enhanced Ladder Assignment Algorithm
+
+        -   New branching approach selects best overall fit rather than greedy assignment
+            -   Parameters:
+                -   `ladder_top_n_branching`: Controls number of branches evaluated at each step
+                -   `ladder_branching_r_squared_threshold`: Aggressiveness of branch pruning
+                -   `ladder_assign_left_to_right`: Direction of assignment (small→large or large→small)
+        -   Parameter name updates:
+            -   For ladder processing, `minimum_peak_signal` to `minimum_ladder_signal`
+            -   For ladder processing, `scan_subset` split into `min_scan` and `max_scan`
+
+    -   Improved Metrics Calculations
+
+        -   Enhanced quality filtering in `calculate_instability_metrics()`:
+            -   New parameters: `index_modal_signal_threshold`, `index_signal_sum_threshold`
+        -   Fixed calculations:
+            -   Corrected weighting in skewness and kurtosis calculations
+            -   Fixed issue with average_repeat_change being non-zero for some of the index samples
+-   Data Handling Changes for Package Simplicity
+    -   Streamlined Data Import
+
+        -   Function updates:
+            -   `repeat_table_to_repeats()` to `repeat_table_to_fragments()` (now requires specific column names)
+            -   `peak_table_to_fragments()` split into:
+                -   `genemapper_table_to_fragments()` (for GeneMapper files)
+                -   `size_table_to_fragments()` (generic import)
+
+    -   Strict Metadata Requirements
+
+        -   Require exact columns (if those column names not detected, those metadata will be skipped):
+            -   `unique_id`, `metrics_group_id`, `metrics_baseline_control` , `batch_run_id`, `batch_sample_id`, `batch_sample_modal_repeat`
+-   Other Changes
+    -   Parameter Default Updates
+
+        -   Changed many defaults from `NULL` to `NA` to support configuration files
+
+    -   Fragment Detection Improvements
+
+        -   New `peak_scan_ramp` parameter in `trace()` (default relaxed from 6 to 5 to improve peak detection at longer sizes)
+
+    -   Internal Changes
+
+        -   `find_fragments()` now modifies in place (advanced usage only)
 
 # trace 0.5.0
 
 -   `expansion_ratio` metric updated so that it starts at 1 rather than 0
+
     -   It now includes the relative signal of the index peak in the metric
 
 -   `find_fragments` filters `minimum_peak_signal` on the raw signal rather than the smoothed signal
@@ -35,8 +91,8 @@ Along with a new name, this is a major update to the [previous version of the pa
 
 -   Renamed instability metrics for clarity:
 
-    - `average_repeat_gain` to `average_repeat_change`
-    - `modal_repeat_delta` to `modal_repeat_change`
+    -   `average_repeat_gain` to `average_repeat_change`
+    -   `modal_repeat_delta` to `modal_repeat_change`
 
 -   Renamed `number_of_peaks_to_return` to `number_of_alleles` in `find_alleles()`
 

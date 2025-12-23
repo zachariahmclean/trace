@@ -7,7 +7,7 @@
 plot_batch_correction_samples(fragments_list, selected_sample, xlim = NULL)
 }
 \arguments{
-\item{fragments_list}{A list of fragments_repeats objects containing fragment data. must have trace information.}
+\item{fragments_list}{A list of fragments objects containing fragment data. must have trace information.}
 
 \item{selected_sample}{A character vector of batch_sample_id for a subset of samples to plot. Or alternatively supply a number to select batch sample by position in alphabetical order.}
 
@@ -28,26 +28,10 @@ These plots are made using base R plotting. Sometimes these fail to render in th
 }
 \examples{
 
-fsa_list <- lapply(cell_line_fsa_list[16:19], function(x) x$clone())
+fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+# import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+fragments_list <- trace(fsa_list, metadata_data.frame = metadata, correction = "batch")
 
-find_ladders(fsa_list, show_progress_bar = FALSE)
-
-fragments_list <- find_fragments(fsa_list, min_bp_size = 300)
-
-test_alleles <- find_alleles(
-  fragments_list 
-)
-
-add_metadata(
-  fragments_list,
-  metadata
-)
-
-
-call_repeats(
-  fragments_list = fragments_list,
-  correction = "batch"
-)
 
 # traces of bp size shows traces at different sizes
 plot_batch_correction_samples(

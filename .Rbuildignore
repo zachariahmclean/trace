@@ -10,3 +10,4 @@
 ^doc$
 ^Meta$
 ^cran-comments\.md$
+^dev_notes\.md$

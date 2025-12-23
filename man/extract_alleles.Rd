@@ -7,7 +7,7 @@
 extract_alleles(fragments_list)
 }
 \arguments{
-\item{fragments_list}{A list of fragments_repeats objects containing fragment data.}
+\item{fragments_list}{A list of fragments objects containing fragment data.}
 }
 \value{
 A dataframe containing modal peak information for each sample
@@ -16,19 +16,9 @@ A dataframe containing modal peak information for each sample
 Extracts modal peak information from each sample in a list of fragments.
 }
 \examples{
-gm_raw <- trace::example_data
-
-test_fragments <- peak_table_to_fragments(gm_raw,
-  data_format = "genemapper5",
-  dye_channel = "B",
-  min_size_bp = 400
-)
-
-find_alleles(
-  fragments_list = test_fragments,
-  peak_region_size_gap_threshold = 6,
-  peak_region_signal_threshold_multiplier = 1
-)
+fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+# import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+test_fragments <- trace(fsa_list, grouped = TRUE, metadata_data.frame = metadata)
 
 extract_alleles(test_fragments)
 

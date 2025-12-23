@@ -42,7 +42,7 @@ sample_selection_module <- function(id, fragment_trace_list) {
     })
 
 
-    selected_fragments_trace <- shiny::reactive({
+    selected_fragments <- shiny::reactive({
       # if(is.null(input$unique_id_selection)){
       if (input$unique_id_selection == "") {
         fragment_trace_list[[choices()[1]]]
@@ -52,7 +52,7 @@ sample_selection_module <- function(id, fragment_trace_list) {
     })
 
     return(list(
-      sample = selected_fragments_trace,
+      sample = selected_fragments,
       input_unique_id_selection = shiny::reactive(input$unique_id_selection)
     ))
   })
@@ -247,28 +247,28 @@ server_function <- function(input, output, session, fragment_trace_list) {
   }
   manual_ladder_list <- shiny::reactiveValues()
 
-  selected_fragments_trace <- sample_selection_module("sample_selection", fragment_trace_list_reactive)
+  selected_fragments <- sample_selection_module("sample_selection", fragment_trace_list_reactive)
 
 
   plot_output <- plot_module_server(
     "plot_module",
-    selected_fragments_trace$sample,
-    selected_fragments_trace$input_unique_id_selection,
+    selected_fragments$sample,
+    selected_fragments$input_unique_id_selection,
     shiny::reactive(input$find_scan_max)
   )
 
   # provide a reactive trigger that class has been updated
-  # this is for the rsq_table_server that needs to see that selected_fragments_trace$sample has been updated
+  # this is for the rsq_table_server that needs to see that selected_fragments$sample has been updated
   fragment_ladder_trigger <- shiny::reactiveVal(0)
 
-  rsq_table_server("rsq_table", selected_fragments_trace$sample, fragment_ladder_trigger)
+  rsq_table_server("rsq_table", selected_fragments$sample, fragment_ladder_trigger)
 
 
   # have a reactive list that gets updated when you change the stuff
   shiny::observe({
-    sample_unique_id <- selected_fragments_trace$sample()$unique_id
+    sample_unique_id <- selected_fragments$sample()$unique_id
 
-    selected_ladder_df <- selected_fragments_trace$sample()$ladder_df
+    selected_ladder_df <- selected_fragments$sample()$ladder_df
     selected_sample_scans <- selected_ladder_df[which(!is.na(selected_ladder_df$size)), "scan"]
 
     plot_ladder_df <- as.data.frame(shiny::reactiveValuesToList(plot_output$ladders()))
@@ -300,7 +300,7 @@ server_function <- function(input, output, session, fragment_trace_list) {
 #'
 #' An app for fixing ladders
 #'
-#' @param fragment_trace_list A list of fragments_trace objects containing fragment data
+#' @param fragment_trace_list A list of fragments objects containing fragment data
 #'
 #' @return interactive shiny app for fixing ladders
 #' @export
@@ -323,9 +323,6 @@ server_function <- function(input, output, session, fragment_trace_list) {
 #'
 #'
 #' @examples
-#' fsa_list <- lapply(cell_line_fsa_list["20230413_A08.fsa"], function(x) x$clone())
-#' 
-#' find_ladders(fsa_list, show_progress_bar = FALSE)
 #'
 #' # to create an example, lets brake one of the ladders
 #' brake_ladder_list <-  list(
@@ -335,17 +332,13 @@ server_function <- function(input, output, session, fragment_trace_list) {
 #'               4050, 4284, 4332)
 #'    )
 #'  )
-#'
-#' fix_ladders_manual(
-#'   fsa_list,
-#'   brake_ladder_list
-#' )
-#'
-#' plot_ladders(fsa_list)
-#'
+#' 
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#' test_fragments <- trace(fsa_list, ladder_df_list = brake_ladder_list)
 #'
 #' if (interactive()) {
-#'   fix_ladders_interactive(fsa_list)
+#'   fix_ladders_interactive(test_fragments)
 #' }
 #'
 #' # once you have corrected your ladders in the app, 
@@ -355,7 +348,7 @@ server_function <- function(input, output, session, fragment_trace_list) {
 fix_ladders_interactive <- function(fragment_trace_list) {
   message("To incorporate the manual corrections into your script you need to do the following:")
   message("1: read in the corrected ladder data using 'ladder_df_list <- readRDS('path/to/exported/data.rds')'")
-  message("2: Run 'fix_ladders_manual(fragments_trace_list, ladder_df_list)'")
+  message("2: Run 'fix_ladders_manual(fragments_list, ladder_df_list)'")
 
   # Launch the Shiny app with fragment_trace_list passed as a parameter
   shiny::shinyApp(

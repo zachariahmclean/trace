@@ -16,7 +16,7 @@ plot_traces(
 )
 }
 \arguments{
-\item{fragments_list}{A list of fragments_repeats or fragments_trace objects containing fragment data.}
+\item{fragments_list}{A list of fragments or fragments objects containing fragment data.}
 
 \item{show_peaks}{If peak data are available, TRUE will plot the peaks on top of the trace as dots.}
 
@@ -49,22 +49,9 @@ The index peak will be plotted as a vertical dashed line when it has been set us
 }
 \examples{
 
-fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
-
-find_ladders(fsa_list, show_progress_bar = FALSE)
-
-fragments_list <- find_fragments(fsa_list,
-  min_bp_size = 300
-)
-
-find_alleles(
-  fragments_list
-)
-
-# Simple conversion from bp size to repeat size
-call_repeats(
-  fragments_list
-)
+fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+# import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+fragments_list <- trace(fsa_list)
 
 plot_traces(fragments_list, xlim = c(105, 150))
 

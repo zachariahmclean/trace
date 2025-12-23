@@ -1,9 +1,10 @@
 testthat::test_that("find ladder peaks", {
 
-  test_processed <- process_ladder_signal(cell_line_fsa_list[[1]]$fsa$Data$DATA.105,
-    scans = 0:(length(cell_line_fsa_list[[1]]$fsa$Data$DATA.105) - 1),
-    ladder_start_scan = 1000,
-    smoothing_window = 21
+  test_processed <- data.frame(signal = cell_line_fsa_list[[1]]$fsa$Data$DATA.105, scan = 0:(length(cell_line_fsa_list[[1]]$fsa$Data$DATA.105) - 1))
+  test_processed <- test_processed[which(test_processed$scan >= which.max(test_processed$signal)), ]
+  test_processed$smoothed_signal <- pracma::savgol(
+    test_processed$signal,
+    21
   )
 
 
@@ -13,21 +14,21 @@ testthat::test_that("find ladder peaks", {
   test_ladder_peaks <- find_ladder_peaks(
     test_processed,
     length(ladder_sizes),
-    minimum_peak_signal = NULL,
-    sample_id = names(file_list[1])
+    minimum_ladder_signal = NA,
+    sample_id = names(cell_line_fsa_list[1])
   )
 
   testthat::expect_true(length(test_ladder_peaks) >= length(ladder_sizes))
 
 
-  test_ladder_peaks_32 <- find_ladder_peaks(
+  test_ladder_peaks_20 <- find_ladder_peaks(
     test_processed,
-    n_reference_sizes = 32,
-    minimum_peak_signal = NULL,
-    sample_id = names(file_list[1])
+    n_reference_sizes = 20,
+    minimum_ladder_signal = NA,
+    sample_id = names(cell_line_fsa_list[1])
   )
 
-  testthat::expect_true(length(test_ladder_peaks_32) == 32)
+  testthat::expect_true(length(test_ladder_peaks_20) == 20)
 })
 
 
@@ -59,7 +60,8 @@ test_that("iterative ladder", {
 
   iteration_result <- ladder_iteration(ladder_sizes, scans_162,
     choose = 4,
-    max_combinations = 2500000
+    max_combinations = 2500000,
+    
   )
 
   expect_true(round(mean(iteration_result$scan), 3) == 2877.923)
@@ -68,10 +70,13 @@ test_that("iterative ladder", {
 
 test_that("find ladders", {
 
+  config <- load_config()
+
   fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
   suppressWarnings(
     find_ladders(
       fsa_list,
+      config,
       ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
       max_combinations = 2500000,
       ladder_selection_window = 8,
@@ -81,17 +86,20 @@ test_that("find ladders", {
 
 
 
-  testthat::expect_true(all(fsa_list[[1]]$ladder_df$scan == c(1540, 1618, 1766, 1909, 2139, 2198, 2257, 2502, 2802, 3131, 3376, 3438, 3756, 4046, 4280, 4328)))
+  testthat::expect_true(all(fsa_list[[1]]$ladder_df$scan == c(1529, 1540, 1618, 1766, 1909, 2139, 2198, 2257, 2502, 2802, 3131, 3376, 3438, 3756, 4046, 4280, 4328)))
 })
 
 
 test_that("find ladders scan subset", {
 
+  config <- load_config()
   fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
   suppressWarnings(
     find_ladders(fsa_list,
+      config,
       ladder_sizes = c(200, 250, 300, 340, 350, 400, 450),
-      scan_subset = c(2400, 4250),
+      min_scan = 2400,
+      max_scan = 4250,
       max_combinations = 2500000,
       ladder_selection_window = 8,
       show_progress_bar = FALSE
@@ -109,21 +117,24 @@ test_that("find ladders scan subset", {
 
 test_that("ladder minium signal", {
 
+  config <- load_config()
+
   fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
 
     test_ladders <- find_ladders(fsa_list,
+      config,
                                  ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
                                  max_combinations = 2500000,
                                  ladder_selection_window = 8,
                                  show_progress_bar = FALSE,
-                                 minimum_peak_signal = 100
+                                 minimum_ladder_signal = 2000
     )
 
 
 
 
-  testthat::expect_true(all(fsa_list[[1]]$ladder_df$scan == c(1540, 1618, 1766, 1909, 2139, 2198, 2257, 2502, 2802, 3131, 3376, 3438, 3756, 4046, 4280, 4328)))
+  testthat::expect_true(all(fsa_list[[1]]$ladder_df$scan == c(2257, 2502, 2802, 3131, 3376, 3438, 3756)))
 })
 
 
@@ -169,6 +180,8 @@ test_that("ladder minium signal", {
 
 
 test_that("fix ladders manual", {
+  config <- load_config()
+
  example_list <- list(
   "20230413_A07.fsa" = data.frame(
     size = c(100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
@@ -179,6 +192,7 @@ test_that("fix ladders manual", {
   fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
 
   find_ladders(fsa_list,
+    config,
     ladder_sizes = c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500),
     max_combinations = 2500000,
     ladder_selection_window = 8,
@@ -194,4 +208,67 @@ test_that("fix ladders manual", {
 
   expect_true(nrow(fsa_list[[1]]$ladder_df) == 13)
 })
+
+
+
+
+test_that("cpp ladder", {
+#   test_processed <- data.frame(signal = cell_line_fsa_list[[1]]$fsa$Data$DATA.105, scan = 0:(length(cell_line_fsa_list[[1]]$fsa$Data$DATA.105) - 1))
+#   test_processed <- test_processed[which(test_processed$scan >= which.max(test_processed$signal)), ]
+#   test_processed$smoothed_signal <- pracma::savgol(
+#     test_processed$signal,
+#     21
+#   )
+
+#   ladder_sizes <- c(50, 75, 100, 139, 150, 160, 200, 300, 350, 400, 450, 490, 500)
+#   ladder_peaks <- find_ladder_peaks(
+#     test_processed,
+#     length(ladder_sizes),
+#     minimum_ladder_signal = 100,
+#     sample_id = names(cell_line_fsa_list[1])
+#   )
+
+#   test_ladder_peaks <- ladder_iteration(ladder_sizes, ladder_peaks,
+#     choose = 13,
+#     max_combinations = 2500000,
+    
+#   )
+
+# library(ggplot2)
+
+# test_processed |>
+#   ggplot(aes(scan, signal)) +
+#   geom_line() +
+#   geom_text(data = test_ladder_peaks,
+#   aes(label = size, y = 500))
+
+
+#   Rcpp::sourceCpp("data-raw/archive/src/ladders_combinations.cpp")
+
+
+
+
+# cpp_result <- ladder_assignment_cpp(ladder_sizes, ladder_peaks,
+#   max_combinations = 2500000,
+#   branching_n = 5L
+# )
+  
+  
+
+# library(ggplot2)
+
+# test_processed |>
+# ggplot(aes(scan, signal)) +
+# geom_line() +
+# geom_text(data = data.frame(size = ladder_sizes,
+#         scan = cpp_result[[1]][[which.max(cpp_result[[2]])]]
+#   ),
+# aes(label = size, y = 500))
+
+
+})
+
+
+
+  
 

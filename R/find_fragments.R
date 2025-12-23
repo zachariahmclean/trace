@@ -5,80 +5,71 @@
 
 #' Find fragment peaks
 #'
-#' Find fragment peaks in continuous trace data and convert to fragments_repeats
+#' Find fragment peaks in continuous trace data and convert to fragments
 #' class.
 #'
-#' @param fragments_trace_list A list of fragments_trace objects containing fragment data.
-#' @param smoothing_window numeric: signal smoothing window size passed to pracma::savgol()
-#' @param minimum_peak_signal numeric: minimum signal of the raw trace. To have no minimum signal set as "-Inf". 
-#' @param min_bp_size numeric: minimum bp size of peaks to consider
-#' @param max_bp_size numeric: maximum bp size of peaks to consider
-#' @param ... pass additional arguments to pracma::findpeaks(), or change the default arguments
-#' we set. minimum_peak_signal above is passed to pracma::findpeaks() as minpeakheight, and
-#' peakpat has been set to '\[+\]\{6,\}\[0\]*\[-\]\{6,\}' so that peaks with flat tops are
-#' still called, see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
+#' @param fragments_list A list of fragments objects containing fragment data.
+#' @param config A trace_config object generated using [load_config()].
+#' @param ... additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the `config`. These parameters include:
+#'   \itemize{
+#'    \item `smoothing_window` numeric, signal smoothing window size passed to pracma::savgol(). Default: `21`.
+#'    \item `minimum_peak_signal` numeric, minimum signal of the raw trace. To have no minimum signal set as "-Inf". Default: `20`.
+#'    \item `min_bp_size` numeric, minimum bp size of peaks to consider. Default: `100`.
+#'    \item `max_bp_size` numeric, maximum bp size of peaks to consider. Default: `1000`.
+#'    \item `peak_scan_ramp` Single numeric value to indicate how many scans (increasing in signal) should be either side of the peak maxima. Default: `5`.
+#'  }
 #'
-#'
-#' @return a list of fragments_repeats objects.
-#' @export
+#' @return a list of fragments objects.
+#' @keywords internal
 #'
 #' @importFrom pracma findpeaks
 #' @importFrom pracma savgol
 #'
 #' @details
 #' 
-#' [find_fragments()] takes in a list of fragments_trace objects and returns a list of new fragments_repeats objects.
+#' This takes in a list of fragments objects and returns a list of new fragments objects.
 #' 
-#' This function is basically a wrapper around pracma::findpeaks. As mentioned above,
-#' the default arguments arguments of pracma::findpeaks can be changed by passing them
-#' to find_fragments with ... .
+#' This function is basically a wrapper around [pracma::findpeaks()]. If your amplicon is large, there may be fewer scans that make up individual peak. So for example you may want to set peak_scan_ramp as a smaller value.
 #'
 #' If too many and inappropriate peaks are being called, this may also be solved with the different repeat calling algorithms in [call_repeats()].
 #'
 #' @examples
 #' fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
+#' config <- load_config()
 #'
-#' find_ladders(fsa_list)
+#' trace:::find_ladders(fsa_list, config)
 #'
-#' fragments_list <- find_fragments(fsa_list,
+#' trace:::find_fragments(fsa_list,
+#'   config,
 #'   min_bp_size = 300
 #' )
 #'
 #'
 #' # Manually inspect the ladders
-#' plot_traces(fragments_list,
+#' plot_traces(fsa_list,
 #'   show_peaks = TRUE, n_facet_col = 1,
 #'   xlim = c(400, 550), ylim = c(0, 1200)
 #' )
 find_fragments <- function(
-    fragments_trace_list,
-    smoothing_window = 21,
-    minimum_peak_signal = 20,
-    min_bp_size = 100,
-    max_bp_size = 1000,
+    fragments_list,
+    config,
     ...) {
-  find_fragment_peaks <- function(trace_bp_df,
-                                  ...) {
+  find_fragment_peaks <- function(trace_bp_df) {
+
+    if(config$smoothing_window %% 2 != 1){
+      stop("smoothing_window must be an odd integer value")
+    }
+
     smoothed_signal <- pracma::savgol(
       trace_bp_df$signal,
-      smoothing_window
+      config$smoothing_window
     )
 
-    # deals with cases of user overriding values
-    if ("peakpat" %in% ...names()) {
-      peaks <- pracma::findpeaks(smoothed_signal,
-        minpeakheight = -Inf,
-        ...
-      )
-    } else if ("minpeakheight" %in% ...names()) {
-      stop(call. = FALSE, "Please use minimum_peak_signal instead of minpeakheight")
-    } else {
-      peaks <- pracma::findpeaks(smoothed_signal,
-        peakpat = "[+]{6,}[0]*[-]{6,}", # see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks
-        minpeakheight = -Inf,
-        ...
-      )
-    }
+    # call all peaks regardless of height
+    peaks <- pracma::findpeaks(smoothed_signal,
+      minpeakheight = -Inf,
+      peakpat = sprintf('[+]{%d,}[0]*[-]{%d,}', config$peak_scan_ramp, config$peak_scan_ramp)
+    )
 
     n_scans <- length(trace_bp_df$signal)
     window_width <- 3
@@ -100,7 +91,7 @@ find_fragments <- function(
     colnames(df) <- c("scan", "size", "signal", "off_scale")
 
     # filter for minimum_peak_signal. Do it here rather than in findpeaks so that it is filtered on the raw signal value
-    df <- df[which(df$signal > minimum_peak_signal), , drop = FALSE]
+    df <- df[which(df$signal > config$minimum_peak_signal), , drop = FALSE]
 
     # remove shoulder peaks
     df2 <- deshoulder(df, shoulder_window = 1.5)
@@ -108,23 +99,54 @@ find_fragments <- function(
     return(df2)
   }
 
-  fragments_list <- lapply(fragments_trace_list, function(x) {
+  # prepare output file
+  output <- trace_output$new("find_fragments")
+
+  # load config
+  config <- tryCatch(
+    update_config(config, list(...)),
+    error = function(e) e
+  )
+  if("error" %in% class(config)){
+    output$set_status(
+      "error", 
+      config$message
+    )
+    return(output)
+  }
+
+  if (config$show_progress_bar) {
+    pb <- utils::txtProgressBar(min = 0, max = length(fragments_list), style = 3)
+  }
+
+  for (i in seq_along(fragments_list)) {
     # find peak table
-    df <- find_fragment_peaks(x$trace_bp_df, ...)
-    df$unique_id <- rep(x$unique_id, nrow(df))
-    df <- df[which(df$size > min_bp_size & df$size < max_bp_size), ]
+    df <- tryCatch(
+      find_fragment_peaks(fragments_list[[i]]$trace_bp_df),
+      error = function(e) e
+    )
+    if("error" %in% class(df)){
+      output$set_status(
+        "error", 
+        paste0("There was an error finding fragments for ", fragments_list[[i]]$unique_id, ":\n", df$message)
+      )
+      return(output)
+    }
 
-    # generate new class
-    new_fragments_repeats <- fragments_repeats$new(unique_id = x$unique_id)
-    new_fragments_repeats$trace_bp_df <- x$trace_bp_df
-    new_fragments_repeats$peak_table_df <- df
-    new_fragments_repeats <- transfer_metadata_helper(x, new_fragments_repeats)
-    new_fragments_repeats$.__enclos_env__$private$min_bp_size <- min_bp_size
-    new_fragments_repeats$.__enclos_env__$private$max_bp_size <- max_bp_size
+    df$unique_id <- rep(fragments_list[[i]]$unique_id, nrow(df))
+    df <- df[which(df$size > config$min_bp_size & df$size < config$max_bp_size), ,drop = FALSE]
+    fragments_list[[i]]$peak_table_df <- df
 
-    return(new_fragments_repeats)
-  })
+    if (config$show_progress_bar) {
+      utils::setTxtProgressBar(pb, i)
+    }
+  }
 
-  return(fragments_list)
+  if (config$show_progress_bar) {
+    # make sure progress bar ends on new line
+    cat("\n")
+  }
+
+  return(output)
 }
 

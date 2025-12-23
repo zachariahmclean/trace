@@ -4,60 +4,52 @@
 \alias{find_fragments}
 \title{Find fragment peaks}
 \usage{
-find_fragments(
-  fragments_trace_list,
-  smoothing_window = 21,
-  minimum_peak_signal = 20,
-  min_bp_size = 100,
-  max_bp_size = 1000,
-  ...
-)
+find_fragments(fragments_list, config, ...)
 }
 \arguments{
-\item{fragments_trace_list}{A list of fragments_trace objects containing fragment data.}
+\item{fragments_list}{A list of fragments objects containing fragment data.}
 
-\item{smoothing_window}{numeric: signal smoothing window size passed to pracma::savgol()}
+\item{config}{A trace_config object generated using \code{\link[=load_config]{load_config()}}.}
 
-\item{minimum_peak_signal}{numeric: minimum signal of the raw trace. To have no minimum signal set as "-Inf".}
-
-\item{min_bp_size}{numeric: minimum bp size of peaks to consider}
-
-\item{max_bp_size}{numeric: maximum bp size of peaks to consider}
-
-\item{...}{pass additional arguments to pracma::findpeaks(), or change the default arguments
-we set. minimum_peak_signal above is passed to pracma::findpeaks() as minpeakheight, and
-peakpat has been set to '[+]\{6,\}[0]*[-]\{6,\}' so that peaks with flat tops are
-still called, see https://stackoverflow.com/questions/47914035/identify-sustained-peaks-using-pracmafindpeaks}
+\item{...}{additional parameters from any of the functions in the pipeline detailed below may be passed to this function. This overwrites values in the \code{config}. These parameters include:
+\itemize{
+\item \code{smoothing_window} numeric, signal smoothing window size passed to pracma::savgol(). Default: \code{21}.
+\item \code{minimum_peak_signal} numeric, minimum signal of the raw trace. To have no minimum signal set as "-Inf". Default: \code{20}.
+\item \code{min_bp_size} numeric, minimum bp size of peaks to consider. Default: \code{100}.
+\item \code{max_bp_size} numeric, maximum bp size of peaks to consider. Default: \code{1000}.
+\item \code{peak_scan_ramp} Single numeric value to indicate how many scans (increasing in signal) should be either side of the peak maxima. Default: \code{5}.
+}}
 }
 \value{
-a list of fragments_repeats objects.
+a list of fragments objects.
 }
 \description{
-Find fragment peaks in continuous trace data and convert to fragments_repeats
+Find fragment peaks in continuous trace data and convert to fragments
 class.
 }
 \details{
-\code{\link[=find_fragments]{find_fragments()}} takes in a list of fragments_trace objects and returns a list of new fragments_repeats objects.
+This takes in a list of fragments objects and returns a list of new fragments objects.
 
-This function is basically a wrapper around pracma::findpeaks. As mentioned above,
-the default arguments arguments of pracma::findpeaks can be changed by passing them
-to find_fragments with ... .
+This function is basically a wrapper around \code{\link[pracma:findpeaks]{pracma::findpeaks()}}. If your amplicon is large, there may be fewer scans that make up individual peak. So for example you may want to set peak_scan_ramp as a smaller value.
 
 If too many and inappropriate peaks are being called, this may also be solved with the different repeat calling algorithms in \code{\link[=call_repeats]{call_repeats()}}.
 }
 \examples{
 fsa_list <- lapply(cell_line_fsa_list[1], function(x) x$clone())
+config <- load_config()
 
-find_ladders(fsa_list)
+trace:::find_ladders(fsa_list, config)
 
-fragments_list <- find_fragments(fsa_list,
+trace:::find_fragments(fsa_list,
+  config,
   min_bp_size = 300
 )
 
 
 # Manually inspect the ladders
-plot_traces(fragments_list,
+plot_traces(fsa_list,
   show_peaks = TRUE, n_facet_col = 1,
   xlim = c(400, 550), ylim = c(0, 1200)
 )
 }
+\keyword{internal}

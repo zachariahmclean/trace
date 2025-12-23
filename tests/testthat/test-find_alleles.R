@@ -5,10 +5,10 @@
 testthat::test_that("find_alleles", {
   gm_raw <- trace::example_data
   metadata <- trace::metadata
+  config <- load_config()
   # Save raw data as a fragment class
   suppressWarnings(
-    test_fragments <- peak_table_to_fragments(gm_raw,
-      data_format = "genemapper5",
+    test_fragments <- genemapper_table_to_fragments(gm_raw,
       dye_channel = "B",
       min_size_bp = 300
     )
@@ -16,7 +16,8 @@ testthat::test_that("find_alleles", {
   
 
   find_alleles(
-    fragments_list = test_fragments
+    fragments_list = test_fragments,
+    config
   )
 
   testthat::expect_true(test_fragments[[1]]$get_allele_peak()$allele_size == 480.54)
@@ -34,10 +35,10 @@ testthat::test_that("find_alleles", {
 testthat::test_that("find_alleles two alleles", {
   gm_raw <- trace::example_data
   metadata <- trace::metadata
+  config <- load_config()
   # Save raw data as a fragment class
   suppressWarnings(
-    test_fragments <- peak_table_to_fragments(gm_raw,
-      data_format = "genemapper5",
+    test_fragments <- genemapper_table_to_fragments(gm_raw,
       dye_channel = "B",
       min_size_bp = 100
     )
@@ -45,6 +46,7 @@ testthat::test_that("find_alleles two alleles", {
 
   find_alleles(
     fragments_list = test_fragments,
+    config,
     number_of_alleles = 2
   )
 
@@ -61,4 +63,31 @@ testthat::test_that("find_alleles two alleles", {
   }
 
   testthat::expect_true(all(!is.na(allele_size)))
+})
+
+ 
+testthat::test_that("find_alleles warning", {
+  gm_raw <- trace::example_data
+  metadata <- trace::metadata
+  config <- load_config()
+  # Save raw data as a fragment class
+  suppressWarnings(
+    test_fragments <- genemapper_table_to_fragments(gm_raw,
+      dye_channel = "B",
+      min_size_bp = 300
+    )
+  )
+
+  lapply(test_fragments[1:2], function(x){
+    x$peak_table_df <- x$peak_table_df[rep(FALSE, nrow(x$peak_table_df)), , drop = FALSE]
+    invisible()
+  })
+  
+
+  find_alleles_output <- find_alleles(
+    test_fragments,
+    config
+  )
+
+  testthat::expect_true(find_alleles_output$status == "warning")
 })
