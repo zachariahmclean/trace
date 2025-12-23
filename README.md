@@ -38,63 +38,9 @@ the objects directly. If you do, the attributes of the objects can be
 accessed with \$.
 
 There are several important factors to a successful repeat instability
-experiment and things to consider when using this package:
-
-- (required) Each sample has a unique id, usually the file name
-
-- (optional) Baseline control for your experiment. For example,
-  specifying a sample where the modal allele is the inherited repeat
-  length (eg a mouse tail sample) or a sample at the start of a
-  time-course experiment. This is indicated with a `TRUE` in the
-  `metrics_baseline_control` column of the metadata. Samples are then
-  grouped together with the `metrics_group_id` column of the metadata.
-  Multiple samples can be `metrics_baseline_control`, which can be
-  helpful for the average repeat gain metric to have a more accurate
-  representation of the average repeat at the start of the experiment.
-
-- (optional) Batch or repeat length correction for systematic batch
-  effects that occur with repeat-containing amplicons in capillary
-  electrophoresis.
-
-  - Repeat containing amplicons do not run linearly with internal ladder
-    sizes in capillary electrophoresis resulting is an underestimation
-    of repeat length if you just convert from base-pair size. These
-    differences are not always consistent across runs which can result
-    in batch effects in the repeat size. So, if the repeat length is to
-    be directly compared for samples from different runs, this batch
-    effect needs to be corrected. This is only relevant when the
-    absolute size of a amplicons are compared for grouping metrics as
-    described above (otherwise instability metrics are all relative and
-    it doesn’t matter that there’s systematic batch effects across
-    runs), when plotting traces from different runs, or if an accurate
-    repeat length is desired.
-
-  - There are two main correction approaches that are somewhat related:
-    either ‘batch’ or ‘repeat’ in `call_repeats()`. Batch correction is
-    relatively simple and just requires you to link samples across
-    batches by indicating them from metadata. But even though the repeat
-    size that is return will be precise, it will not be accurate and
-    underestimates the real repeat length. By contrast, repeat
-    correction can be used to accurately call repeat lengths (which also
-    corrects the batch effects). However, the repeat correction will
-    only be as good as your sample(s) used to call the repeat length, so
-    this can a challenging and advanced feature. You need to use a
-    sample that reliably returns the same peak as the modal peak, or you
-    need to be willing to understand the shape of the distribution and
-    manually validate the repeat length of each control sample for each
-    run.
-
-- If starting from fsa files, the GeneScan™ 1200 LIZ™ dye Size Standard
-  ladder assignment may not work very well due to how the ladder
-  assignment algorithm works. It is optimized for scenarios where all
-  peaks of the ladder are resolved, which is usually the case for
-  GeneScan™ 500 LIZ™ or GeneScan™ 600 LIZ™. To work in this package,
-  Ladders like 1200 LIZ™ need to be run on the instrument in such a way
-  that all of the peaks are resolved, otherwise they all blend together
-  at the end. However, these ladders can be fixed by playing with the
-  various parameters (or supplying a truncated version of the GeneScan™
-  1200 LIZ™) or manually with the built-in fix_ladders_interactive()
-  app.
+experiment and things to consider when using this package which are
+discussed in an
+[article](https://zachariahmclean.github.io/trace/articles/experimental_considerations.html).
 
 # Installation
 
@@ -218,7 +164,7 @@ length should be in the bimodal distribution.
 plot_traces(fragments_list[1], xlim = c(110, 150))
 ```
 
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-2-1.png" alt="" width="100%" />
 
 # Calculate instability metrics
 
@@ -256,4 +202,4 @@ metrics_grouped_df |>
          x = "Branaplam (nM)") 
 ```
 
-<img src="man/figures/README-ggplot-1.png" width="100%" />
+<img src="man/figures/README-ggplot-1.png" alt="" width="100%" />
