@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   experimental_considerations: experimental_considerations.html
   plotting_traces: plotting_traces.html
-last_built: 2025-12-23T15:35Z
+last_built: 2025-12-23T15:45Z
 urls:
   reference: https://zachariahmclean.github.io/trace/reference
   article: https://zachariahmclean.github.io/trace/articles
