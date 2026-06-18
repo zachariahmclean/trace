@@ -59,6 +59,12 @@
 #'     \item `grouped`: Logical value indicating whether samples should be grouped to share a common index peak. Default: `FALSE`.
 #'   }
 #'
+#' **Batch run id parameters (fsa input):**
+#'   \itemize{
+#'     \item `auto_batch_run_id`: Logical. If `TRUE` (default), `batch_run_id` is derived directly from each fsa file rather than from user-supplied metadata, so samples are grouped by the run they were actually processed in. If a user-supplied `batch_run_id` disagrees with the fsa-derived value, the fsa value is used and a warning lists the mismatches. Set to `FALSE` to keep user-supplied values. Default: `TRUE`.
+#'     \item `batch_run_id_tag`: String for which fsa field to use for the run id, either `"RunN"` (the instrument run name) or `"RUND_RUNT"` (a date_time id built from the run date and time). Default: `"RunN"`.
+#'   }
+#'
 #' @return A list of fragments objects ready for calculation of instability metrics using [calculate_instability_metrics()]
 #'
 #' @details
@@ -132,8 +138,6 @@
   } 
    
    
-  #SOMEWHERE HERE CHECK IF PARAMS THAT REQUIRED METADATA ARE USED BUT NOT METADATA PROVIDED!
-
   if(!is.null(metadata_data.frame)){
 
     add_metadata_status <- add_metadata(
@@ -141,6 +145,36 @@
       metadata_data.frame = metadata_data.frame
     )
     add_metadata_status$print_status()
+  }
+
+  # derive batch_run_id from the fsa file (authoritative; warns on mismatch)
+  if(input_type == "fsa" && isTRUE(config$auto_batch_run_id)){
+    set_batch_run_id_status <- set_batch_run_id_from_fsa(fragments_list, config)
+    set_batch_run_id_status$print_status()
+  }
+
+  # guard: error early if a chosen option needs metadata that wasn't supplied
+  # (and can't be derived from the fsa file)
+  needs_metadata <- character()
+  correction <- if(!is.null(config$correction)) config$correction else "none"
+  if(correction %in% c("batch", "repeat") &&
+     all(vapply(fragments_list, function(x) is.na(x$batch_sample_id), logical(1)))){
+    needs_metadata <- c(needs_metadata,
+      sprintf("correction = '%s' requires 'batch_sample_id' to be set in the metadata", correction))
+  }
+  if(correction == "repeat" &&
+     all(vapply(fragments_list, function(x) is.na(x$batch_sample_modal_repeat), logical(1)))){
+    needs_metadata <- c(needs_metadata,
+      "correction = 'repeat' requires 'batch_sample_modal_repeat' to be set in the metadata")
+  }
+  if(isTRUE(config$grouped) &&
+     all(vapply(fragments_list, function(x) is.na(x$metrics_group_id), logical(1)))){
+    needs_metadata <- c(needs_metadata,
+      "grouped = TRUE requires 'metrics_group_id' to be set in the metadata")
+  }
+  if(length(needs_metadata) > 0){
+    stop(call. = FALSE,
+      paste0("Missing required metadata:\n  ", paste(needs_metadata, collapse = "\n  ")))
   }
 
   sample_processed <- switch(input_type,

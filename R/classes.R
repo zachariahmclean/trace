@@ -33,6 +33,9 @@ fragments <- R6::R6Class("fragments",
     #' @field fsa The whole fsa file, output from seqinr::read.abif()
     fsa = NULL,
 
+    #' @field fsa_metadata Parsed ABIF header fields (a list from `parse_fsa_metadata()`), populated by `read_fsa()`. Contains run/instrument/well provenance and saturation counts.
+    fsa_metadata = NULL,
+
     #' @field raw_ladder The raw data from the ladder channel
     raw_ladder = NULL,
 

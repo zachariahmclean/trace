@@ -34,6 +34,7 @@ read_fsa <- function(
 
   for (i in seq_along(files)) {
     fragments_list[[i]] <- fragments$new(names(fragments_list[i]), "fsa", seqinr::read.abif(files[i]))
+    fragments_list[[i]]$fsa_metadata <- parse_fsa_metadata(fragments_list[[i]]$fsa)
   }
   return(fragments_list)
 }

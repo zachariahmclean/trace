@@ -29,6 +29,67 @@ extract_trace_table <- function(fragments_list) {
 
 
 
+#' Extract fsa metadata
+#'
+#' Extract a table of provenance and QC-relevant fields parsed from the fsa
+#' (ABIF) file headers of each sample.
+#'
+#' @param fragments_list a list of fragments objects (from [read_fsa()])
+#'
+#' @return A data frame with one row per sample containing `unique_id`,
+#'   `run_id`, `run_datetime`, `instrument`, `instrument_serial`, `plate`,
+#'   `well`, `capillary`, `sample_name`, `dyes`, `n_offscale`, and
+#'   `n_saturated`. Fields that are not present in a given fsa file are `NA`.
+#'
+#' @details
+#' These fields come directly from the fsa file rather than user-supplied
+#' metadata, so they are useful for quality control and for verifying that
+#' samples were processed in the run/well/instrument expected. `run_id` is the
+#' basis for automatically grouping samples by fragment analysis run. Samples
+#' not imported from an fsa file return `NA` for all fields.
+#'
+#' @export
+#' @seealso [read_fsa()], [extract_ladder_summary()]
+#'
+#' @examples
+#' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+#' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
+#'
+#' extract_fsa_metadata(fsa_list)
+#'
+extract_fsa_metadata <- function(fragments_list) {
+  rows <- lapply(fragments_list, function(x) {
+    m <- x$fsa_metadata
+    if (is.null(m)) m <- parse_fsa_metadata(x$fsa)
+
+    dyes <- if (length(m$dye_names) > 0) {
+      paste(names(m$dye_names), m$dye_names, sep = "=", collapse = "; ")
+    } else {
+      NA_character_
+    }
+
+    data.frame(
+      unique_id = x$unique_id,
+      run_id = m$run_id,
+      run_datetime = m$run_datetime,
+      instrument = m$instrument,
+      instrument_serial = m$instrument_serial,
+      plate = m$plate,
+      well = m$well,
+      capillary = m$capillary,
+      sample_name = m$sample_name,
+      dyes = dyes,
+      n_offscale = m$n_offscale,
+      n_saturated = m$n_saturated,
+      stringsAsFactors = FALSE
+    )
+  })
+
+  do.call(rbind, rows)
+}
+
+
+
 #' Extract ladder summary
 #'
 #' Extract a table summarizing the ladder models

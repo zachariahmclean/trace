@@ -38,3 +38,15 @@ force_repeat_pattern_size_window: 0.5
 #assign_index_peaks
 grouped: FALSE
 
+#batch_run_id (derived from fsa metadata)
+auto_batch_run_id: TRUE
+batch_run_id_tag: "RunN"
+
+#qc_report
+qc_min_rsq: 0.998
+qc_min_peaks: 5
+qc_min_modal_signal: 500
+qc_saturation_ceiling: 32000
+qc_window: 25
+qc_prominence_min: 1.0
+

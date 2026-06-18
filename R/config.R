@@ -86,7 +86,15 @@ validate_inputs <- function(config){
     force_repeat_pattern = list(type = "logical", length = "single", allow_na = FALSE, allow_inf = FALSE),
     force_repeat_pattern_size_period = list(type = "numeric", length = "single", allow_na = FALSE, allow_inf = FALSE),
     force_repeat_pattern_size_window = list(type = "numeric", length = "single", allow_na = FALSE, allow_inf = FALSE),
-    grouped = list(type = "logical", length = "single", allow_na = FALSE, allow_inf = FALSE)
+    grouped = list(type = "logical", length = "single", allow_na = FALSE, allow_inf = FALSE),
+    auto_batch_run_id = list(type = "logical", length = "single", allow_na = FALSE, allow_inf = FALSE),
+    batch_run_id_tag = list(type = "character", length = "single", allow_na = FALSE, allow_inf = FALSE),
+    qc_min_rsq = list(type = "numeric", length = "single", allow_na = FALSE, allow_inf = FALSE),
+    qc_min_peaks = list(type = "numeric", length = "single", allow_na = FALSE, allow_inf = FALSE),
+    qc_min_modal_signal = list(type = "numeric", length = "single", allow_na = FALSE, allow_inf = FALSE),
+    qc_saturation_ceiling = list(type = "numeric", length = "single", allow_na = FALSE, allow_inf = FALSE),
+    qc_window = list(type = "numeric", length = "single", allow_na = FALSE, allow_inf = FALSE),
+    qc_prominence_min = list(type = "numeric", length = "single", allow_na = FALSE, allow_inf = FALSE)
   )
 
   # Check for unexpected parameters

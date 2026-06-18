@@ -74,6 +74,12 @@ trace(
 \strong{Index peak assignment parameters:}
 \itemize{
 \item \code{grouped}: Logical value indicating whether samples should be grouped to share a common index peak. Default: \code{FALSE}.
+}
+
+\strong{Batch run id parameters (fsa input):}
+\itemize{
+\item \code{auto_batch_run_id}: Logical. If \code{TRUE} (default), \code{batch_run_id} is derived directly from each fsa file rather than from user-supplied metadata, so samples are grouped by the run they were actually processed in. If a user-supplied \code{batch_run_id} disagrees with the fsa-derived value, the fsa value is used and a warning lists the mismatches. Set to \code{FALSE} to keep user-supplied values. Default: \code{TRUE}.
+\item \code{batch_run_id_tag}: String for which fsa field to use for the run id, either \code{"RunN"} (the instrument run name) or \code{"RUND_RUNT"} (a date_time id built from the run date and time). Default: \code{"RunN"}.
 }}
 }
 \value{

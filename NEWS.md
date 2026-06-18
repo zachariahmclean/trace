@@ -1,3 +1,11 @@
+# trace (development version)
+-   New Features
+    -   FSA metadata: useful header fields (run name/date, instrument, well, capillary, plate, dyes, saturation counts) are now parsed from each fsa file at `read_fsa()` and stored on the fragments object. Query them with the new `extract_fsa_metadata()`.
+    -   `generate_metadata_template()`: builds a metadata template (csv) from fsa files with `batch_run_id` already filled in from the file, ready to complete and pass to `trace()`.
+    -   `batch_run_id` is now derived automatically from the fsa file by default (`auto_batch_run_id = TRUE`), so the fragment analysis run no longer has to be entered by hand. A user-supplied `batch_run_id` that disagrees with the fsa value triggers a warning to catch run mix-ups. Set `auto_batch_run_id = FALSE` to keep user-supplied values. Use `batch_run_id_tag` to choose the source field (`"RunN"` or `"RUND_RUNT"`).
+    -   `trace()` now errors early with a clear message when `correction` or `grouped` are used but the required metadata (`batch_sample_id`, `batch_sample_modal_repeat`, or `metrics_group_id`) was not supplied.
+    -   `qc_report()`: a per-sample quality control panel that flags problematic samples (broken ladder via worst-segment R-squared, too few peaks, low modal signal, saturated modal peak, saturation near the modal peak, low modal-peak prominence) alongside run/well/instrument provenance.
+
 # trace 1.0.0
 -   Major Changes
     -   Consolidated Workflow with `trace()` Function

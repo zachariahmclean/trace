@@ -28,6 +28,8 @@ This is the parent class of both fragments and fragments object. The idea is tha
 
 \item{\code{fsa}}{The whole fsa file, output from seqinr::read.abif()}
 
+\item{\code{fsa_metadata}}{Parsed ABIF header fields (a list from \code{parse_fsa_metadata()}), populated by \code{read_fsa()}. Contains run/instrument/well provenance and saturation counts.}
+
 \item{\code{raw_ladder}}{The raw data from the ladder channel}
 
 \item{\code{raw_data}}{The raw data from the sample channel}
