@@ -1,6 +1,7 @@
 # trace (development version)
 -   New Features
     -   FSA metadata: useful header fields (run name/date, instrument, well, capillary, plate, dyes, saturation counts) are now parsed from each fsa file at `read_fsa()` and stored on the fragments object. Query them with the new `extract_fsa_metadata()`.
+    -   `read_fsa()` now builds `unique_id` from the fsa file itself (sample name + run id, e.g. "20230413_A07_Run_MRSPHILLIPS2_2023-04-14_11-30_0063") so ids are unique across runs even when the same file name is reused in different batches. Set `unique_id_from_fsa = FALSE` to keep the file name as the id.
     -   `generate_metadata_template()`: builds a metadata template (csv) from fsa files with `batch_run_id` already filled in from the file, ready to complete and pass to `trace()`.
     -   `batch_run_id` is now derived automatically from the fsa file by default (`auto_batch_run_id = TRUE`), so the fragment analysis run no longer has to be entered by hand. A user-supplied `batch_run_id` that disagrees with the fsa value triggers a warning to catch run mix-ups. Set `auto_batch_run_id = FALSE` to keep user-supplied values. Use `batch_run_id_tag` to choose the source field (`"RunN"` or `"RUND_RUNT"`).
     -   `trace()` now errors early with a clear message when `correction` or `grouped` are used but the required metadata (`batch_sample_id`, `batch_sample_modal_repeat`, or `metrics_group_id`) was not supplied.

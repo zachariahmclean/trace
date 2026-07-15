@@ -16,14 +16,15 @@ containing \code{.fsa} files (in which case the files are read with
 to this csv with \code{write.csv()} (blank cells for values to be filled in).}
 }
 \value{
-A data frame with one row per sample. The six columns recognised by
-\code{\link[=add_metadata]{add_metadata()}} are included: \code{unique_id} and \code{batch_run_id} are
-pre-filled from the fsa file, while \code{metrics_group_id},
+A data frame with one row per sample. The columns pre-filled from
+the fsa file come first (\code{unique_id}, \code{batch_run_id}), followed by
+read-only \verb{fsa_*} provenance columns (run date, well, plate, instrument,
+capillary, sample name) to help fill in the rest, and finally the blank
+(\code{NA}) columns for the user to complete: \code{metrics_group_id},
 \code{metrics_baseline_control}, \code{batch_sample_id}, and
-\code{batch_sample_modal_repeat} are left blank (\code{NA}) for the user to
-complete. Additional read-only \verb{fsa_*} provenance columns (run date, well,
-plate, instrument, capillary, sample name) are included to help fill in
-the rest; these are ignored by \code{\link[=add_metadata]{add_metadata()}}.
+\code{batch_sample_modal_repeat}. Together with \code{unique_id} and \code{batch_run_id}
+these are the six columns recognised by \code{\link[=add_metadata]{add_metadata()}}; the \verb{fsa_*}
+columns are ignored by \code{\link[=add_metadata]{add_metadata()}}.
 }
 \description{
 Create a metadata template with one row per sample and the \code{batch_run_id}

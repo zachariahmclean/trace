@@ -12,3 +12,6 @@
 ^cran-comments\.md$
 ^dev_notes\.md$
 ^REFACTOR_SPEC\.md$
+^CLAUDE\.md$
+^CLAUDE\.local\.md$
+^\.claude$

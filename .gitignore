@@ -7,5 +7,6 @@ docs
 .vscode
 /doc/
 /Meta/
-
+.claude
 /.quarto/
+CLAUDE.local.md

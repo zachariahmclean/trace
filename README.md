@@ -23,8 +23,7 @@ assistance or any other inquires, contact [Zach
 McLean](mailto:zmclean@mgh.harvard.edu?subject=%5BGitHub%5D%20trace).
 
 If you use this package, please cite
-[this](https://www.nature.com/articles/s41467-024-47485-0) paper for
-now.
+[this](http://dx.doi.org/10.1177/18796397261448958) paper.
 
 # How to use the package
 
@@ -153,6 +152,27 @@ fragments_list <- trace(
   grouped = TRUE, 
   metadata_data.frame = metadata,
   show_progress_bar = FALSE)
+#> [1;34m< set_batch_run_id_from_fsa warning >[0m
+#> [1;34mUser-supplied batch_run_id disagreed with the fsa-derived run id (the fsa value was used). Check for run mix-ups:
+#>   20230413_A07.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   20230413_A08.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   20230413_A09.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   20230413_C01.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   20230413_C02.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   20230413_C03.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   20230413_D07.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   20230413_D08.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   20230413_D09.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   20230413_F01.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   20230413_F02.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   20230413_F03.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   20230413_G07.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   20230413_G08.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   20230413_G09.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   20230413_H07.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   20230413_H08.fsa (metadata='20230414', fsa='Run_MRSPHILLIPS2_2023-04-14_11-30_0063')
+#>   S-21-211_20220630.fsa (metadata='20220630', fsa='Run_MRSPHILLIPS2_2022-07-01_10-34_4032')
+#>   S-21-212_20220630.fsa (metadata='20220630', fsa='Run_MRSPHILLIPS2_2022-07-01_10-34_4032')[0m
 ```
 
 We can validate that the index peaks were assigned correctly with a

@@ -689,7 +689,11 @@ plot_data_channels <- function(
 #'
 #' fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
 #' # import data with read_fsa() to generate an equivalent list to cell_line_fsa_list
-#' fragments_list <- trace(fsa_list, metadata_data.frame = metadata, correction = "repeat")
+#' # auto_batch_run_id = FALSE keeps the batch_run_id supplied in the metadata
+#' # (otherwise it is derived from the fsa file, see read_fsa())
+#' fragments_list <- trace(fsa_list,
+#'   metadata_data.frame = metadata, correction = "repeat",
+#'   auto_batch_run_id = FALSE)
 #'
 #' # traces of bp size shows traces at different sizes
 #' plot_repeat_correction_model(

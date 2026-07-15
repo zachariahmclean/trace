@@ -5,36 +5,64 @@
 #' Read fsa file into memory and create fragments object
 #'
 #' @param files a chr vector of fsa file names. For example, return all the fsa files in a directory with 'list.files("example_directory/", full.names = TRUE, pattern = ".fsa")'.
-#' 
+#' @param unique_id_from_fsa Logical. If `TRUE` (default), the `unique_id` of each sample is built from the fsa file itself as the sample name (the `SpNm` tag) joined to the run id (the `RunN` tag) with an underscore, e.g. "20230413_A07_Run_MRSPHILLIPS2_2023-04-14_11-30_0063". This guarantees ids are unique across fragment analysis runs, even when the same file name is reused in different batches. If `FALSE`, the file name is used (the previous behaviour). When a sample name or run id is missing from the fsa file the file name is used as a fallback, and a numeric suffix is added to any ids that are still not unique.
+#'
 #' @details
-#' read_fsa is just a wrapper around [seqinr::read.abif()] that reads the fsa file into memory and stores it inside a fragments object. That enables you to use the next function [find_ladders()].
+#' read_fsa is a wrapper around [seqinr::read.abif()] that reads the fsa file into memory and stores it inside a fragments object. That enables you to use the next function [find_ladders()]. It also parses useful header fields from the fsa file (see [extract_fsa_metadata()]) and, by default, uses them to build a `unique_id` that is unique across runs.
 #'
 #' @return A list of fragments objects
-#' @seealso [find_ladders()], [plot_data_channels()]
+#' @seealso [find_ladders()], [plot_data_channels()], [extract_fsa_metadata()]
 #' @export
 #' @importFrom seqinr read.abif
 #'
 #' @examples
-#' 
+#'
 #' fsa_file <- read_fsa(system.file("abif/2_FAC321_0000205983_B02_004.fsa", package = "seqinr"))
 #' plot_data_channels(fsa_file)
 #'
 read_fsa <- function(
-  files) {
+  files,
+  unique_id_from_fsa = TRUE) {
   # make sure file extension is fsa
   unique_file_ext <- unique(tools::file_ext(files))
   if (length(unique_file_ext) > 1) {
     stop("Files must be only be .fsa")
   }
-  
-  # read in samples
-  unique_names <- make.unique(basename(files))
+
+  # read each file once and parse its header metadata
+  abif_list <- vector("list", length(files))
+  metadata_list <- vector("list", length(files))
+  for (i in seq_along(files)) {
+    abif_list[[i]] <- seqinr::read.abif(files[i])
+    metadata_list[[i]] <- parse_fsa_metadata(abif_list[[i]])
+  }
+
+  # build unique ids from the fsa (sample name + run id), falling back to the
+  # file name when those tags are missing
+  if (unique_id_from_fsa) {
+    unique_names <- vapply(seq_along(files), function(i) {
+      sample_name <- metadata_list[[i]]$sample_name
+      run_id <- metadata_list[[i]]$run_id
+      if (!is.na(sample_name) && !is.na(run_id)) {
+        paste(sample_name, run_id, sep = "_")
+      } else if (!is.na(sample_name)) {
+        sample_name
+      } else {
+        basename(files[i])
+      }
+    }, character(1))
+  } else {
+    unique_names <- basename(files)
+  }
+  # final safety net so ids are always unique (e.g. a sample name repeated within a run)
+  unique_names <- make.unique(unique_names)
+
   fragments_list <- vector("list", length(files))
   names(fragments_list) <- unique_names
 
   for (i in seq_along(files)) {
-    fragments_list[[i]] <- fragments$new(names(fragments_list[i]), "fsa", seqinr::read.abif(files[i]))
-    fragments_list[[i]]$fsa_metadata <- parse_fsa_metadata(fragments_list[[i]]$fsa)
+    fragments_list[[i]] <- fragments$new(unique_names[i], "fsa", abif_list[[i]])
+    fragments_list[[i]]$fsa_metadata <- metadata_list[[i]]
   }
   return(fragments_list)
 }

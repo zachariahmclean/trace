@@ -13,14 +13,15 @@
 #' @param output_csv Optional file path. If supplied, the template is written
 #'   to this csv with `write.csv()` (blank cells for values to be filled in).
 #'
-#' @return A data frame with one row per sample. The six columns recognised by
-#'   [add_metadata()] are included: `unique_id` and `batch_run_id` are
-#'   pre-filled from the fsa file, while `metrics_group_id`,
+#' @return A data frame with one row per sample. The columns pre-filled from
+#'   the fsa file come first (`unique_id`, `batch_run_id`), followed by
+#'   read-only `fsa_*` provenance columns (run date, well, plate, instrument,
+#'   capillary, sample name) to help fill in the rest, and finally the blank
+#'   (`NA`) columns for the user to complete: `metrics_group_id`,
 #'   `metrics_baseline_control`, `batch_sample_id`, and
-#'   `batch_sample_modal_repeat` are left blank (`NA`) for the user to
-#'   complete. Additional read-only `fsa_*` provenance columns (run date, well,
-#'   plate, instrument, capillary, sample name) are included to help fill in
-#'   the rest; these are ignored by [add_metadata()].
+#'   `batch_sample_modal_repeat`. Together with `unique_id` and `batch_run_id`
+#'   these are the six columns recognised by [add_metadata()]; the `fsa_*`
+#'   columns are ignored by [add_metadata()].
 #'
 #' @details
 #' This is the recommended starting point for building a metadata file.
@@ -61,18 +62,21 @@ generate_metadata_template <- function(input, output_csv = NULL) {
   meta <- extract_fsa_metadata(fragments_list)
 
   template <- data.frame(
+    # pre-filled from the fsa file
     unique_id = meta$unique_id,
-    metrics_group_id = NA_character_,
-    metrics_baseline_control = NA,
     batch_run_id = meta$run_id,
-    batch_sample_id = NA_character_,
-    batch_sample_modal_repeat = NA_real_,
+    # read-only provenance to help fill in the rest
     fsa_run_date = meta$run_datetime,
     fsa_well = meta$well,
     fsa_plate = meta$plate,
     fsa_instrument = meta$instrument,
     fsa_capillary = meta$capillary,
     fsa_sample_name = meta$sample_name,
+    # blank columns for the user to complete
+    metrics_group_id = NA_character_,
+    metrics_baseline_control = NA,
+    batch_sample_id = NA_character_,
+    batch_sample_modal_repeat = NA_real_,
     stringsAsFactors = FALSE
   )
 

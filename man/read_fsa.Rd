@@ -4,10 +4,12 @@
 \alias{read_fsa}
 \title{Read fsa file}
 \usage{
-read_fsa(files)
+read_fsa(files, unique_id_from_fsa = TRUE)
 }
 \arguments{
 \item{files}{a chr vector of fsa file names. For example, return all the fsa files in a directory with 'list.files("example_directory/", full.names = TRUE, pattern = ".fsa")'.}
+
+\item{unique_id_from_fsa}{Logical. If \code{TRUE} (default), the \code{unique_id} of each sample is built from the fsa file itself as the sample name (the \code{SpNm} tag) joined to the run id (the \code{RunN} tag) with an underscore, e.g. "20230413_A07_Run_MRSPHILLIPS2_2023-04-14_11-30_0063". This guarantees ids are unique across fragment analysis runs, even when the same file name is reused in different batches. If \code{FALSE}, the file name is used (the previous behaviour). When a sample name or run id is missing from the fsa file the file name is used as a fallback, and a numeric suffix is added to any ids that are still not unique.}
 }
 \value{
 A list of fragments objects
@@ -16,7 +18,7 @@ A list of fragments objects
 Read fsa file into memory and create fragments object
 }
 \details{
-read_fsa is just a wrapper around \code{\link[seqinr:read.abif]{seqinr::read.abif()}} that reads the fsa file into memory and stores it inside a fragments object. That enables you to use the next function \code{\link[=find_ladders]{find_ladders()}}.
+read_fsa is a wrapper around \code{\link[seqinr:read.abif]{seqinr::read.abif()}} that reads the fsa file into memory and stores it inside a fragments object. That enables you to use the next function \code{\link[=find_ladders]{find_ladders()}}. It also parses useful header fields from the fsa file (see \code{\link[=extract_fsa_metadata]{extract_fsa_metadata()}}) and, by default, uses them to build a \code{unique_id} that is unique across runs.
 }
 \examples{
 
@@ -25,5 +27,5 @@ plot_data_channels(fsa_file)
 
 }
 \seealso{
-\code{\link[=find_ladders]{find_ladders()}}, \code{\link[=plot_data_channels]{plot_data_channels()}}
+\code{\link[=find_ladders]{find_ladders()}}, \code{\link[=plot_data_channels]{plot_data_channels()}}, \code{\link[=extract_fsa_metadata]{extract_fsa_metadata()}}
 }

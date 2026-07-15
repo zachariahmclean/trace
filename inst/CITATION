@@ -1,11 +1,9 @@
 bibentry(
   bibtype  = "Article",
-  title    = "Splice modulators target PMS1 to reduce somatic expansion of the Huntington’s disease-associated CAG repeat",
-  author   = "McLean, Zachariah L and Gao, Dadi and Correia, Kevin and Roy, Jennie CL and Shibata, Shota and Farnum, Iris N and Valdepenas-Mellor, Zoe and Kovalenko, Marina and Rapuru, Manasa and Morini, Elisabetta and others",
-  journal  = "Nature Communications",
-  year     = "2024",
-  volume   = "15",
-  number   = "1",
-  pages    = "3184",
-  doi      = "10.1038/s41467-024-47485-0"
+  title    = "TRACE: Open-source software for quantifying somatic variation of tandem repeats by capillary electrophoresis",
+  author   = "Andrew Jiang, Kevin Correia, Tammy Gillis, Esaria L. Oliver, Benjamin P. Jones, Branduff McAllister, Alan Mejia Maza, Marcy E. MacDonald, Ricardo Mouro Pinto, Vanessa C. Wheeler, James F. Gusella, Zachariah L. McLean",
+  journal  = "Journal of Huntington's Disease",
+  year     = "2026",
+  url    = "https://journals.sagepub.com/doi/10.1177/18796397261448958",
+  doi      = "10.1177/18796397261448958"
 )
