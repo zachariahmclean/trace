@@ -41,6 +41,23 @@ testthat::test_that("qc_report flags a broken ladder via the worst-segment rsq",
   expect_false(any(grepl("low_ladder_rsq", qc_loose$qc_flags)))
 })
 
+testthat::test_that("qc_report flags a sample with no identifiable modal peak", {
+  fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+  processed <- trace(fsa_list)
+
+  # force the modal/allele peak to be unresolved despite peaks being present
+  processed[[1]]$.__enclos_env__$private$allele_size <- NA_real_
+  processed[[1]]$.__enclos_env__$private$allele_signal <- NA_real_
+
+  qc <- qc_report(processed)
+  row <- qc[qc$unique_id == processed[[1]]$unique_id, ]
+
+  expect_true(is.na(row$modal_size))
+  expect_true(is.na(row$modal_signal))
+  expect_true(grepl("no_modal_peak", row$qc_flags))
+  expect_false(row$qc_pass)
+})
+
 testthat::test_that("qc_report thresholds can be overridden via ...", {
   fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
   processed <- trace(fsa_list)

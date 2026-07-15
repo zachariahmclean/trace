@@ -38,6 +38,8 @@ below \code{qc_min_rsq}. The worst segment is used rather than the average
 because a single broken region can be hidden by a good average.
 \item \code{few_peaks}: fewer than \code{qc_min_peaks} peaks detected (a failed or
 empty sample).
+\item \code{no_modal_peak}: no modal/allele peak could be identified
+(\code{modal_size} or \code{modal_signal} is \code{NA}), regardless of \code{n_peaks}.
 \item \code{low_signal}: modal peak signal below \code{qc_min_modal_signal}.
 \item \code{saturated_modal}: the modal peak is off-scale or at/above
 \code{qc_saturation_ceiling}, so peak heights are unreliable.

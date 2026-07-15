@@ -29,6 +29,8 @@
 #'       because a single broken region can be hidden by a good average.
 #'     \item `few_peaks`: fewer than `qc_min_peaks` peaks detected (a failed or
 #'       empty sample).
+#'     \item `no_modal_peak`: no modal/allele peak could be identified
+#'       (`modal_size` or `modal_signal` is `NA`), regardless of `n_peaks`.
 #'     \item `low_signal`: modal peak signal below `qc_min_modal_signal`.
 #'     \item `saturated_modal`: the modal peak is off-scale or at/above
 #'       `qc_saturation_ceiling`, so peak heights are unreliable.
@@ -114,6 +116,7 @@ qc_report <- function(fragments_list, config_file = NULL, ...) {
     flags <- character()
     if (!is.na(min_rsq) && min_rsq < config$qc_min_rsq) flags <- c(flags, "low_ladder_rsq")
     if (n_peaks < config$qc_min_peaks) flags <- c(flags, "few_peaks")
+    if (is.na(modal_size) || is.na(modal_signal)) flags <- c(flags, "no_modal_peak")
     if (!is.na(modal_signal) && modal_signal < config$qc_min_modal_signal) flags <- c(flags, "low_signal")
     if (isTRUE(modal_saturated)) flags <- c(flags, "saturated_modal")
     if (!is.na(saturation_in_window) && saturation_in_window > 0) flags <- c(flags, "saturation_in_window")

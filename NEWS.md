@@ -6,6 +6,9 @@
     -   `batch_run_id` is now derived automatically from the fsa file by default (`auto_batch_run_id = TRUE`), so the fragment analysis run no longer has to be entered by hand. A user-supplied `batch_run_id` that disagrees with the fsa value triggers a warning to catch run mix-ups. Set `auto_batch_run_id = FALSE` to keep user-supplied values. Use `batch_run_id_tag` to choose the source field (`"RunN"` or `"RUND_RUNT"`).
     -   `trace()` now errors early with a clear message when `correction` or `grouped` are used but the required metadata (`batch_sample_id`, `batch_sample_modal_repeat`, or `metrics_group_id`) was not supplied.
     -   `qc_report()`: a per-sample quality control panel that flags problematic samples (broken ladder via worst-segment R-squared, too few peaks, low modal signal, saturated modal peak, saturation near the modal peak, low modal-peak prominence) alongside run/well/instrument provenance.
+    -   `generate_dashboard()`: a static HTML dashboard (built with plotly + htmltools, no Pandoc required) showing every sample's trace as a small zoomable/hoverable plot in a grid, with a `qc_report()` summary table and failing samples sorted to the front and outlined, for quickly scanning a whole batch for anything visually off. `xlim`/`ylim` set a shared zoom range across all trace plots, and the QC table header stays fixed while scrolling.
+-   Bug Fixes
+    -   `qc_report()` no longer silently passes a sample whose modal/allele peak could not be identified (`modal_size`/`modal_signal` both `NA`); this now trips a new `no_modal_peak` flag.
 
 # trace 1.0.0
 -   Major Changes
