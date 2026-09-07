@@ -31,13 +31,32 @@
     height = 260
   )
 
+  shapes <- list()
+
   if (any(data$off_scale)) {
-    shapes <- lapply(data$x[data$off_scale], function(v) {
+    shapes <- c(shapes, lapply(data$x[data$off_scale], function(v) {
       list(
         type = "line", x0 = v, x1 = v, y0 = 0, y1 = 1, yref = "paper",
         line = list(color = "rgba(217,83,79,0.35)", width = 1)
       )
-    })
+    }))
+  }
+
+  # index peak, drawn as a dotted line behind the trace when it's been assigned
+  # and this plot's x-axis is in repeat units (index_repeat is only meaningful there)
+  index_axis_repeats <- has_repeats && (is.null(x_axis) || x_axis != "size")
+  if (index_axis_repeats) {
+    index_repeat <- tryCatch(fragment$get_index_peak()$index_repeat, error = function(e) NA_real_)
+    if (!is.na(index_repeat)) {
+      shapes <- c(shapes, list(list(
+        type = "line", x0 = index_repeat, x1 = index_repeat, y0 = 0, y1 = 1, yref = "paper",
+        line = list(color = "black", width = 1.5, dash = "dot"),
+        layer = "below"
+      )))
+    }
+  }
+
+  if (length(shapes) > 0) {
     p <- plotly::layout(p, shapes = shapes)
   }
 
@@ -97,6 +116,20 @@
 }
 
 
+.dashboard_legend <- function() {
+  legend_item <- function(swatch, label) {
+    htmltools::tags$span(class = "legend-item", swatch, label)
+  }
+
+  htmltools::tags$div(
+    class = "dashboard-legend",
+    legend_item(htmltools::tags$span(class = "legend-dot", style = "background: blue;"), "Called peak"),
+    legend_item(htmltools::tags$span(class = "legend-dot", style = "background: green;"), "Modal / allele peak"),
+    legend_item(htmltools::tags$span(class = "legend-line"), "Index peak")
+  )
+}
+
+
 .dashboard_tile <- function(fragment, qc_row, x_axis, show_peaks, xlim = NULL, ylim = NULL) {
   tile_class <- if (isTRUE(qc_row$qc_pass)) "dashboard-tile" else "dashboard-tile qc-fail"
 
@@ -134,7 +167,10 @@
 #' @param ylim the y limits applied to every trace plot. A numeric vector of
 #'   length two.
 #' @param show_peaks If peak data are available, TRUE will plot the peaks on
-#'   top of the trace (blue dots, with the modal/allele peak in green).
+#'   top of the trace (blue dots, with the modal/allele peak in green). A
+#'   dotted vertical line is drawn behind the trace at the index peak
+#'   whenever one has been assigned (see [assign_index_peaks()]), regardless
+#'   of `show_peaks`. A legend for these is shown above the trace grid.
 #' @param n_col A numeric value indicating the number of columns in the trace
 #'   grid.
 #' @param open_browser If TRUE, open the generated HTML file in a browser
@@ -223,6 +259,10 @@ generate_dashboard <- function(
     .dashboard-tile h4 { margin: 2px 0; font-size: 0.9em; }
     .dashboard-tile.qc-fail { border: 2px solid #d9534f; background: #fffafa; }
     .qc-flags { color: #d9534f; font-size: 0.8em; margin: 2px 0; }
+    .dashboard-legend { display: flex; gap: 20px; align-items: center; margin: 4px 0 16px; font-size: 0.85em; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%%; }
+    .legend-line { display: inline-block; width: 24px; height: 0; border-top: 2px dotted black; }
   ", n_col)
 
   page <- htmltools::tags$html(
@@ -238,6 +278,7 @@ generate_dashboard <- function(
       )),
       .dashboard_qc_table(qc),
       htmltools::tags$h2("Traces"),
+      .dashboard_legend(),
       htmltools::tags$div(class = "dashboard-grid", tiles)
     )
   )

@@ -51,6 +51,37 @@ testthat::test_that("generate_dashboard respects sample_subset", {
   expect_equal(tile_count, 2)
 })
 
+testthat::test_that("generate_dashboard shows a legend and an index peak line", {
+  fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+  processed <- trace(fsa_list)
+
+  # default (ungrouped) trace() sets index_repeat = allele_repeat, so every
+  # sample here should have an index peak assigned
+  expect_false(any(sapply(processed, function(x) is.na(x$get_index_peak()$index_repeat))))
+
+  out <- tempfile(fileext = ".html")
+  generate_dashboard(processed, output_file = out, open_browser = FALSE)
+
+  html <- paste(readLines(out, warn = FALSE), collapse = "\n")
+  expect_true(grepl("dashboard-legend", html))
+  expect_true(grepl("Called peak", html))
+  expect_true(grepl("Modal / allele peak", html))
+  expect_true(grepl("Index peak", html))
+  expect_true(grepl('"dash":"dot"', html, fixed = TRUE))
+})
+
+testthat::test_that("generate_dashboard applies xlim/ylim to every trace plot", {
+  fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
+  processed <- trace(fsa_list)
+
+  out <- tempfile(fileext = ".html")
+  generate_dashboard(processed, output_file = out, open_browser = FALSE, xlim = c(100, 150), ylim = c(0, 5000))
+
+  html <- paste(readLines(out, warn = FALSE), collapse = "\n")
+  expect_true(grepl('"range":[100,150]', html, fixed = TRUE))
+  expect_true(grepl('"range":[0,5000]', html, fixed = TRUE))
+})
+
 testthat::test_that("generate_dashboard errors when sample_subset leaves nothing to plot", {
   fsa_list <- lapply(cell_line_fsa_list, function(x) x$clone())
   processed <- trace(fsa_list)

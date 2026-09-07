@@ -42,7 +42,10 @@ length two.}
 length two.}
 
 \item{show_peaks}{If peak data are available, TRUE will plot the peaks on
-top of the trace (blue dots, with the modal/allele peak in green).}
+top of the trace (blue dots, with the modal/allele peak in green). A
+dotted vertical line is drawn behind the trace at the index peak
+whenever one has been assigned (see \code{\link[=assign_index_peaks]{assign_index_peaks()}}), regardless
+of \code{show_peaks}. A legend for these is shown above the trace grid.}
 
 \item{n_col}{A numeric value indicating the number of columns in the trace
 grid.}
